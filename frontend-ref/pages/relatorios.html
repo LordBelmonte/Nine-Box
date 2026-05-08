@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatórios — Portal de Gestão de Pessoas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+  <link rel="stylesheet" href="../css/choices-custom.css">
+  <script>
+    (function() {
+      const darkMode = localStorage.getItem('darkMode');
+      if (darkMode === '1' || (darkMode === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark-mode');
+        if (document.body) document.body.classList.add('dark-mode');
+      }
+    })();
+  </script>
+  <style>
+    .rel-wrapper { align-items: flex-start; padding: 32px 20px; }
+    .rel-container { width: 100%; max-width: 960px; }
+
+    /* Tabs */
+    .rel-tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 2px solid var(--border); }
+    .rel-tab {
+      padding: 10px 20px; font-size: 13px; font-weight: 600; color: var(--text-muted);
+      cursor: pointer; border: none; background: transparent; font-family: inherit;
+      transition: all 0.2s; margin: 0; width: auto; border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      border-radius: 8px 8px 0 0;
+    }
+    .rel-tab:hover { 
+      color: var(--primary); 
+      background: #eff6ff;
+      transform: none; 
+      box-shadow: none; 
+    }
+    .rel-tab.active { 
+      color: var(--primary); 
+      border-bottom-color: var(--primary);
+      background: #f0f9ff;
+    }
+
+    /* Seções */
+    .rel-section { display: none; }
+    .rel-section.active { display: block; }
+
+    /* Stats cards */
+    .rel-stats { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
+      gap: 14px; 
+      margin-bottom: 24px; 
+    }
+    .rel-stat-card {
+      background: var(--surface); 
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); 
+      padding: 16px 18px;
+      display: flex; 
+      align-items: center; 
+      gap: 14px; 
+      transition: all 0.2s;
+    }
+    .rel-stat-card:hover { 
+      border-color: var(--accent); 
+      box-shadow: var(--shadow-sm); 
+    }
+    .rel-stat-icon {
+      width: 44px; 
+      height: 44px; 
+      border-radius: 12px;
+      background: #eff6ff; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      color: var(--primary-light); 
+      font-size: 20px; 
+      flex-shrink: 0;
+    }
+    .rel-stat-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .rel-stat-val { 
+      font-size: 24px; 
+      font-weight: 700; 
+      color: var(--primary); 
+      line-height: 1; 
+    }
+    .rel-stat-label { 
+      font-size: 12px; 
+      color: var(--text-muted); 
+      font-weight: 500; 
+      margin-top: 4px; 
+    }
+
+    /* Seção de usuário */
+    .rel-user-search {
+      display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;
+      position: relative;
+    }
+    .rel-user-search > div {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+    }
+    .rel-user-search select {
+      flex: 1; min-width: 200px; padding: 10px 14px; border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border); font-size: 14px; font-family: inherit;
+      color: var(--text); background: #fafafa; transition: border-color 0.2s;
+    }
+    .rel-user-search select:focus { border-color: var(--primary-light); outline: none; background: var(--surface); }
+    .btn-buscar-rel {
+      padding: 10px 20px; background: var(--primary); color: white; border: none;
+      border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: all 0.2s; margin: 0; width: auto;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .btn-buscar-rel:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(30,58,138,0.25); }
+
+    /* Relatório de usuário */
+    .rel-user-card {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 24px; margin-bottom: 20px;
+    }
+    .rel-user-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+    .rel-user-avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 20px; font-weight: 700; flex-shrink: 0; overflow: hidden;
+    }
+    .rel-user-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .rel-user-nome { font-size: 18px; font-weight: 700; color: var(--primary); }
+    .rel-user-meta { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+    .rel-section-title { font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+    /* Avaliações no relatório */
+    .rel-av-item {
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      padding: 12px 14px; margin-bottom: 8px;
+    }
+    .rel-av-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .rel-av-tipo { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 100px; }
+    .rel-av-tipo.gestor_para_colaborador { background: #dbeafe; color: #1e40af; }
+    .rel-av-tipo.colaborador_para_gestor { background: #dcfce7; color: #166534; }
+    .rel-av-tipo.avaliacao_360 { background: #fef3c7; color: #92400e; }
+    .rel-av-media { font-size: 14px; font-weight: 700; color: var(--primary); }
+    .rel-av-data { font-size: 11px; color: var(--text-muted); }
+    .rel-av-comentario { font-size: 13px; color: var(--text-muted); font-style: italic; margin-top: 6px; }
+
+    /* Nine Box no relatório */
+    .rel-nb-card {
+      background: #eff6ff; border-radius: var(--radius-sm); padding: 14px 16px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .rel-nb-icon { font-size: 28px; }
+    .rel-nb-cat { font-size: 16px; font-weight: 700; color: var(--primary); }
+    .rel-nb-meta { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+    /* Exportar */
+    .btn-exportar {
+      padding: 10px 20px; background: var(--success); color: white; border: none;
+      border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: all 0.2s; margin: 0; width: auto;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-exportar:hover { background: #047857; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(5,150,105,0.25); }
+
+    .btn-exportar-nb {
+      padding: 8px 16px; 
+      background: #10b981; 
+      color: white; 
+      border: none;
+      border-radius: var(--radius-sm); 
+      font-size: 13px; 
+      font-weight: 600; 
+      font-family: inherit;
+      cursor: pointer; 
+      transition: all 0.2s; 
+      margin: 0; 
+      width: auto;
+      display: inline-flex; 
+      align-items: center; 
+      gap: 6px;
+    }
+    .btn-exportar-nb:hover { 
+      background: #059669; 
+      transform: translateY(-1px); 
+      box-shadow: 0 4px 12px rgba(16,185,129,0.3); 
+    }
+
+    /* Distribuição Nine Box */
+    .nb-dist-container {
+      background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+      border-radius: var(--radius);
+      padding: 24px;
+      border: 2px solid #e0e7ff;
+      margin-bottom: 24px;
+    }
+    .nb-dist-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .nb-dist-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nb-dist-legend {
+      display: flex;
+      gap: 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .nb-dist-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .nb-dist-wrapper {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .nb-dist-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      flex: 1;
+      max-width: 550px;
+    }
+    .nb-dist-cell {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid transparent;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .nb-dist-cell:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      border-color: var(--primary);
+      z-index: 10;
+    }
+    .nb-dist-cell:active {
+      transform: translateY(-2px) scale(1.01);
+    }
+    .nb-dist-cell .nb-dist-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    }
+    
+    /* Cores dos ícones por categoria - correspondentes ao fundo */
+    .nb-dist-cell[data-category="questao"] .nb-dist-icon { color: #b91c1c; } /* Vermelho - fundo vermelho */
+    .nb-dist-cell[data-category="trabalhador"] .nb-dist-icon { color: #b45309; } /* Laranja - fundo amarelo */
+    .nb-dist-cell[data-category="ancora"] .nb-dist-icon { color: #a16207; } /* Amarelo escuro - fundo amarelo claro */
+    .nb-dist-cell[data-category="dilema"] .nb-dist-icon { color: #c2410c; } /* Laranja escuro - fundo laranja */
+    .nb-dist-cell[data-category="nucleo"] .nb-dist-icon { color: #047857; } /* Verde - fundo verde claro */
+    .nb-dist-cell[data-category="especialista"] .nb-dist-icon { color: #065f46; } /* Verde escuro - fundo verde */
+    .nb-dist-cell[data-category="enigma"] .nb-dist-icon { color: #7e22ce; } /* Roxo - fundo roxo */
+    .nb-dist-cell[data-category="estrela"] .nb-dist-icon { color: #1d4ed8; } /* Azul - fundo azul */
+    .nb-dist-cell[data-category="superstar"] .nb-dist-icon { color: #059669; } /* Verde forte - fundo verde forte */
+    .nb-dist-cell .nb-dist-count {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--primary);
+      display: block;
+      margin: 8px 0;
+      line-height: 1;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .nb-dist-cell .nb-dist-label {
+      font-size: 12px;
+      color: var(--text);
+      margin-top: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .nb-dist-cell.empty {
+      opacity: 0.6;
+    }
+    .nb-dist-cell.empty:hover {
+      opacity: 0.8;
+    }
+    
+    /* Cores específicas por categoria */
+    .nb-dist-cell[data-category="questao"] { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); }
+    .nb-dist-cell[data-category="trabalhador"] { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
+    .nb-dist-cell[data-category="ancora"] { background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%); }
+    .nb-dist-cell[data-category="dilema"] { background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%); }
+    .nb-dist-cell[data-category="nucleo"] { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); }
+    .nb-dist-cell[data-category="especialista"] { background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%); }
+    .nb-dist-cell[data-category="enigma"] { background: linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%); }
+    .nb-dist-cell[data-category="estrela"] { background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%); }
+    .nb-dist-cell[data-category="superstar"] { background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%); }
+
+    /* Eixos do Nine Box */
+    .nb-dist-axes {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .nb-axis-label {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+      text-align: center;
+      padding: 8px;
+      background: white;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      color: var(--primary);
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .nb-axis-bottom {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .nb-axis-bottom-label {
+      text-align: center;
+      padding: 6px 12px;
+      background: white;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      color: var(--primary);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    /* Legenda lateral */
+    .nb-dist-sidebar {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1.5px solid var(--border);
+      min-width: 200px;
+      max-width: 250px;
+    }
+    .nb-dist-sidebar-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nb-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      font-size: 11px;
+      transition: all 0.2s;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+    }
+    .nb-legend-item:hover {
+      background: #eff6ff;
+      border-color: var(--primary);
+      transform: translateX(4px);
+    }
+    .nb-legend-item:active {
+      transform: translateX(2px);
+    }
+    .nb-legend-item.active {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+    .nb-legend-item.active .nb-legend-text {
+      color: white;
+    }
+    .nb-legend-item.active .nb-legend-count {
+      background: white;
+      color: var(--primary);
+    }
+    .nb-legend-icon {
+      font-size: 18px;
+      width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    
+    /* Cores dos ícones na legenda por categoria - correspondentes ao fundo */
+    .nb-legend-item[data-perf="1"][data-pot="1"] .nb-legend-icon { color: #b91c1c; } /* Questão */
+    .nb-legend-item[data-perf="2"][data-pot="1"] .nb-legend-icon { color: #b45309; } /* Trabalhador */
+    .nb-legend-item[data-perf="3"][data-pot="1"] .nb-legend-icon { color: #a16207; } /* Âncora */
+    .nb-legend-item[data-perf="1"][data-pot="2"] .nb-legend-icon { color: #c2410c; } /* Dilema */
+    .nb-legend-item[data-perf="2"][data-pot="2"] .nb-legend-icon { color: #047857; } /* Núcleo */
+    .nb-legend-item[data-perf="3"][data-pot="2"] .nb-legend-icon { color: #065f46; } /* Especialista */
+    .nb-legend-item[data-perf="1"][data-pot="3"] .nb-legend-icon { color: #7e22ce; } /* Enigma */
+    .nb-legend-item[data-perf="2"][data-pot="3"] .nb-legend-icon { color: #1d4ed8; } /* Estrela */
+    .nb-legend-item[data-perf="3"][data-pot="3"] .nb-legend-icon { color: #059669; } /* Superstar */
+    .nb-legend-text {
+      flex: 1;
+      font-weight: 600;
+      color: var(--text);
+      font-size: 12px;
+    }
+    .nb-legend-count {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      background: #eff6ff;
+      padding: 3px 8px;
+      border-radius: 100px;
+      min-width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .nb-legend-item:hover .nb-legend-count {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Lista de usuários no grid */
+    .nb-initial-message {
+      display: block;
+    }
+    .nb-initial-message.hidden {
+      display: none;
+    }
+    .nb-users-list {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 600px;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+    .nb-users-list.active {
+      display: flex;
+    }
+    .nb-user-card-inline {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .nb-user-card-inline:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-sm);
+      transform: translateX(4px);
+    }
+    .nb-user-card-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .nb-user-card-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .nb-user-card-nome {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .nb-user-card-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .nb-user-card-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 100px;
+      font-weight: 600;
+      background: #eff6ff;
+      color: var(--primary);
+    }
+    .nb-user-card-comment {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+    .nb-back-btn {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 12px;
+      font-family: inherit;
+    }
+    .nb-back-btn.active {
+      display: inline-flex;
+    }
+    .nb-back-btn:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    body.dark-mode .nb-user-card-inline {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    body.dark-mode .nb-user-card-inline:hover {
+      background: #334155;
+    }
+
+    body.dark-mode .nb-dist-container {
+      background: linear-gradient(135deg, #1e293b 0%, #1e3a5f 100%);
+      border-color: #334155;
+    }
+    body.dark-mode .nb-axis-label,
+    body.dark-mode .nb-axis-bottom-label,
+    body.dark-mode .nb-dist-sidebar {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    body.dark-mode .nb-legend-item:hover {
+      background: #334155;
+    }
+
+    /* Modal de usuários do Nine Box */
+    .nb-modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 1000; align-items: center; justify-content: center; padding: 20px;
+    }
+    .nb-modal-overlay.open { display: flex; }
+    .nb-modal-box {
+      background: var(--surface); border-radius: var(--radius);
+      box-shadow: var(--shadow-lg); padding: 24px; width: 100%;
+      max-width: 600px; max-height: 80vh; overflow-y: auto;
+      animation: dropdownIn 0.2s ease;
+    }
+    .nb-modal-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--border);
+    }
+    .nb-modal-title {
+      font-size: 18px; font-weight: 700; color: var(--primary);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nb-modal-icon { font-size: 28px; }
+    .nb-modal-subtitle {
+      font-size: 13px; color: var(--text-muted); margin-top: 4px;
+    }
+    .nb-modal-close {
+      background: transparent; border: none; font-size: 24px;
+      color: var(--text-muted); cursor: pointer; padding: 0;
+      width: 32px; height: 32px; display: flex; align-items: center;
+      justify-content: center; border-radius: 50%; transition: all 0.2s;
+    }
+    .nb-modal-close:hover {
+      background: #fee2e2; color: var(--danger); transform: none;
+    }
+    .nb-user-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px;
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      margin-bottom: 8px; transition: all 0.2s;
+    }
+    .nb-user-item:hover {
+      border-color: var(--accent); box-shadow: var(--shadow-sm);
+      background: #fafafa;
+    }
+    .nb-user-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 14px; font-weight: 700; flex-shrink: 0;
+    }
+    .nb-user-info { flex: 1; min-width: 0; }
+    .nb-user-nome { font-size: 14px; font-weight: 600; color: var(--text); }
+    .nb-user-meta {
+      font-size: 11px; color: var(--text-muted); margin-top: 2px;
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .nb-user-badge {
+      font-size: 10px; padding: 2px 6px; border-radius: 100px;
+      font-weight: 600; background: #eff6ff; color: var(--primary);
+    }
+    .nb-user-comment {
+      font-size: 12px; color: var(--text-muted); font-style: italic;
+      margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border);
+    }
+
+    body.dark-mode .nb-modal-box { background: #1e293b; }
+    body.dark-mode .nb-user-item { background: #1e293b; }
+    body.dark-mode .nb-user-item:hover { background: #334155; }
+    body.dark-mode .nb-modal-close:hover { background: #7f1d1d; }
+
+    body.dark-mode .rel-stat-card,
+    body.dark-mode .rel-user-card,
+    body.dark-mode .rel-av-item { background: #1e293b; }
+    body.dark-mode .rel-stat-icon { background: #1e3a5f; }
+    body.dark-mode .rel-user-search select { background: #0f172a; color: #f1f5f9; border-color: #334155; }
+    body.dark-mode .rel-nb-card { background: #1e3a5f; }
+    body.dark-mode .rel-tab:hover {
+      background: #1e3a5f;
+    }
+    body.dark-mode .rel-tab.active {
+      background: #1e3a5f;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h2>Relatórios</h2>
+  <button id="dark-mode-btn" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i></button>
+  <div class="user-menu" id="user-menu">
+    <div class="user" id="user-btn" onclick="toggleUserMenu()"><i class="fa-solid fa-user"></i></div>
+    <div class="user-dropdown" id="user-dropdown">
+      <div class="user-dropdown-info">
+        <div class="user-dropdown-avatar" id="user-dropdown-avatar"><i class="fa-solid fa-user"></i></div>
+        <div>
+          <div class="user-dropdown-nome" id="user-dropdown-nome">Carregando...</div>
+          <div class="user-dropdown-tipo" id="user-dropdown-tipo"></div>
+        </div>
+      </div>
+      <div class="user-dropdown-divider"></div>
+      <a href="../perfil.html" class="user-dropdown-item"><i class="fa-solid fa-user-pen"></i> Meu Perfil</a>
+      <button class="user-dropdown-item user-dropdown-sair" id="btn-sair-header" onclick="sairDaConta()" style="display:none">
+        <i class="fa-solid fa-right-from-bracket"></i> Sair
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="navbar">
+  <ul class="navbar-nav">
+    <li class="navbar-item"><a href="../index.html" class="navbar-link"><i class="fa-solid fa-home"></i><span>Início</span></a></li>
+    <li class="navbar-item" data-role="admin"><a href="cadastrar.html" class="navbar-link"><i class="fa-solid fa-user-plus"></i><span>Cadastrar</span></a></li>
+    <li class="navbar-item" data-role="gestorOrAdmin"><a href="consultar.html" class="navbar-link"><i class="fa-solid fa-magnifying-glass"></i><span>Consultar</span></a></li>
+    <li class="navbar-item navbar-item-dropdown">
+      <a href="#" class="navbar-link navbar-link-dropdown" onclick="toggleSubmenu(event, this)">
+        <i class="fa-solid fa-star"></i><span>Avaliações</span><i class="fa-solid fa-chevron-down navbar-chevron"></i>
+      </a>
+      <ul class="navbar-submenu">
+        <li><a href="avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-star"></i> Avaliações</a></li>
+        <li data-role="gestorOrAdmin"><a href="nine-box.html" class="navbar-submenu-link"><i class="fa-solid fa-th"></i> Nine Box</a></li>
+        <li><a href="competencias.html" class="navbar-submenu-link"><i class="fa-solid fa-clipboard-check"></i> Competências</a></li>
+      </ul>
+    </li>
+    <li class="navbar-item"><a href="relatorios.html" class="navbar-link active"><i class="fa-solid fa-chart-bar"></i><span>Relatórios</span></a></li>
+    <li class="navbar-item"><a href="../perfil.html" class="navbar-link"><i class="fa-solid fa-user"></i><span>Perfil</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrapper rel-wrapper">
+  <div class="rel-container">
+
+    <!-- Tabs -->
+    <div class="rel-tabs" id="rel-tabs">
+      <!-- Injetadas pelo JS conforme permissão -->
+    </div>
+
+    <!-- Dashboard (gestor/admin) -->
+    <div class="rel-section" id="tab-dashboard">
+      <div class="rel-stats" id="dash-stats">
+        <div class="rel-stat-card">
+          <div class="rel-stat-icon"><i class="fa-solid fa-users"></i></div>
+          <div class="rel-stat-info">
+            <div class="rel-stat-val" id="s-usuarios">—</div>
+            <div class="rel-stat-label">Usuários</div>
+          </div>
+        </div>
+        <div class="rel-stat-card">
+          <div class="rel-stat-icon"><i class="fa-solid fa-user-tie"></i></div>
+          <div class="rel-stat-info">
+            <div class="rel-stat-val" id="s-gestores">—</div>
+            <div class="rel-stat-label">Gestores</div>
+          </div>
+        </div>
+        <div class="rel-stat-card">
+          <div class="rel-stat-icon"><i class="fa-solid fa-user"></i></div>
+          <div class="rel-stat-info">
+            <div class="rel-stat-val" id="s-colaboradores">—</div>
+            <div class="rel-stat-label">Colaboradores</div>
+          </div>
+        </div>
+        <div class="rel-stat-card">
+          <div class="rel-stat-icon"><i class="fa-solid fa-star"></i></div>
+          <div class="rel-stat-info">
+            <div class="rel-stat-val" id="s-avaliacoes">—</div>
+            <div class="rel-stat-label">Avaliações</div>
+          </div>
+        </div>
+        <div class="rel-stat-card">
+          <div class="rel-stat-icon"><i class="fa-solid fa-chart-line"></i></div>
+          <div class="rel-stat-info">
+            <div class="rel-stat-val" id="s-media">—</div>
+            <div class="rel-stat-label">Média Geral</div>
+          </div>
+        </div>
+        <div class="rel-stat-card">
+          <div class="rel-stat-icon"><i class="fa-solid fa-th"></i></div>
+          <div class="rel-stat-info">
+            <div class="rel-stat-val" id="s-ninebox">—</div>
+            <div class="rel-stat-label">Nine Box</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nb-dist-container">
+        <div class="nb-dist-header">
+          <div class="nb-dist-title">
+            <i class="fa-solid fa-th"></i>
+            Distribuição Nine Box
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <button class="btn-exportar-nb" onclick="abrirModalExportar()" title="Exportar relatórios">
+              <i class="fa-solid fa-file-export"></i> Exportar
+            </button>
+            <div class="nb-dist-legend">
+              <div class="nb-dist-legend-item">
+                <i class="fa-solid fa-arrow-up" style="color:#10b981"></i>
+                <span>Alto</span>
+              </div>
+              <div class="nb-dist-legend-item">
+                <i class="fa-solid fa-minus" style="color:#f59e0b"></i>
+                <span>Médio</span>
+              </div>
+              <div class="nb-dist-legend-item">
+                <i class="fa-solid fa-arrow-down" style="color:#ef4444"></i>
+                <span>Baixo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
+          <i class="fa-solid fa-hand-pointer"></i> Clique em um quadrante para ver os usuários posicionados nele
+        </p>
+        
+        <div class="nb-dist-wrapper">
+          <!-- Eixo Y (Potencial) -->
+          <div class="nb-dist-axes">
+            <div class="nb-axis-label">POTENCIAL</div>
+          </div>
+          
+          <!-- Grid -->
+          <div style="flex:1">
+            <div class="nb-dist-grid" id="nb-dist-grid">
+              <div class="empty-state" style="grid-column:1/-1">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <p>Carregando...</p>
+              </div>
+            </div>
+
+            <!-- Lista de Usuários -->
+            <div class="nb-users-list" id="nb-users-list">
+              <!-- Preenchido pelo JS -->
+            </div>
+            
+            <!-- Eixo X (Performance) -->
+            <div class="nb-axis-bottom" id="nb-axis-bottom">
+              <div class="nb-axis-bottom-label">BAIXO</div>
+              <div class="nb-axis-bottom-label">MÉDIO</div>
+              <div class="nb-axis-bottom-label">ALTO</div>
+            </div>
+            <div style="text-align:center;margin-top:8px;font-size:11px;font-weight:700;color:var(--primary);letter-spacing:1px" id="nb-axis-label">
+              PERFORMANCE
+            </div>
+          </div>
+          
+          <!-- Legenda lateral -->
+          <div class="nb-dist-sidebar">
+            <div class="nb-dist-sidebar-title">
+              <i class="fa-solid fa-list"></i>
+              Categorias
+            </div>
+            <p style="font-size:10px;color:var(--text-muted);margin-bottom:10px;line-height:1.4">
+              <i class="fa-solid fa-hand-pointer"></i> Clique para filtrar
+            </p>
+            <div id="nb-legend-list">
+              <!-- Preenchido pelo JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Relatório por usuário -->
+    <div class="rel-section" id="tab-usuario">
+      <div class="rel-user-search">
+        <div style="flex: 1; min-width: 200px; position: relative;">
+          <select id="sel-usuario">
+            <option value="">Selecione um usuário...</option>
+          </select>
+        </div>
+        <button class="btn-buscar-rel" onclick="carregarRelatorioUsuario()">
+          <i class="fa-solid fa-magnifying-glass"></i> Ver Relatório
+        </button>
+      </div>
+      <div id="rel-usuario-resultado"></div>
+    </div>
+
+    <!-- Meu relatório (colaborador) -->
+    <div class="rel-section" id="tab-meu">
+      <div id="rel-meu-resultado">
+        <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><p>Carregando...</p></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Modal de Exportação -->
+<div class="modal-overlay" id="modal-exportar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:28px;width:100%;max-width:520px;animation:slideUp 0.3s ease;border:1.5px solid var(--border);">
+    
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--border);">
+      <div>
+        <h3 style="font-size:18px;font-weight:700;color:var(--primary);margin:0 0 4px 0;">
+          <i class="fa-solid fa-file-export"></i> Exportar Relatórios
+        </h3>
+        <p style="font-size:12px;color:var(--text-muted);margin:0;">Selecione os dados que deseja exportar</p>
+      </div>
+      <button onclick="fecharModalExportar()" style="width:32px;height:32px;border-radius:50%;background:#f1f5f9;color:var(--text-muted);border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <label style="display:block;font-size:13px;font-weight:600;color:var(--primary);margin-bottom:10px;">
+        <i class="fa-solid fa-list-check"></i> Tipo de Relatório
+      </label>
+      
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8fafc;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;" class="export-option">
+          <input type="radio" name="export-type" value="geral" checked style="width:18px;height:18px;cursor:pointer;">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);">Relatório Geral</div>
+            <div style="font-size:11px;color:var(--text-muted);">Todos os dados: usuários, avaliações, competências e Nine Box</div>
+          </div>
+        </label>
+
+        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8fafc;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;" class="export-option">
+          <input type="radio" name="export-type" value="ninebox" style="width:18px;height:18px;cursor:pointer;">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);">Distribuição Nine Box</div>
+            <div style="font-size:11px;color:var(--text-muted);">Pessoas por categoria (Performance x Potencial)</div>
+          </div>
+        </label>
+
+        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8fafc;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;" class="export-option">
+          <input type="radio" name="export-type" value="avaliacoes" style="width:18px;height:18px;cursor:pointer;">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);">Avaliações Detalhadas</div>
+            <div style="font-size:11px;color:var(--text-muted);">Todas as avaliações com critérios e médias</div>
+          </div>
+        </label>
+
+        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8fafc;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;" class="export-option">
+          <input type="radio" name="export-type" value="medias" style="width:18px;height:18px;cursor:pointer;">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);">Médias por Critério</div>
+            <div style="font-size:11px;color:var(--text-muted);">Média de cada critério de avaliação por pessoa</div>
+          </div>
+        </label>
+
+        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8fafc;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;" class="export-option">
+          <input type="radio" name="export-type" value="competencias" style="width:18px;height:18px;cursor:pointer;">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);">Competências</div>
+            <div style="font-size:11px;color:var(--text-muted);">Lista de competências cadastradas no sistema</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;">
+      <button onclick="fecharModalExportar()" style="flex:1;padding:12px;background:transparent;color:var(--text-muted);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:inherit;">
+        <i class="fa-solid fa-times"></i> Cancelar
+      </button>
+      <button onclick="confirmarExportacao()" id="btn-confirmar-export" style="flex:1;padding:12px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:inherit;">
+        <i class="fa-solid fa-download"></i> Exportar
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .export-option:has(input:checked) {
+    background: #eff6ff !important;
+    border-color: var(--primary) !important;
+  }
+  .modal-overlay.open {
+    display: flex !important;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<!-- Modal de usuários do Nine Box -->
+<div class="nb-modal-overlay" id="nb-modal">
+  <div class="nb-modal-box">
+    <div class="nb-modal-header">
+      <div>
+        <div class="nb-modal-title">
+          <span class="nb-modal-icon" id="nb-modal-icon">🎯</span>
+          <span id="nb-modal-title">Categoria</span>
+        </div>
+        <div class="nb-modal-subtitle" id="nb-modal-subtitle">Performance: — | Potencial: —</div>
+      </div>
+      <button class="nb-modal-close" onclick="fecharModalNB()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div id="nb-modal-body">
+      <div class="empty-state">
+        <i class="fa-solid fa-users"></i>
+        <p>Nenhum usuário nesta categoria</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { requireAuth, getUser, isAdmin, isGestorOrAdmin, isColaborador } from '../js/auth.js';
+  import { usersApi, reportsApi, nineBoxApi } from '../js/api.js';
+  import { showToast } from '../js/components/toast.js';
+  import '../js/navbar.js';
+
+  requireAuth();
+
+  const user = getUser();
+  let tabAtual = '';
+  let allNineBoxData = []; // Armazena todos os dados do Nine Box
+
+  // Monta tabs conforme permissão
+  const tabs = [];
+  if (isGestorOrAdmin()) tabs.push({ id: 'dashboard', label: '<i class="fa-solid fa-chart-bar"></i> Dashboard' });
+  if (isGestorOrAdmin()) tabs.push({ id: 'usuario',   label: '<i class="fa-solid fa-user"></i> Por Usuário' });
+  tabs.push({ id: 'meu', label: '<i class="fa-solid fa-user-circle"></i> Meu Relatório' });
+
+  const tabsEl = document.getElementById('rel-tabs');
+  tabsEl.innerHTML = tabs.map(t => `
+    <button class="rel-tab" data-tab="${t.id}" onclick="setTab('${t.id}')">${t.label}</button>
+  `).join('');
+
+  window.setTab = function(tab) {
+    tabAtual = tab;
+    document.querySelectorAll('.rel-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+    document.querySelectorAll('.rel-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(`tab-${tab}`)?.classList.add('active');
+
+    if (tab === 'dashboard') carregarDashboard();
+    if (tab === 'usuario')   carregarSelectUsuarios();
+    if (tab === 'meu')       carregarMeuRelatorio();
+  };
+
+  // Ativa primeira tab
+  if (tabs.length) setTab(tabs[0].id);
+
+  // ---- DASHBOARD ----
+  async function carregarDashboard() {
+    try {
+      const res = await reportsApi.dashboard();
+      const d = res.data;
+      document.getElementById('s-usuarios').textContent      = d.totalUsuarios ?? '—';
+      document.getElementById('s-gestores').textContent      = d.totalGestores ?? '—';
+      document.getElementById('s-colaboradores').textContent = d.totalColaboradores ?? '—';
+      document.getElementById('s-avaliacoes').textContent    = d.totalAvaliacoes ?? '—';
+      document.getElementById('s-media').textContent         = d.mediaGeral ? d.mediaGeral.toFixed(1) + ' ★' : '—';
+      
+      // Carregar dados do Nine Box
+      const nbRes = await nineBoxApi.list({ limit: 1000 });
+      allNineBoxData = nbRes.data.nineBoxes || [];
+      document.getElementById('s-ninebox').textContent = allNineBoxData.length;
+
+      // Distribuição Nine Box
+      const CATEGORIAS = {
+        '1-1': { nome: 'Questão', icon: '<i class="fa-solid fa-circle-question"></i>', slug: 'questao', desc: 'Baixo desempenho e potencial' },
+        '2-1': { nome: 'Trabalhador', icon: '<i class="fa-solid fa-gears"></i>', slug: 'trabalhador', desc: 'Desempenho médio, baixo potencial' },
+        '3-1': { nome: 'Âncora', icon: '<i class="fa-solid fa-anchor"></i>', slug: 'ancora', desc: 'Alto desempenho, baixo potencial' },
+        '1-2': { nome: 'Dilema', icon: '<i class="fa-solid fa-question"></i>', slug: 'dilema', desc: 'Baixo desempenho, potencial médio' },
+        '2-2': { nome: 'Núcleo', icon: '<i class="fa-solid fa-gem"></i>', slug: 'nucleo', desc: 'Desempenho e potencial médios' },
+        '3-2': { nome: 'Especialista', icon: '<i class="fa-solid fa-bullseye"></i>', slug: 'especialista', desc: 'Alto desempenho, potencial médio' },
+        '1-3': { nome: 'Enigma', icon: '<i class="fa-solid fa-wand-magic-sparkles"></i>', slug: 'enigma', desc: 'Baixo desempenho, alto potencial' },
+        '2-3': { nome: 'Estrela', icon: '<i class="fa-solid fa-star"></i>', slug: 'estrela', desc: 'Desempenho médio, alto potencial' },
+        '3-3': { nome: 'Superstar', icon: '<i class="fa-solid fa-rocket"></i>', slug: 'superstar', desc: 'Alto desempenho e potencial' },
+      };
+      
+      const legendList = document.getElementById('nb-legend-list');
+      const grid = document.getElementById('nb-dist-grid');
+      let legendHtml = '';
+      let gridHtml = '';
+      
+      // Ordem: pot 3→1 (top to bottom), perf 1→3 (left to right)
+      for (let pot = 3; pot >= 1; pot--) {
+        for (let perf = 1; perf <= 3; perf++) {
+          const key = `${perf}-${pot}`;
+          const cat = CATEGORIAS[key];
+          const count = allNineBoxData.filter(nb => nb.performance === perf && nb.potential === pot).length;
+          const isEmpty = count === 0;
+          
+          // Adicionar ao grid
+          gridHtml += `
+            <div class="nb-dist-cell ${isEmpty ? 'empty' : ''}" 
+                 data-category="${cat?.slug || ''}"
+                 data-perf="${perf}"
+                 data-pot="${pot}"
+                 onclick="mostrarUsuariosCategoria(${perf}, ${pot})"
+                 title="${cat?.desc || ''}">
+              <div class="nb-dist-icon">${cat?.icon || ''}</div>
+              <div class="nb-dist-count">${count}</div>
+              <div class="nb-dist-label">${cat?.nome || ''}</div>
+            </div>`;
+          
+          // Adicionar à legenda (todos clicáveis)
+          legendHtml += `
+            <div class="nb-legend-item" data-perf="${perf}" data-pot="${pot}" onclick="mostrarUsuariosCategoria(${perf}, ${pot})">
+              <div class="nb-legend-icon">${cat?.icon || ''}</div>
+              <div class="nb-legend-text">${cat?.nome || ''}</div>
+              <div class="nb-legend-count">${count}</div>
+            </div>`;
+        }
+      }
+      grid.innerHTML = gridHtml;
+      legendList.innerHTML = legendHtml;
+      
+      // Pré-selecionar a primeira categoria que tem usuários
+      let primeiraCategoriaComUsuarios = null;
+      for (let pot = 3; pot >= 1; pot--) {
+        for (let perf = 1; perf <= 3; perf++) {
+          const count = allNineBoxData.filter(nb => nb.performance === perf && nb.potential === pot).length;
+          if (count > 0 && !primeiraCategoriaComUsuarios) {
+            primeiraCategoriaComUsuarios = { perf, pot };
+            break;
+          }
+        }
+        if (primeiraCategoriaComUsuarios) break;
+      }
+      
+      // Se encontrou categoria com usuários, mostrar automaticamente
+      if (primeiraCategoriaComUsuarios) {
+        mostrarUsuariosCategoria(primeiraCategoriaComUsuarios.perf, primeiraCategoriaComUsuarios.pot);
+      }
+    } catch (err) {
+      console.error('Erro ao carregar dashboard:', err);
+      document.getElementById('dash-stats').innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fa-solid fa-triangle-exclamation"></i><p>Erro ao carregar dashboard.</p></div>`;
+    }
+  }
+
+  // ---- MOSTRAR USUÁRIOS DA CATEGORIA (inline) ----
+  window.mostrarUsuariosCategoria = function(performance, potential) {
+    const CATEGORIAS = {
+      '1-1': { nome: 'Questão', icon: '<i class="fa-solid fa-circle-question"></i>', color: '#b91c1c' },
+      '2-1': { nome: 'Trabalhador', icon: '<i class="fa-solid fa-gears"></i>', color: '#b45309' },
+      '3-1': { nome: 'Âncora', icon: '<i class="fa-solid fa-anchor"></i>', color: '#a16207' },
+      '1-2': { nome: 'Dilema', icon: '<i class="fa-solid fa-question"></i>', color: '#c2410c' },
+      '2-2': { nome: 'Núcleo', icon: '<i class="fa-solid fa-gem"></i>', color: '#047857' },
+      '3-2': { nome: 'Especialista', icon: '<i class="fa-solid fa-bullseye"></i>', color: '#065f46' },
+      '1-3': { nome: 'Enigma', icon: '<i class="fa-solid fa-wand-magic-sparkles"></i>', color: '#7e22ce' },
+      '2-3': { nome: 'Estrela', icon: '<i class="fa-solid fa-star"></i>', color: '#1d4ed8' },
+      '3-3': { nome: 'Superstar', icon: '<i class="fa-solid fa-rocket"></i>', color: '#059669' },
+    };
+    
+    const key = `${performance}-${potential}`;
+    const cat = CATEGORIAS[key];
+    
+    // Filtrar usuários nesta categoria
+    const usuariosNaCategoria = allNineBoxData.filter(
+      nb => nb.performance === performance && nb.potential === potential
+    );
+    
+    // Ocultar grid e eixos
+    const gridEl = document.getElementById('nb-dist-grid');
+    const axisBottomEl = document.getElementById('nb-axis-bottom');
+    const axisLabelEl = document.getElementById('nb-axis-label');
+    const axesEl = document.querySelector('.nb-dist-axes');
+    
+    if (gridEl) gridEl.style.display = 'none';
+    if (axisBottomEl) axisBottomEl.style.display = 'none';
+    if (axisLabelEl) axisLabelEl.style.display = 'none';
+    if (axesEl) axesEl.style.display = 'none';
+    
+    // Marcar item da legenda como ativo
+    document.querySelectorAll('.nb-legend-item').forEach(item => {
+      item.classList.remove('active');
+      if (item.dataset.perf == performance && item.dataset.pot == potential) {
+        item.classList.add('active');
+      }
+    });
+    
+    // Mostrar lista de usuários
+    const usersList = document.getElementById('nb-users-list');
+    usersList.classList.add('active');
+    
+    if (usuariosNaCategoria.length === 0) {
+      usersList.innerHTML = `
+        <div class="empty-state">
+          <i class="fa-solid fa-users"></i>
+          <p>Nenhum usuário posicionado em <strong>${cat?.nome || 'esta categoria'}</strong></p>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:8px">
+            Performance: ${performance} | Potencial: ${potential}
+          </p>
+        </div>`;
+    } else {
+      usersList.innerHTML = `
+        <div style="margin-bottom:12px;padding:12px;background:#eff6ff;border-radius:8px;border:1.5px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:24px;color:${cat?.color || '#059669'}">${cat?.icon || '🎯'}</span>
+            <div>
+              <div style="font-size:16px;font-weight:700;color:var(--primary)">${cat?.nome || 'Categoria'}</div>
+              <div style="font-size:12px;color:var(--text-muted)">
+                Performance: ${performance} | Potencial: ${potential} | ${usuariosNaCategoria.length} usuário${usuariosNaCategoria.length !== 1 ? 's' : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+        ${usuariosNaCategoria.map(nb => {
+          const pessoa = nb.pessoa || {};
+          const iniciais = pessoa.nome ? pessoa.nome.split(' ').slice(0,2).map(p => p[0]).join('').toUpperCase() : '?';
+          const avatarHTML = pessoa.foto 
+            ? `<img src="${pessoa.foto}" alt="${pessoa.nome}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` 
+            : iniciais;
+          
+          return `
+            <div class="nb-user-card-inline">
+              <div class="nb-user-card-avatar">${avatarHTML}</div>
+              <div class="nb-user-card-info">
+                <div class="nb-user-card-nome">${pessoa.nome || 'Usuário'}</div>
+                <div class="nb-user-card-meta">
+                  ${pessoa.tipo ? `<span class="nb-user-card-badge">${pessoa.tipo}</span>` : ''}
+                  ${pessoa.cargo ? `<span>${pessoa.cargo}</span>` : ''}
+                  <span><i class="fa-solid fa-calendar"></i> ${new Date(nb.data).toLocaleDateString('pt-BR')}</span>
+                </div>
+                ${nb.comentario ? `<div class="nb-user-card-comment">"${nb.comentario}"</div>` : ''}
+              </div>
+            </div>`;
+        }).join('')}`;
+    }
+  };
+
+  window.fecharModalNB = function() {
+    document.getElementById('nb-modal').classList.remove('open');
+  };
+
+  // Fechar modal clicando fora
+  document.getElementById('nb-modal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) fecharModalNB();
+  });
+
+  // Fechar modal com ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') fecharModalNB();
+  });
+
+  // Variável global para Choices.js
+  let choicesUsuario = null;
+
+  // ---- SELECT USUÁRIOS ----
+  async function carregarSelectUsuarios() {
+    const sel = document.getElementById('sel-usuario');
+    try {
+      const res = await usersApi.list({ limit: 200 });
+      const users = res.data.users;
+      sel.innerHTML = '<option value="">Selecione um usuário...</option>' +
+        users.map(u => `<option value="${u.id}">${u.nome} (${u.tipo}) — RA: ${u.ra}</option>`).join('');
+      
+      // Inicializar Choices.js
+      if (choicesUsuario) {
+        choicesUsuario.destroy();
+      }
+      choicesUsuario = new Choices('#sel-usuario', {
+        searchEnabled: true,
+        itemSelectText: '',
+        shouldSort: false,
+        position: 'bottom',
+        searchPlaceholderValue: 'Buscar usuário...'
+      });
+    } catch {
+      sel.innerHTML = '<option value="">Erro ao carregar</option>';
+    }
+  }
+
+  // ---- RELATÓRIO DE USUÁRIO ----
+  window.carregarRelatorioUsuario = async function() {
+    const userId = document.getElementById('sel-usuario').value;
+    if (!userId) { showToast('Selecione um usuário.', 'error'); return; }
+    const container = document.getElementById('rel-usuario-resultado');
+    container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><p>Carregando...</p></div>';
+    try {
+      const res = await reportsApi.user(userId);
+      renderRelatorioUsuario(res.data, container);
+    } catch {
+      container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Erro ao carregar relatório.</p></div>';
+    }
+  };
+
+  // ---- MEU RELATÓRIO ----
+  async function carregarMeuRelatorio() {
+    const container = document.getElementById('rel-meu-resultado');
+    
+    // Verificar se o usuário existe
+    if (!user || !user.id) {
+      console.error('Usuário não está logado ou não tem ID');
+      container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Erro: Usuário não identificado.</p></div>';
+      return;
+    }
+    
+    try {
+      console.log('Carregando relatório do usuário:', user);
+      const res = await reportsApi.user(user.id);
+      console.log('Resposta da API:', res);
+      
+      if (!res || !res.data) {
+        throw new Error('Resposta inválida da API');
+      }
+      
+      renderRelatorioUsuario(res.data, container, true);
+    } catch (err) {
+      console.error('Erro ao carregar meu relatório:', err);
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <p>Erro ao carregar seu relatório.</p>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:8px">${err.message || 'Erro desconhecido'}</p>
+        </div>`;
+    }
+  }
+
+  function renderRelatorioUsuario(data, container, isMeu = false) {
+    const u = data.user || data.usuario;
+    if (!u) {
+      container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Erro ao carregar dados do usuário.</p></div>';
+      return;
+    }
+    
+    const iniciais = u.nome.split(' ').slice(0,2).map(p => p[0]).join('').toUpperCase();
+    const avatar = u.foto ? `<img src="${u.foto}" alt="${u.nome}">` : iniciais;
+
+    const TIPO_LABELS = {
+      gestor_para_colaborador: 'Gestor → Colaborador (180°)',
+      colaborador_para_gestor: 'Colaborador → Gestor (360°)',
+      avaliacao_360: '360°',
+    };
+
+    const avaliacoes = data.ultimasAvaliacoes || [];
+    const avaliacoesRecebidas = data.avaliacoesRecebidas || 0;
+    const avaliacoesFeitas = data.avaliacoesFeitas || 0;
+    const mediaGeral = data.mediaGeral || 0;
+
+    const avaliacoesHtml = avaliacoes.length
+      ? avaliacoes.map(a => `
+          <div class="rel-av-item">
+            <div class="rel-av-header">
+              <span class="rel-av-tipo ${a.tipoAvaliacao}">${TIPO_LABELS[a.tipoAvaliacao] || a.tipoAvaliacao}</span>
+              <div style="display:flex;gap:8px;align-items:center">
+                ${a.media ? `<span class="rel-av-media">${a.media} ★</span>` : ''}
+                <span class="rel-av-data">${new Date(a.data).toLocaleDateString('pt-BR')}</span>
+              </div>
+            </div>
+            ${a.comentario ? `<p class="rel-av-comentario">"${a.comentario}"</p>` : ''}
+          </div>`).join('')
+      : '<div class="empty-state" style="padding:20px"><i class="fa-solid fa-star"></i><p>Nenhuma avaliação recebida.</p></div>';
+
+    // Média por critério
+    const criteriosMedia = data.criteriosMedia || {};
+    const criteriosHtml = Object.keys(criteriosMedia).length > 0
+      ? `
+        <div style="margin-top:16px">
+          <div class="rel-section-title"><i class="fa-solid fa-chart-bar"></i> Média por Critério</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
+            ${Object.entries(criteriosMedia).map(([key, val]) => {
+              const labels = {
+                pontualidade: 'Pontualidade',
+                comunicacao: 'Comunicação',
+                tecnico: 'Técnico',
+                proatividade: 'Proatividade',
+                equipe: 'Equipe'
+              };
+              return `
+                <div style="background:#f8fafc;border:1.5px solid var(--border);border-radius:8px;padding:10px;text-align:center">
+                  <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px">${labels[key] || key}</div>
+                  <div style="font-size:18px;font-weight:700;color:var(--primary)">${val.toFixed(1)} ★</div>
+                </div>`;
+            }).join('')}
+          </div>
+        </div>`
+      : '';
+
+    container.innerHTML = `
+      <div class="rel-user-card">
+        <div class="rel-user-header">
+          <div class="rel-user-avatar">${avatar}</div>
+          <div style="flex:1">
+            <div class="rel-user-nome">${u.nome}</div>
+            <div class="rel-user-meta">
+              ${u.tipo} · RA: ${u.ra}
+              ${u.cargo ? ` · ${u.cargo}` : ''}
+              ${u.departamento ? ` · ${u.departamento}` : ''}
+            </div>
+          </div>
+          ${!isMeu ? `
+            <button class="btn-exportar" onclick="exportarRelatorio('${u.id}')">
+              <i class="fa-solid fa-download"></i> Exportar
+            </button>` : ''}
+        </div>
+
+        <!-- Stats rápidas -->
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+          <div class="rel-stat-card" style="flex:1;min-width:120px">
+            <div class="rel-stat-icon"><i class="fa-solid fa-star"></i></div>
+            <div>
+              <div class="rel-stat-val">${avaliacoesRecebidas}</div>
+              <div class="rel-stat-label">Avaliações recebidas</div>
+            </div>
+          </div>
+          <div class="rel-stat-card" style="flex:1;min-width:120px">
+            <div class="rel-stat-icon"><i class="fa-solid fa-chart-line"></i></div>
+            <div>
+              <div class="rel-stat-val">${mediaGeral > 0 ? mediaGeral.toFixed(1) + ' ★' : '—'}</div>
+              <div class="rel-stat-label">Média geral</div>
+            </div>
+          </div>
+          <div class="rel-stat-card" style="flex:1;min-width:120px">
+            <div class="rel-stat-icon"><i class="fa-solid fa-paper-plane"></i></div>
+            <div>
+              <div class="rel-stat-val">${avaliacoesFeitas}</div>
+              <div class="rel-stat-label">Avaliações feitas</div>
+            </div>
+          </div>
+        </div>
+
+        ${criteriosHtml}
+
+        <!-- Avaliações recebidas -->
+        <div style="margin-top:20px">
+          <div class="rel-section-title"><i class="fa-solid fa-star"></i> Últimas Avaliações Recebidas</div>
+          ${avaliacoesHtml}
+        </div>
+      </div>`;
+  }
+
+  window.exportarRelatorio = async function(userId) {
+    try {
+      const res = await reportsApi.export(userId);
+      const blob = new Blob([JSON.stringify(res.data, null, 2)], { type: 'application/json' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `relatorio-${userId}-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Relatório exportado!', 'success');
+    } catch {}
+  };
+
+  // ---- MODAL DE EXPORTAÇÃO ----
+  window.abrirModalExportar = function() {
+    document.getElementById('modal-exportar').classList.add('open');
+  };
+
+  window.fecharModalExportar = function() {
+    document.getElementById('modal-exportar').classList.remove('open');
+  };
+
+  window.confirmarExportacao = function() {
+    const tipoSelecionado = document.querySelector('input[name="export-type"]:checked').value;
+    
+    switch(tipoSelecionado) {
+      case 'geral':
+        exportarRelatorioGeral();
+        break;
+      case 'ninebox':
+        exportarNineBoxCSV();
+        break;
+      case 'avaliacoes':
+        exportarAvaliacoesDetalhadas();
+        break;
+      case 'medias':
+        exportarMediasPorCriterio();
+        break;
+      case 'competencias':
+        exportarCompetencias();
+        break;
+    }
+    
+    fecharModalExportar();
+  };
+
+  // ---- EXPORTAR RELATÓRIO GERAL ----
+  function exportarRelatorioGeral() {
+    if (allUsers.length === 0 && allEvaluations.length === 0 && allNineBoxData.length === 0) {
+      showToast('Nenhum dado para exportar', 'warning');
+      return;
+    }
+
+    const headers = [
+      'Tipo de Dado',
+      'ID',
+      'Nome/Descrição',
+      'Tipo/Categoria',
+      'Cargo/Departamento',
+      'RA',
+      'Média/Performance',
+      'Potencial',
+      'Data'
+    ];
+
+    const rows = [];
+
+    // Adicionar usuários
+    allUsers.forEach(u => {
+      rows.push([
+        'Usuário',
+        u.id || '',
+        u.nome || '',
+        u.tipo || '',
+        u.cargo || '',
+        u.ra || '',
+        '',
+        '',
+        u.createdAt ? new Date(u.createdAt).toLocaleDateString('pt-BR') : ''
+      ]);
+    });
+
+    // Adicionar avaliações
+    allEvaluations.forEach(av => {
+      rows.push([
+        'Avaliação',
+        av.id || '',
+        av.avaliado?.nome || '',
+        av.tipoAvaliacao || '',
+        '',
+        av.avaliado?.ra || '',
+        av.media || '',
+        '',
+        av.data ? new Date(av.data).toLocaleDateString('pt-BR') : ''
+      ]);
+    });
+
+    // Adicionar Nine Box
+    allNineBoxData.forEach(nb => {
+      const CATEGORIAS = {
+        '1-1': 'Questão', '2-1': 'Trabalhador', '3-1': 'Âncora',
+        '1-2': 'Dilema', '2-2': 'Núcleo', '3-2': 'Especialista',
+        '1-3': 'Enigma', '2-3': 'Estrela', '3-3': 'Superstar'
+      };
+      rows.push([
+        'Nine Box',
+        nb.id || '',
+        nb.pessoa?.nome || '',
+        CATEGORIAS[`${nb.performance}-${nb.potential}`] || '',
+        nb.pessoa?.cargo || '',
+        nb.pessoa?.ra || '',
+        nb.performance || '',
+        nb.potential || '',
+        nb.data ? new Date(nb.data).toLocaleDateString('pt-BR') : ''
+      ]);
+    });
+
+    exportarCSV(headers, rows, 'relatorio-geral');
+  }
+
+  // ---- EXPORTAR AVALIAÇÕES DETALHADAS ----
+  function exportarAvaliacoesDetalhadas() {
+    if (allEvaluations.length === 0) {
+      showToast('Nenhuma avaliação para exportar', 'warning');
+      return;
+    }
+
+    const headers = [
+      'ID',
+      'Avaliado',
+      'RA',
+      'Tipo',
+      'Tipo Avaliação',
+      'Pontualidade',
+      'Comunicação',
+      'Técnico',
+      'Proatividade',
+      'Equipe',
+      'Média',
+      'Comentário',
+      'Data'
+    ];
+
+    const rows = allEvaluations.map(av => [
+      av.id || '',
+      av.avaliado?.nome || '',
+      av.avaliado?.ra || '',
+      av.avaliado?.tipo || '',
+      av.tipoAvaliacao || '',
+      av.criterios?.pontualidade || '',
+      av.criterios?.comunicacao || '',
+      av.criterios?.tecnico || '',
+      av.criterios?.proatividade || '',
+      av.criterios?.equipe || '',
+      av.media || '',
+      (av.comentario || '').replace(/"/g, '""'),
+      av.data ? new Date(av.data).toLocaleDateString('pt-BR') : ''
+    ]);
+
+    exportarCSV(headers, rows, 'avaliacoes-detalhadas');
+  }
+
+  // ---- EXPORTAR MÉDIAS POR CRITÉRIO ----
+  function exportarMediasPorCriterio() {
+    if (allEvaluations.length === 0) {
+      showToast('Nenhuma avaliação para calcular médias', 'warning');
+      return;
+    }
+
+    // Agrupar avaliações por pessoa
+    const mediasPorPessoa = {};
+    
+    allEvaluations.forEach(av => {
+      const pessoaId = av.avaliadoId;
+      const pessoaNome = av.avaliado?.nome || 'Desconhecido';
+      const pessoaRA = av.avaliado?.ra || '';
+      
+      if (!mediasPorPessoa[pessoaId]) {
+        mediasPorPessoa[pessoaId] = {
+          nome: pessoaNome,
+          ra: pessoaRA,
+          pontualidade: [],
+          comunicacao: [],
+          tecnico: [],
+          proatividade: [],
+          equipe: []
+        };
+      }
+      
+      if (av.criterios) {
+        if (av.criterios.pontualidade) mediasPorPessoa[pessoaId].pontualidade.push(av.criterios.pontualidade);
+        if (av.criterios.comunicacao) mediasPorPessoa[pessoaId].comunicacao.push(av.criterios.comunicacao);
+        if (av.criterios.tecnico) mediasPorPessoa[pessoaId].tecnico.push(av.criterios.tecnico);
+        if (av.criterios.proatividade) mediasPorPessoa[pessoaId].proatividade.push(av.criterios.proatividade);
+        if (av.criterios.equipe) mediasPorPessoa[pessoaId].equipe.push(av.criterios.equipe);
+      }
+    });
+
+    const headers = [
+      'Nome',
+      'RA',
+      'Média Pontualidade',
+      'Média Comunicação',
+      'Média Técnico',
+      'Média Proatividade',
+      'Média Equipe',
+      'Média Geral',
+      'Nº Avaliações'
+    ];
+
+    const rows = Object.values(mediasPorPessoa).map(pessoa => {
+      const calcMedia = (arr) => arr.length > 0 ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1) : '0';
+      
+      const mediaPont = calcMedia(pessoa.pontualidade);
+      const mediaComun = calcMedia(pessoa.comunicacao);
+      const mediaTec = calcMedia(pessoa.tecnico);
+      const mediaProat = calcMedia(pessoa.proatividade);
+      const mediaEquipe = calcMedia(pessoa.equipe);
+      
+      const todasNotas = [
+        ...pessoa.pontualidade,
+        ...pessoa.comunicacao,
+        ...pessoa.tecnico,
+        ...pessoa.proatividade,
+        ...pessoa.equipe
+      ];
+      const mediaGeral = calcMedia(todasNotas);
+      const numAvaliacoes = Math.max(
+        pessoa.pontualidade.length,
+        pessoa.comunicacao.length,
+        pessoa.tecnico.length,
+        pessoa.proatividade.length,
+        pessoa.equipe.length
+      );
+
+      return [
+        pessoa.nome,
+        pessoa.ra,
+        mediaPont,
+        mediaComun,
+        mediaTec,
+        mediaProat,
+        mediaEquipe,
+        mediaGeral,
+        numAvaliacoes
+      ];
+    });
+
+    exportarCSV(headers, rows, 'medias-por-criterio');
+  }
+
+  // ---- EXPORTAR COMPETÊNCIAS ----
+  async function exportarCompetencias() {
+    try {
+      const res = await reportsApi.competencias();
+      const competencias = res.data.competencias || [];
+      
+      if (competencias.length === 0) {
+        showToast('Nenhuma competência para exportar', 'warning');
+        return;
+      }
+
+      const headers = [
+        'ID',
+        'Nome',
+        'Descrição',
+        'Categoria',
+        'Nível',
+        'Data de Criação'
+      ];
+
+      const rows = competencias.map(c => [
+        c.id || '',
+        c.nome || '',
+        (c.descricao || '').replace(/"/g, '""'),
+        c.categoria || '',
+        c.nivel || '',
+        c.createdAt ? new Date(c.createdAt).toLocaleDateString('pt-BR') : ''
+      ]);
+
+      exportarCSV(headers, rows, 'competencias');
+    } catch (err) {
+      showToast('Erro ao exportar competências', 'error');
+    }
+  }
+
+  // ---- FUNÇÃO AUXILIAR PARA EXPORTAR CSV ----
+  function exportarCSV(headers, rows, nomeArquivo) {
+    const csvContent = [
+      headers.map(h => `"${h}"`).join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${nomeArquivo}-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    showToast(`${rows.length} registros exportados com sucesso!`, 'success');
+  }
+
+  // ---- EXPORTAR NINE BOX PARA CSV ----
+  window.exportarNineBoxCSV = function() {
+    if (allNineBoxData.length === 0) {
+      showToast('Nenhum dado para exportar', 'warning');
+      return;
+    }
+
+    const CATEGORIAS = {
+      '1-1': 'Questão',
+      '2-1': 'Trabalhador',
+      '3-1': 'Âncora',
+      '1-2': 'Dilema',
+      '2-2': 'Núcleo',
+      '3-2': 'Especialista',
+      '1-3': 'Enigma',
+      '2-3': 'Estrela',
+      '3-3': 'Superstar',
+    };
+
+    const PERF_LABELS = { 1: 'Baixo', 2: 'Médio', 3: 'Alto' };
+    const POT_LABELS = { 1: 'Baixo', 2: 'Médio', 3: 'Alto' };
+
+    // Cabeçalho do CSV
+    const headers = [
+      'ID',
+      'Nome',
+      'Tipo',
+      'Cargo',
+      'Departamento',
+      'RA',
+      'Performance (Nível)',
+      'Performance (Texto)',
+      'Potencial (Nível)',
+      'Potencial (Texto)',
+      'Categoria Nine Box',
+      'Comentário',
+      'Data de Avaliação'
+    ];
+
+    // Linhas de dados
+    const rows = allNineBoxData.map(nb => {
+      const pessoa = nb.pessoa || {};
+      const categoria = CATEGORIAS[`${nb.performance}-${nb.potential}`] || 'N/A';
+      
+      return [
+        nb.id || '',
+        pessoa.nome || '',
+        pessoa.tipo || '',
+        pessoa.cargo || '',
+        pessoa.departamento || '',
+        pessoa.ra || '',
+        nb.performance || '',
+        PERF_LABELS[nb.performance] || '',
+        nb.potential || '',
+        POT_LABELS[nb.potential] || '',
+        categoria,
+        (nb.comentario || '').replace(/"/g, '""'), // Escapar aspas duplas
+        nb.data ? new Date(nb.data).toLocaleDateString('pt-BR') : ''
+      ];
+    });
+
+    // Converter para CSV
+    const csvContent = [
+      headers.map(h => `"${h}"`).join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    // Adicionar BOM para UTF-8 (para Excel reconhecer acentos)
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `nine-box-export-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    showToast(`${allNineBoxData.length} registros exportados com sucesso!`, 'success');
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+</body>
+</html>
+

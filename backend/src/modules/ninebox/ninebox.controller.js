@@ -1,0 +1,145 @@
+import { NineBoxRepository } from './ninebox.repository.js';
+import { NineBoxService } from './ninebox.service.js';
+
+const nineBoxRepository = new NineBoxRepository();
+const nineBoxService = new NineBoxService(nineBoxRepository);
+
+class NineBoxController {
+  async create(req, res, next) {
+    try {
+      const nineBox = await nineBoxService.create(req.body, req.user.tipo);
+      return res.status(201).json({
+        success: true,
+        data: nineBox,
+        message: 'Avaliação Nine Box criada com sucesso'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async findById(req, res, next) {
+    try {
+      const nineBox = await nineBoxService.findById(
+        req.params.id,
+        req.user.userId,
+        req.user.tipo
+      );
+      return res.json({
+        success: true,
+        data: nineBox
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async findAll(req, res, next) {
+    try {
+      const { page, limit, categoria, pessoaId } = req.query;
+      const result = await nineBoxService.findAll(
+        {
+          page: parseInt(page) || 1,
+          limit: parseInt(limit) || 10,
+          categoria,
+          pessoaId
+        },
+        req.user.userId,
+        req.user.tipo
+      );
+      return res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async findByPessoa(req, res, next) {
+    try {
+      const nineBoxes = await nineBoxService.findByPessoa(
+        req.params.pessoaId,
+        req.user.userId,
+        req.user.tipo
+      );
+      return res.json({
+        success: true,
+        data: nineBoxes
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async findLatestByPessoa(req, res, next) {
+    try {
+      const nineBox = await nineBoxService.findLatestByPessoa(
+        req.params.pessoaId,
+        req.user.userId,
+        req.user.tipo
+      );
+      return res.json({
+        success: true,
+        data: nineBox
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async update(req, res, next) {
+    try {
+      const nineBox = await nineBoxService.update(
+        req.params.id,
+        req.body,
+        req.user.tipo
+      );
+      return res.json({
+        success: true,
+        data: nineBox,
+        message: 'Avaliação Nine Box atualizada com sucesso'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async delete(req, res, next) {
+    try {
+      const result = await nineBoxService.delete(req.params.id, req.user.userId, req.user.tipo);
+      return res.json({
+        success: true,
+        message: result.message
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getGridDistribution(req, res, next) {
+    try {
+      const distribution = await nineBoxService.getGridDistribution(req.user.tipo);
+      return res.json({
+        success: true,
+        data: distribution
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getStatsByTipo(req, res, next) {
+    try {
+      const stats = await nineBoxService.getStatsByTipo(req.user.tipo);
+      return res.json({
+        success: true,
+        data: stats
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export { NineBoxController };

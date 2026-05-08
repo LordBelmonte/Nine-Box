@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserType {
+  admin
+  gestor
+  colaborador
+}
+
+model User {
+  id           String   @id @default(uuid())
+  ra           String   @unique
+  nome         String
+  email        String   @unique
+  senha        String
+  tipo         UserType
+  foto         String?
+  cargo        String?
+  departamento String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  avaliacoesFeitas    Evaluation[] @relation("AvaliadorRelation")
+  avaliacoesRecebidas Evaluation[] @relation("AvaliadoRelation")
+  nineBoxAvaliacoes   NineBox[]
+
+  @@index([ra])
+  @@index([email])
+  @@map("users")
+}
+
+model Evaluation {
+  id            String        @id @default(uuid())
+  tipoAvaliacao TipoAvaliacao
+  avaliadorId   String
+  avaliadoId    String
+  criterios     Json
+  media         Float?
+  comentario    String?
+  anonima       Boolean       @default(true)
+  data          DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  avaliador User @relation("AvaliadorRelation", fields: [avaliadorId], references: [id], onDelete: Cascade)
+  avaliado  User @relation("AvaliadoRelation", fields: [avaliadoId], references: [id], onDelete: Cascade)
+
+  @@index([avaliadoId])
+  @@index([avaliadorId])
+  @@index([data])
+  @@index([tipoAvaliacao])
+  @@index([anonima])
+  @@map("evaluations")
+}
+
+enum TipoAvaliacao {
+  gestor_para_colaborador
+  colaborador_para_gestor
+  avaliacao_360
+  avaliacao_180
+}
+
+model NineBox {
+  id          String   @id @default(uuid())
+  pessoaId    String
+  performance Int
+  potential   Int
+  categoria   String
+  comentario  String?
+  data        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  pessoa User @relation(fields: [pessoaId], references: [id], onDelete: Cascade)
+
+  @@index([pessoaId])
+  @@map("nine_box")
+}
+
+model Competency {
+  id             String   @id @default(uuid())
+  nome           String   @unique
+  descricao      String
+  tipo           String
+  competenciaDe  String
+  criterios      String[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("competencies")
+}

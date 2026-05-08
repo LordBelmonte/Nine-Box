@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test API</title>
+</head>
+<body>
+  <h1>Test API</h1>
+  <button onclick="testLogin()">1. Test Login</button>
+  <button onclick="testUsers()">2. Test Users</button>
+  <pre id="output"></pre>
+
+  <script>
+    const output = document.getElementById('output');
+    let token = null;
+
+    async function testLogin() {
+      try {
+        const res = await fetch('http://localhost:3000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: 'joao@eniac.edu.br',
+            senha: 'senha123'
+          })
+        });
+        const data = await res.json();
+        output.textContent = JSON.stringify(data, null, 2);
+        token = data.data?.token;
+        console.log('Token:', token);
+      } catch (err) {
+        output.textContent = 'ERRO: ' + err.message;
+      }
+    }
+
+    async function testUsers() {
+      if (!token) {
+        output.textContent = 'Faça login primeiro!';
+        return;
+      }
+      try {
+        const res = await fetch('http://localhost:3000/api/users?page=1&limit=10', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await res.json();
+        output.textContent = JSON.stringify(data, null, 2);
+        console.log('Users:', data);
+      } catch (err) {
+        output.textContent = 'ERRO: ' + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
