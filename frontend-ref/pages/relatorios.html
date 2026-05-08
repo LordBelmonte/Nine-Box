@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
@@ -855,15 +855,16 @@
 </main>
 
 <!-- Modal de Exportação -->
+<!-- Modal de Exportação -->
 <div class="modal-overlay" id="modal-exportar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:28px;width:100%;max-width:520px;animation:slideUp 0.3s ease;border:1.5px solid var(--border);">
-    
+  <div style="background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:28px;width:100%;max-width:540px;animation:slideUp 0.3s ease;border:1.5px solid var(--border);">
+
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--border);">
       <div>
         <h3 style="font-size:18px;font-weight:700;color:var(--primary);margin:0 0 4px 0;">
           <i class="fa-solid fa-file-export"></i> Exportar Relatórios
         </h3>
-        <p style="font-size:12px;color:var(--text-muted);margin:0;">Selecione os dados que deseja exportar</p>
+        <p style="font-size:12px;color:var(--text-muted);margin:0;">Escolha o relatório e clique em Exportar — arquivo CSV pronto para Excel</p>
       </div>
       <button onclick="fecharModalExportar()" style="width:32px;height:32px;border-radius:50%;background:#f1f5f9;color:var(--text-muted);border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">
         <i class="fa-solid fa-xmark"></i>
@@ -871,51 +872,54 @@
     </div>
 
     <div style="margin-bottom:20px;">
-      <label style="display:block;font-size:13px;font-weight:600;color:var(--primary);margin-bottom:10px;">
-        <i class="fa-solid fa-list-check"></i> Tipo de Relatório
-      </label>
-      
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8fafc;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;" class="export-option">
-          <input type="radio" name="export-type" value="geral" checked style="width:18px;height:18px;cursor:pointer;">
+
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:13px;background:#f8fafc;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;" class="export-option">
+          <input type="radio" name="export-type" value="ranking" checked style="width:16px;height:16px;cursor:pointer;margin-top:2px;flex-shrink:0;">
           <div>
-            <div style="font-size:14px;font-weight:600;color:var(--text);">Relatório Geral</div>
-            <div style="font-size:11px;color:var(--text-muted);">Todos os dados: usuários, avaliações, competências e Nine Box</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);">Ranking de Colaboradores</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Todos os usuários ordenados por média geral — ideal para visão gerencial rápida</div>
           </div>
         </label>
 
-        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8fafc;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;" class="export-option">
-          <input type="radio" name="export-type" value="ninebox" style="width:18px;height:18px;cursor:pointer;">
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:13px;background:#f8fafc;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;" class="export-option">
+          <input type="radio" name="export-type" value="ninebox" style="width:16px;height:16px;cursor:pointer;margin-top:2px;flex-shrink:0;">
           <div>
             <div style="font-size:14px;font-weight:600;color:var(--text);">Distribuição Nine Box</div>
-            <div style="font-size:11px;color:var(--text-muted);">Pessoas por categoria (Performance x Potencial)</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Cada pessoa com sua categoria (ex: Superstar, Estrela), performance e potencial</div>
           </div>
         </label>
 
-        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8fafc;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;" class="export-option">
-          <input type="radio" name="export-type" value="avaliacoes" style="width:18px;height:18px;cursor:pointer;">
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:13px;background:#f8fafc;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;" class="export-option">
+          <input type="radio" name="export-type" value="avaliacoes" style="width:16px;height:16px;cursor:pointer;margin-top:2px;flex-shrink:0;">
           <div>
             <div style="font-size:14px;font-weight:600;color:var(--text);">Avaliações Detalhadas</div>
-            <div style="font-size:11px;color:var(--text-muted);">Todas as avaliações com critérios e médias</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Histórico completo de avaliações com nota por critério, avaliador e comentários</div>
           </div>
         </label>
 
-        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8fafc;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;" class="export-option">
-          <input type="radio" name="export-type" value="medias" style="width:18px;height:18px;cursor:pointer;">
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:13px;background:#f8fafc;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;" class="export-option">
+          <input type="radio" name="export-type" value="medias" style="width:16px;height:16px;cursor:pointer;margin-top:2px;flex-shrink:0;">
           <div>
             <div style="font-size:14px;font-weight:600;color:var(--text);">Médias por Critério</div>
-            <div style="font-size:11px;color:var(--text-muted);">Média de cada critério de avaliação por pessoa</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Média de Pontualidade, Comunicação, Técnico, Proatividade e Equipe por pessoa</div>
           </div>
         </label>
 
-        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8fafc;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;" class="export-option">
-          <input type="radio" name="export-type" value="competencias" style="width:18px;height:18px;cursor:pointer;">
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:13px;background:#f8fafc;border:2px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;" class="export-option">
+          <input type="radio" name="export-type" value="usuarios" style="width:16px;height:16px;cursor:pointer;margin-top:2px;flex-shrink:0;">
           <div>
-            <div style="font-size:14px;font-weight:600;color:var(--text);">Competências</div>
-            <div style="font-size:11px;color:var(--text-muted);">Lista de competências cadastradas no sistema</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);">Cadastro de Usuários</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Lista de todos os usuários com cargo, departamento, RA e tipo</div>
           </div>
         </label>
+
       </div>
+    </div>
+
+    <!-- Indicador de carregamento -->
+    <div id="export-loading" style="display:none;text-align:center;padding:8px 0;font-size:13px;color:var(--text-muted);">
+      <i class="fa-solid fa-spinner fa-spin"></i> Buscando dados...
     </div>
 
     <div style="display:flex;gap:10px;">
@@ -923,7 +927,7 @@
         <i class="fa-solid fa-times"></i> Cancelar
       </button>
       <button onclick="confirmarExportacao()" id="btn-confirmar-export" style="flex:1;padding:12px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:inherit;">
-        <i class="fa-solid fa-download"></i> Exportar
+        <i class="fa-solid fa-download"></i> Exportar CSV
       </button>
     </div>
 
@@ -950,7 +954,7 @@
     <div class="nb-modal-header">
       <div>
         <div class="nb-modal-title">
-          <span class="nb-modal-icon" id="nb-modal-icon">🎯</span>
+          <span class="nb-modal-icon" id="nb-modal-icon"><i class="fa-solid fa-table-cells"></i></span>
           <span id="nb-modal-title">Categoria</span>
         </div>
         <div class="nb-modal-subtitle" id="nb-modal-subtitle">Performance: — | Potencial: —</div>
@@ -970,7 +974,7 @@
 
 <script type="module">
   import { requireAuth, getUser, isAdmin, isGestorOrAdmin, isColaborador } from '../js/auth.js';
-  import { usersApi, reportsApi, nineBoxApi } from '../js/api.js';
+  import { usersApi, reportsApi, nineBoxApi, competenciesApi } from '../js/api.js';
   import { showToast } from '../js/components/toast.js';
   import '../js/navbar.js';
 
@@ -1153,7 +1157,7 @@
       usersList.innerHTML = `
         <div style="margin-bottom:12px;padding:12px;background:#eff6ff;border-radius:8px;border:1.5px solid var(--border)">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-            <span style="font-size:24px;color:${cat?.color || '#059669'}">${cat?.icon || '🎯'}</span>
+            <span style="font-size:24px;color:${cat?.color || '#059669'}">${cat?.icon || '<i class="fa-solid fa-table-cells"></i>'}</span>
             <div>
               <div style="font-size:16px;font-weight:700;color:var(--primary)">${cat?.nome || 'Categoria'}</div>
               <div style="font-size:12px;color:var(--text-muted)">
@@ -1398,7 +1402,10 @@
       a.click();
       URL.revokeObjectURL(url);
       showToast('Relatório exportado!', 'success');
-    } catch {}
+    } catch (err) {
+      console.error('Erro ao exportar relatório:', err);
+      showToast('Erro ao exportar relatório. Tente novamente.', 'error');
+    }
   };
 
   // ---- MODAL DE EXPORTAÇÃO ----
@@ -1410,275 +1417,43 @@
     document.getElementById('modal-exportar').classList.remove('open');
   };
 
-  window.confirmarExportacao = function() {
+  window.confirmarExportacao = async function() {
     const tipoSelecionado = document.querySelector('input[name="export-type"]:checked').value;
-    
-    switch(tipoSelecionado) {
-      case 'geral':
-        exportarRelatorioGeral();
-        break;
-      case 'ninebox':
-        exportarNineBoxCSV();
-        break;
-      case 'avaliacoes':
-        exportarAvaliacoesDetalhadas();
-        break;
-      case 'medias':
-        exportarMediasPorCriterio();
-        break;
-      case 'competencias':
-        exportarCompetencias();
-        break;
-    }
-    
-    fecharModalExportar();
-  };
+    const btnExportar = document.getElementById('btn-confirmar-export');
+    const loadingEl  = document.getElementById('export-loading');
 
-  // ---- EXPORTAR RELATÓRIO GERAL ----
-  function exportarRelatorioGeral() {
-    if (allUsers.length === 0 && allEvaluations.length === 0 && allNineBoxData.length === 0) {
-      showToast('Nenhum dado para exportar', 'warning');
-      return;
-    }
+    btnExportar.disabled = true;
+    btnExportar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Exportando...';
+    loadingEl.style.display = 'block';
 
-    const headers = [
-      'Tipo de Dado',
-      'ID',
-      'Nome/Descrição',
-      'Tipo/Categoria',
-      'Cargo/Departamento',
-      'RA',
-      'Média/Performance',
-      'Potencial',
-      'Data'
-    ];
-
-    const rows = [];
-
-    // Adicionar usuários
-    allUsers.forEach(u => {
-      rows.push([
-        'Usuário',
-        u.id || '',
-        u.nome || '',
-        u.tipo || '',
-        u.cargo || '',
-        u.ra || '',
-        '',
-        '',
-        u.createdAt ? new Date(u.createdAt).toLocaleDateString('pt-BR') : ''
-      ]);
-    });
-
-    // Adicionar avaliações
-    allEvaluations.forEach(av => {
-      rows.push([
-        'Avaliação',
-        av.id || '',
-        av.avaliado?.nome || '',
-        av.tipoAvaliacao || '',
-        '',
-        av.avaliado?.ra || '',
-        av.media || '',
-        '',
-        av.data ? new Date(av.data).toLocaleDateString('pt-BR') : ''
-      ]);
-    });
-
-    // Adicionar Nine Box
-    allNineBoxData.forEach(nb => {
-      const CATEGORIAS = {
-        '1-1': 'Questão', '2-1': 'Trabalhador', '3-1': 'Âncora',
-        '1-2': 'Dilema', '2-2': 'Núcleo', '3-2': 'Especialista',
-        '1-3': 'Enigma', '2-3': 'Estrela', '3-3': 'Superstar'
-      };
-      rows.push([
-        'Nine Box',
-        nb.id || '',
-        nb.pessoa?.nome || '',
-        CATEGORIAS[`${nb.performance}-${nb.potential}`] || '',
-        nb.pessoa?.cargo || '',
-        nb.pessoa?.ra || '',
-        nb.performance || '',
-        nb.potential || '',
-        nb.data ? new Date(nb.data).toLocaleDateString('pt-BR') : ''
-      ]);
-    });
-
-    exportarCSV(headers, rows, 'relatorio-geral');
-  }
-
-  // ---- EXPORTAR AVALIAÇÕES DETALHADAS ----
-  function exportarAvaliacoesDetalhadas() {
-    if (allEvaluations.length === 0) {
-      showToast('Nenhuma avaliação para exportar', 'warning');
-      return;
-    }
-
-    const headers = [
-      'ID',
-      'Avaliado',
-      'RA',
-      'Tipo',
-      'Tipo Avaliação',
-      'Pontualidade',
-      'Comunicação',
-      'Técnico',
-      'Proatividade',
-      'Equipe',
-      'Média',
-      'Comentário',
-      'Data'
-    ];
-
-    const rows = allEvaluations.map(av => [
-      av.id || '',
-      av.avaliado?.nome || '',
-      av.avaliado?.ra || '',
-      av.avaliado?.tipo || '',
-      av.tipoAvaliacao || '',
-      av.criterios?.pontualidade || '',
-      av.criterios?.comunicacao || '',
-      av.criterios?.tecnico || '',
-      av.criterios?.proatividade || '',
-      av.criterios?.equipe || '',
-      av.media || '',
-      (av.comentario || '').replace(/"/g, '""'),
-      av.data ? new Date(av.data).toLocaleDateString('pt-BR') : ''
-    ]);
-
-    exportarCSV(headers, rows, 'avaliacoes-detalhadas');
-  }
-
-  // ---- EXPORTAR MÉDIAS POR CRITÉRIO ----
-  function exportarMediasPorCriterio() {
-    if (allEvaluations.length === 0) {
-      showToast('Nenhuma avaliação para calcular médias', 'warning');
-      return;
-    }
-
-    // Agrupar avaliações por pessoa
-    const mediasPorPessoa = {};
-    
-    allEvaluations.forEach(av => {
-      const pessoaId = av.avaliadoId;
-      const pessoaNome = av.avaliado?.nome || 'Desconhecido';
-      const pessoaRA = av.avaliado?.ra || '';
-      
-      if (!mediasPorPessoa[pessoaId]) {
-        mediasPorPessoa[pessoaId] = {
-          nome: pessoaNome,
-          ra: pessoaRA,
-          pontualidade: [],
-          comunicacao: [],
-          tecnico: [],
-          proatividade: [],
-          equipe: []
-        };
-      }
-      
-      if (av.criterios) {
-        if (av.criterios.pontualidade) mediasPorPessoa[pessoaId].pontualidade.push(av.criterios.pontualidade);
-        if (av.criterios.comunicacao) mediasPorPessoa[pessoaId].comunicacao.push(av.criterios.comunicacao);
-        if (av.criterios.tecnico) mediasPorPessoa[pessoaId].tecnico.push(av.criterios.tecnico);
-        if (av.criterios.proatividade) mediasPorPessoa[pessoaId].proatividade.push(av.criterios.proatividade);
-        if (av.criterios.equipe) mediasPorPessoa[pessoaId].equipe.push(av.criterios.equipe);
-      }
-    });
-
-    const headers = [
-      'Nome',
-      'RA',
-      'Média Pontualidade',
-      'Média Comunicação',
-      'Média Técnico',
-      'Média Proatividade',
-      'Média Equipe',
-      'Média Geral',
-      'Nº Avaliações'
-    ];
-
-    const rows = Object.values(mediasPorPessoa).map(pessoa => {
-      const calcMedia = (arr) => arr.length > 0 ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1) : '0';
-      
-      const mediaPont = calcMedia(pessoa.pontualidade);
-      const mediaComun = calcMedia(pessoa.comunicacao);
-      const mediaTec = calcMedia(pessoa.tecnico);
-      const mediaProat = calcMedia(pessoa.proatividade);
-      const mediaEquipe = calcMedia(pessoa.equipe);
-      
-      const todasNotas = [
-        ...pessoa.pontualidade,
-        ...pessoa.comunicacao,
-        ...pessoa.tecnico,
-        ...pessoa.proatividade,
-        ...pessoa.equipe
-      ];
-      const mediaGeral = calcMedia(todasNotas);
-      const numAvaliacoes = Math.max(
-        pessoa.pontualidade.length,
-        pessoa.comunicacao.length,
-        pessoa.tecnico.length,
-        pessoa.proatividade.length,
-        pessoa.equipe.length
-      );
-
-      return [
-        pessoa.nome,
-        pessoa.ra,
-        mediaPont,
-        mediaComun,
-        mediaTec,
-        mediaProat,
-        mediaEquipe,
-        mediaGeral,
-        numAvaliacoes
-      ];
-    });
-
-    exportarCSV(headers, rows, 'medias-por-criterio');
-  }
-
-  // ---- EXPORTAR COMPETÊNCIAS ----
-  async function exportarCompetencias() {
     try {
-      const res = await reportsApi.competencias();
-      const competencias = res.data.competencias || [];
-      
-      if (competencias.length === 0) {
-        showToast('Nenhuma competência para exportar', 'warning');
-        return;
+      switch (tipoSelecionado) {
+        case 'ranking':    await exportarRankingColaboradores(); break;
+        case 'ninebox':    exportarNineBoxCSV();                 break;
+        case 'avaliacoes': await exportarAvaliacoesDetalhadas(); break;
+        case 'medias':     await exportarMediasPorCriterio();    break;
+        case 'usuarios':   await exportarCadastroUsuarios();     break;
       }
-
-      const headers = [
-        'ID',
-        'Nome',
-        'Descrição',
-        'Categoria',
-        'Nível',
-        'Data de Criação'
-      ];
-
-      const rows = competencias.map(c => [
-        c.id || '',
-        c.nome || '',
-        (c.descricao || '').replace(/"/g, '""'),
-        c.categoria || '',
-        c.nivel || '',
-        c.createdAt ? new Date(c.createdAt).toLocaleDateString('pt-BR') : ''
-      ]);
-
-      exportarCSV(headers, rows, 'competencias');
+      fecharModalExportar();
     } catch (err) {
-      showToast('Erro ao exportar competências', 'error');
+      console.error('Erro na exportação:', err);
+      showToast('Erro ao exportar. Tente novamente.', 'error');
+    } finally {
+      btnExportar.disabled = false;
+      btnExportar.innerHTML = '<i class="fa-solid fa-download"></i> Exportar CSV';
+      loadingEl.style.display = 'none';
     }
-  }
+  };
 
   // ---- FUNÇÃO AUXILIAR PARA EXPORTAR CSV ----
   function exportarCSV(headers, rows, nomeArquivo) {
+    if (rows.length === 0) {
+      showToast('Nenhum dado encontrado para exportar.', 'warning');
+      return false;
+    }
     const csvContent = [
       headers.map(h => `"${h}"`).join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ...rows.map(row => row.map(cell => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(','))
     ].join('\n');
 
     const BOM = '\uFEFF';
@@ -1689,89 +1464,234 @@
     link.download = `${nomeArquivo}-${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-
     showToast(`${rows.length} registros exportados com sucesso!`, 'success');
+    return true;
   }
 
-  // ---- EXPORTAR NINE BOX PARA CSV ----
+  // ---- RANKING DE COLABORADORES ----
+  // Busca todos os usuários + relatório individual e ordena por média geral
+  async function exportarRankingColaboradores() {
+    const [usersRes, nbRes] = await Promise.all([
+      usersApi.list({ limit: 1000 }),
+      nineBoxApi.list({ limit: 1000 })
+    ]);
+
+    const users     = usersRes.data.users    || [];
+    const nineBoxes = nbRes.data.nineBoxes   || [];
+
+    const NB_CATEGORIAS = {
+      '1-1': 'Questão',    '2-1': 'Trabalhador', '3-1': 'Âncora',
+      '1-2': 'Dilema',     '2-2': 'Núcleo',      '3-2': 'Especialista',
+      '1-3': 'Enigma',     '2-3': 'Estrela',      '3-3': 'Superstar'
+    };
+
+    // Buscar relatório de cada usuário em lotes de 5
+    const resultados = [];
+    const batchSize = 5;
+    for (let i = 0; i < users.length; i += batchSize) {
+      const batch = users.slice(i, i + batchSize);
+      const batchResults = await Promise.allSettled(
+        batch.map(u => reportsApi.user(u.id))
+      );
+      batchResults.forEach((result, idx) => {
+        const u  = batch[idx];
+        const nb = nineBoxes.find(n => n.pessoaId === u.id || n.pessoa?.id === u.id);
+        const nbCategoria = nb ? (NB_CATEGORIAS[`${nb.performance}-${nb.potential}`] || '') : '';
+        const d = (result.status === 'fulfilled' && result.value?.data) ? result.value.data : {};
+        resultados.push({
+          nome: u.nome, ra: u.ra, tipo: u.tipo,
+          cargo: u.cargo || '', departamento: u.departamento || '',
+          avaliacoesRecebidas: d.avaliacoesRecebidas || 0,
+          avaliacoesFeitas:    d.avaliacoesFeitas    || 0,
+          mediaGeral:          d.mediaGeral          || 0,
+          criterios:           d.criteriosMedia      || {},
+          nbCategoria,
+          nbPerf: nb ? nb.performance : '',
+          nbPot:  nb ? nb.potential   : ''
+        });
+      });
+    }
+
+    resultados.sort((a, b) => b.mediaGeral - a.mediaGeral);
+
+    const headers = [
+      'Posição', 'Nome', 'RA', 'Tipo', 'Cargo', 'Departamento',
+      'Média Geral', 'Avaliações Recebidas', 'Avaliações Feitas',
+      'Pontualidade', 'Comunicação', 'Técnico', 'Proatividade', 'Equipe',
+      'Categoria Nine Box', 'Performance (NB)', 'Potencial (NB)'
+    ];
+
+    const fmt = v => (v != null && v > 0) ? Number(v).toFixed(1) : '—';
+
+    const rows = resultados.map((r, i) => [
+      i + 1,
+      r.nome, r.ra, r.tipo, r.cargo, r.departamento,
+      fmt(r.mediaGeral),
+      r.avaliacoesRecebidas, r.avaliacoesFeitas,
+      fmt(r.criterios.pontualidade), fmt(r.criterios.comunicacao),
+      fmt(r.criterios.tecnico),      fmt(r.criterios.proatividade),
+      fmt(r.criterios.equipe),
+      r.nbCategoria, r.nbPerf, r.nbPot
+    ]);
+
+    exportarCSV(headers, rows, 'ranking-colaboradores');
+  }
+
+  // ---- AVALIAÇÕES DETALHADAS ----
+  async function exportarAvaliacoesDetalhadas() {
+    const { evaluationsApi } = await import('../js/api.js');
+    const res = await evaluationsApi.list({ limit: 1000 });
+    const avaliacoes = res.data.evaluations || res.data.avaliacoes || [];
+
+    const TIPO_LABELS = {
+      gestor_para_colaborador: 'Gestor → Colaborador (180°)',
+      colaborador_para_gestor: 'Colaborador → Gestor (360°)',
+      avaliacao_360: '360°'
+    };
+
+    const headers = [
+      'ID', 'Avaliado', 'RA Avaliado', 'Tipo Avaliado',
+      'Avaliador', 'Tipo Avaliação',
+      'Pontualidade', 'Comunicação', 'Técnico', 'Proatividade', 'Equipe',
+      'Média', 'Comentário', 'Data'
+    ];
+
+    const rows = avaliacoes.map(av => [
+      av.id || '',
+      av.avaliado?.nome  || av.avaliadoNome  || '',
+      av.avaliado?.ra    || av.avaliadoRA    || '',
+      av.avaliado?.tipo  || '',
+      av.avaliador?.nome || av.avaliadorNome || '',
+      TIPO_LABELS[av.tipoAvaliacao] || av.tipoAvaliacao || '',
+      av.criterios?.pontualidade ?? av.pontualidade ?? '',
+      av.criterios?.comunicacao  ?? av.comunicacao  ?? '',
+      av.criterios?.tecnico      ?? av.tecnico      ?? '',
+      av.criterios?.proatividade ?? av.proatividade ?? '',
+      av.criterios?.equipe       ?? av.equipe       ?? '',
+      av.media ?? '',
+      av.comentario || '',
+      av.data      ? new Date(av.data).toLocaleDateString('pt-BR')
+        : av.createdAt ? new Date(av.createdAt).toLocaleDateString('pt-BR') : ''
+    ]);
+
+    exportarCSV(headers, rows, 'avaliacoes-detalhadas');
+  }
+
+  // ---- MÉDIAS POR CRITÉRIO ----
+  async function exportarMediasPorCriterio() {
+    const { evaluationsApi } = await import('../js/api.js');
+    const res = await evaluationsApi.list({ limit: 1000 });
+    const avaliacoes = res.data.evaluations || res.data.avaliacoes || [];
+
+    const mediasPorPessoa = {};
+    avaliacoes.forEach(av => {
+      const id    = av.avaliadoId || av.avaliado?.id;
+      const nome  = av.avaliado?.nome || av.avaliadoNome || 'Desconhecido';
+      const ra    = av.avaliado?.ra   || av.avaliadoRA   || '';
+      const tipo  = av.avaliado?.tipo  || '';
+      const cargo = av.avaliado?.cargo || '';
+      if (!id) return;
+      if (!mediasPorPessoa[id]) {
+        mediasPorPessoa[id] = { nome, ra, tipo, cargo, pont: [], comun: [], tec: [], proat: [], eq: [], count: 0 };
+      }
+      const c = av.criterios || av;
+      if (c.pontualidade) mediasPorPessoa[id].pont.push(Number(c.pontualidade));
+      if (c.comunicacao)  mediasPorPessoa[id].comun.push(Number(c.comunicacao));
+      if (c.tecnico)      mediasPorPessoa[id].tec.push(Number(c.tecnico));
+      if (c.proatividade) mediasPorPessoa[id].proat.push(Number(c.proatividade));
+      if (c.equipe)       mediasPorPessoa[id].eq.push(Number(c.equipe));
+      mediasPorPessoa[id].count++;
+    });
+
+    const calcMedia = arr => arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+    const fmt = v => v !== null ? Number(v).toFixed(1) : '—';
+
+    const headers = [
+      'Nome', 'RA', 'Tipo', 'Cargo',
+      'Pontualidade', 'Comunicação', 'Técnico', 'Proatividade', 'Equipe',
+      'Média Geral', 'Nº Avaliações'
+    ];
+
+    const rows = Object.values(mediasPorPessoa)
+      .map(p => {
+        const pont  = calcMedia(p.pont);
+        const comun = calcMedia(p.comun);
+        const tec   = calcMedia(p.tec);
+        const proat = calcMedia(p.proat);
+        const eq    = calcMedia(p.eq);
+        const todas = [...p.pont, ...p.comun, ...p.tec, ...p.proat, ...p.eq];
+        const geral = calcMedia(todas);
+        return { ...p, pont, comun, tec, proat, eq, geral };
+      })
+      .sort((a, b) => (b.geral ?? -1) - (a.geral ?? -1))
+      .map(p => [
+        p.nome, p.ra, p.tipo, p.cargo,
+        fmt(p.pont), fmt(p.comun), fmt(p.tec), fmt(p.proat), fmt(p.eq),
+        fmt(p.geral), p.count
+      ]);
+
+    exportarCSV(headers, rows, 'medias-por-criterio');
+  }
+
+  // ---- CADASTRO DE USUÁRIOS ----
+  async function exportarCadastroUsuarios() {
+    const res = await usersApi.list({ limit: 1000 });
+    const users = res.data.users || [];
+
+    const headers = [
+      'ID', 'Nome', 'RA', 'Email', 'Tipo', 'Cargo', 'Departamento', 'Data de Cadastro'
+    ];
+
+    const rows = users.map(u => [
+      u.id || '',
+      u.nome || '',
+      u.ra   || '',
+      u.email || '',
+      u.tipo  || '',
+      u.cargo || '',
+      u.departamento || '',
+      u.createdAt    ? new Date(u.createdAt).toLocaleDateString('pt-BR')
+        : u.dataCadastro ? new Date(u.dataCadastro).toLocaleDateString('pt-BR') : ''
+    ]);
+
+    exportarCSV(headers, rows, 'cadastro-usuarios');
+  }
+
+  // ---- NINE BOX CSV ----
   window.exportarNineBoxCSV = function() {
     if (allNineBoxData.length === 0) {
-      showToast('Nenhum dado para exportar', 'warning');
+      showToast('Carregue o dashboard primeiro para exportar o Nine Box.', 'warning');
       return;
     }
 
     const CATEGORIAS = {
-      '1-1': 'Questão',
-      '2-1': 'Trabalhador',
-      '3-1': 'Âncora',
-      '1-2': 'Dilema',
-      '2-2': 'Núcleo',
-      '3-2': 'Especialista',
-      '1-3': 'Enigma',
-      '2-3': 'Estrela',
-      '3-3': 'Superstar',
+      '1-1': 'Questão',    '2-1': 'Trabalhador', '3-1': 'Âncora',
+      '1-2': 'Dilema',     '2-2': 'Núcleo',      '3-2': 'Especialista',
+      '1-3': 'Enigma',     '2-3': 'Estrela',      '3-3': 'Superstar'
     };
+    const NIVEL = { 1: 'Baixo', 2: 'Médio', 3: 'Alto' };
 
-    const PERF_LABELS = { 1: 'Baixo', 2: 'Médio', 3: 'Alto' };
-    const POT_LABELS = { 1: 'Baixo', 2: 'Médio', 3: 'Alto' };
-
-    // Cabeçalho do CSV
     const headers = [
-      'ID',
-      'Nome',
-      'Tipo',
-      'Cargo',
-      'Departamento',
-      'RA',
-      'Performance (Nível)',
-      'Performance (Texto)',
-      'Potencial (Nível)',
-      'Potencial (Texto)',
-      'Categoria Nine Box',
-      'Comentário',
-      'Data de Avaliação'
+      'Nome', 'RA', 'Tipo', 'Cargo', 'Departamento',
+      'Performance (Nível)', 'Performance', 'Potencial (Nível)', 'Potencial',
+      'Categoria Nine Box', 'Comentário', 'Data'
     ];
 
-    // Linhas de dados
     const rows = allNineBoxData.map(nb => {
-      const pessoa = nb.pessoa || {};
-      const categoria = CATEGORIAS[`${nb.performance}-${nb.potential}`] || 'N/A';
-      
+      const p = nb.pessoa || {};
       return [
-        nb.id || '',
-        pessoa.nome || '',
-        pessoa.tipo || '',
-        pessoa.cargo || '',
-        pessoa.departamento || '',
-        pessoa.ra || '',
-        nb.performance || '',
-        PERF_LABELS[nb.performance] || '',
-        nb.potential || '',
-        POT_LABELS[nb.potential] || '',
-        categoria,
-        (nb.comentario || '').replace(/"/g, '""'), // Escapar aspas duplas
+        p.nome || '', p.ra || '', p.tipo || '', p.cargo || '', p.departamento || '',
+        nb.performance || '', NIVEL[nb.performance] || '',
+        nb.potential   || '', NIVEL[nb.potential]   || '',
+        CATEGORIAS[`${nb.performance}-${nb.potential}`] || '',
+        nb.comentario || '',
         nb.data ? new Date(nb.data).toLocaleDateString('pt-BR') : ''
       ];
     });
 
-    // Converter para CSV
-    const csvContent = [
-      headers.map(h => `"${h}"`).join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
-
-    // Adicionar BOM para UTF-8 (para Excel reconhecer acentos)
-    const BOM = '\uFEFF';
-    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `nine-box-export-${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-
-    showToast(`${allNineBoxData.length} registros exportados com sucesso!`, 'success');
+    exportarCSV(headers, rows, 'nine-box');
   };
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 </body>
