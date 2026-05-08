@@ -1,19 +1,12 @@
-# 🏗️ Parte 3: Estrutura do Backend
+# Parte 3: Estrutura do Backend
 
-## 📋 O que vamos criar
+Agora vamos montar a estrutura base do backend. Vamos criar os middlewares, configurar o Express e preparar tudo para receber os módulos.
 
-Nesta parte, vamos implementar:
-1. Configuração do Express
-2. Middlewares (auth, validation, error handling)
-3. Utilitários (classes de erro)
-4. Estrutura modular
+## Passo 1: Criar Estrutura de Pastas
 
----
-
-## 📁 Passo 1: Criar Estrutura de Pastas
+Dentro da pasta `backend`, crie a estrutura de pastas:
 
 ```bash
-# Criar todas as pastas de uma vez
 mkdir -p src/config
 mkdir -p src/middlewares
 mkdir -p src/modules/users
@@ -24,36 +17,30 @@ mkdir -p src/modules/reports
 mkdir -p src/utils
 ```
 
-**Estrutura final:**
+A estrutura final fica assim:
+
 ```
-src/
-├── config/
-│   └── database.js
-├── middlewares/
-│   ├── auth.js
-│   ├── errorHandler.js
-│   └── validate.js
-├── modules/
-│   ├── users/
-│   ├── evaluations/
-│   ├── competencies/
-│   ├── ninebox/
-│   └── reports/
-├── utils/
-│   └── errors.js
-└── app.js
+backend/
+├── src/
+│   ├── config/          # Configurações (banco de dados)
+│   ├── middlewares/     # Middlewares (auth, validação, erros)
+│   ├── modules/         # Módulos da aplicação
+│   │   ├── users/
+│   │   ├── evaluations/
+│   │   ├── competencies/
+│   │   ├── ninebox/
+│   │   └── reports/
+│   ├── utils/           # Utilitários (classes de erro)
+│   └── app.js           # Configuração do Express
+├── server.js            # Arquivo principal
+└── .env                 # Variáveis de ambiente
 ```
 
----
+## Passo 2: Criar Classe de Erro Customizada
 
-## 🛠️ Passo 2: Criar Utilitários
-
-### Arquivo: `src/utils/errors.js`
+Crie o arquivo `src/utils/errors.js`:
 
 ```javascript
-/**
- * Classe de erro customizada para erros de aplicação
- */
 class AppError extends Error {
   constructor(message, statusCode = 400) {
     super(message);
@@ -68,65 +55,48 @@ class AppError extends Error {
 export { AppError };
 ```
 
-**Por que usar classes de erro customizadas?**
-- Padroniza tratamento de erros
-- Diferencia erros operacionais de bugs
-- Facilita logging e monitoramento
+Essa classe serve para criar erros personalizados que o sistema consegue identificar e tratar de forma adequada. O `isOperational` indica que é um erro esperado (como "usuário não encontrado"), não um bug do código.
 
----
+## Passo 3: Configurar Conexão com Banco
 
-## 🗄️ Passo 3: Configurar Database
-
-### Arquivo: `src/config/database.js`
+Crie o arquivo `src/config/database.js`:
 
 ```javascript
 import { PrismaClient } from '@prisma/client';
 
-// Criar instância única do Prisma (Singleton)
 const prisma = new PrismaClient({
   log: process.env.NODE_ENV === 'development' 
     ? ['query', 'info', 'warn', 'error'] 
     : ['error'],
 });
 
-// Tratamento de erros de conexão
 prisma.$connect()
   .then(() => {
-    console.log('✅ Conectado ao banco de dados');
+    console.log('Conectado ao banco de dados');
   })
   .catch((error) => {
-    console.error('❌ Erro ao conectar ao banco:', error);
+    console.error('Erro ao conectar ao banco:', error);
     process.exit(1);
   });
 
-// Graceful shutdown
 process.on('beforeExit', async () => {
   await prisma.$disconnect();
-  console.log('🔌 Desconectado do banco de dados');
+  console.log('Desconectado do banco de dados');
 });
 
 export { prisma };
 ```
 
-**Explicação:**
-- `PrismaClient()` - Cliente do Prisma
-- `log` - Logs apenas em desenvolvimento
-- `$connect()` - Conecta ao banco
-- `beforeExit` - Desconecta gracefully
+O Prisma Client é a ferramenta que usamos para conversar com o banco. Aqui criamos uma instância única que será usada em todo o sistema. Em desenvolvimento, ele mostra as queries SQL que executa, o que ajuda a debugar.
 
----
+## Passo 4: Criar Middleware de Autenticação
 
-## 🔐 Passo 4: Criar Middleware de Autenticação
-
-### Arquivo: `src/middlewares/auth.js`
+Crie o arquivo `src/middlewares/auth.js`:
 
 ```javascript
 import jwt from 'jsonwebtoken';
 import { AppError } from '../utils/errors.js';
 
-/**
- * Middleware de autenticação JWT
- */
 const authMiddleware = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -152,7 +122,6 @@ const authMiddleware = (req, res, next) => {
         throw new AppError('Token inválido', 401);
       }
 
-      // Adiciona dados do usuário na requisição
       req.user = decoded;
       return next();
     });
@@ -161,9 +130,6 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-/**
- * Middleware para verificar se é admin
- */
 const isAdminMiddleware = (req, res, next) => {
   if (req.user.tipo !== 'admin') {
     return next(new AppError('Acesso negado. Apenas administradores', 403));
@@ -171,9 +137,6 @@ const isAdminMiddleware = (req, res, next) => {
   next();
 };
 
-/**
- * Middleware para verificar se é gestor ou admin
- */
 const isGestorOrAdminMiddleware = (req, res, next) => {
   if (req.user.tipo !== 'admin' && req.user.tipo !== 'gestor') {
     return next(new AppError('Acesso negado. Apenas gestores ou administradores', 403));
@@ -188,31 +151,27 @@ export {
 };
 ```
 
-**Como funciona:**
-1. Extrai token do header `Authorization: Bearer <token>`
-2. Valida formato do token
-3. Verifica assinatura JWT
-4. Adiciona `req.user` com dados do usuário
-5. Permite acesso à rota
+O middleware de autenticação funciona assim:
+1. Pega o token do header `Authorization: Bearer <token>`
+2. Valida se o formato está correto
+3. Verifica se o token é válido usando a chave secreta
+4. Adiciona os dados do usuário em `req.user` para usar nas rotas
+5. Se algo der errado, retorna erro 401 (não autorizado)
 
----
+Os outros dois middlewares verificam o tipo de usuário. Use `isAdminMiddleware` em rotas que só admin pode acessar, e `isGestorOrAdminMiddleware` em rotas que gestor e admin podem acessar.
 
-## ✅ Passo 5: Criar Middleware de Validação
+## Passo 5: Criar Middleware de Validação
 
-### Arquivo: `src/middlewares/validate.js`
+Crie o arquivo `src/middlewares/validate.js`:
 
 ```javascript
 import { AppError } from '../utils/errors.js';
 
-/**
- * Middleware de validação usando Joi
- * @param {Object} schema - Schema Joi para validação
- */
 const validate = (schema) => {
   return (req, res, next) => {
     const { error, value } = schema.validate(req.body, {
-      abortEarly: false, // Retorna todos os erros
-      stripUnknown: true // Remove campos não definidos no schema
+      abortEarly: false,
+      stripUnknown: true
     });
 
     if (error) {
@@ -223,7 +182,6 @@ const validate = (schema) => {
       return next(new AppError(errorMessage, 400));
     }
 
-    // Substitui req.body pelos dados validados
     req.body = value;
     next();
   };
@@ -232,30 +190,23 @@ const validate = (schema) => {
 export { validate };
 ```
 
-**Por que validar?**
-- Previne dados inválidos no banco
-- Melhora segurança
-- Retorna erros claros para o frontend
+Esse middleware usa o Joi para validar os dados que chegam nas requisições. O `abortEarly: false` faz ele retornar todos os erros de uma vez, não só o primeiro. O `stripUnknown: true` remove campos que não estão no schema, evitando que dados extras entrem no banco.
 
----
+## Passo 6: Criar Middleware de Tratamento de Erros
 
-## 🚨 Passo 6: Criar Middleware de Tratamento de Erros
-
-### Arquivo: `src/middlewares/errorHandler.js`
+Crie o arquivo `src/middlewares/errorHandler.js`:
 
 ```javascript
-/**
- * Middleware global de tratamento de erros
- */
 const errorHandler = (err, req, res, next) => {
   let { statusCode = 500, message } = err;
 
-  // Erros do Prisma
+  // Erros do Prisma - Unique constraint
   if (err.code === 'P2002') {
     statusCode = 409;
     message = 'Registro duplicado. Este valor já existe no banco de dados.';
   }
 
+  // Erros do Prisma - Record not found
   if (err.code === 'P2025') {
     statusCode = 404;
     message = 'Registro não encontrado.';
@@ -272,16 +223,15 @@ const errorHandler = (err, req, res, next) => {
     message = 'Token expirado';
   }
 
-  // Log do erro (apenas em desenvolvimento)
+  // Log do erro em desenvolvimento
   if (process.env.NODE_ENV === 'development') {
-    console.error('❌ Erro:', {
+    console.error('Erro:', {
       message: err.message,
       stack: err.stack,
       code: err.code
     });
   }
 
-  // Resposta padronizada
   res.status(statusCode).json({
     success: false,
     message,
@@ -292,16 +242,11 @@ const errorHandler = (err, req, res, next) => {
 export { errorHandler };
 ```
 
-**Códigos de erro Prisma:**
-- `P2002` - Unique constraint violation (duplicado)
-- `P2025` - Record not found (não encontrado)
-- `P2003` - Foreign key constraint failed
+Esse middleware captura todos os erros da aplicação e transforma em respostas padronizadas. Ele identifica erros comuns do Prisma (como tentar criar um registro duplicado) e do JWT (token inválido ou expirado) e retorna mensagens claras para o frontend.
 
----
+## Passo 7: Configurar Express
 
-## 🚀 Passo 7: Configurar Express
-
-### Arquivo: `src/app.js`
+Crie o arquivo `src/app.js`:
 
 ```javascript
 import express from 'express';
@@ -311,186 +256,156 @@ import { errorHandler } from './middlewares/errorHandler.js';
 
 const app = express();
 
-// ============================================
-// MIDDLEWARES GLOBAIS
-// ============================================
-
 // Segurança HTTP
 app.use(helmet());
 
-// CORS (permitir requisições do frontend)
+// CORS - permitir requisições do frontend
+const allowedOrigins = [
+  'http://localhost:5500',
+  'http://127.0.0.1:5500',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000'
+];
+
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5500',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
-// Parse JSON
-app.use(express.json());
+// Parse JSON (aumentado para 10MB por causa das fotos em base64)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Parse URL-encoded
-app.use(express.urlencoded({ extended: true }));
-
-// Log de requisições (apenas em desenvolvimento)
-if (process.env.NODE_ENV === 'development') {
-  app.use((req, res, next) => {
-    console.log(`${req.method} ${req.path}`);
-    next();
-  });
-}
-
-// ============================================
-// ROTAS
-// ============================================
-
-// Rota de health check
+// Health check
 app.get('/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'API está funcionando',
-    timestamp: new Date().toISOString()
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString() 
   });
 });
 
 // Rotas da API (vamos adicionar depois)
-// app.use('/api/auth', authRoutes);
 // app.use('/api/users', userRoutes);
 // app.use('/api/evaluations', evaluationRoutes);
 // app.use('/api/competencies', competencyRoutes);
-// app.use('/api/ninebox', nineboxRoutes);
-// app.use('/api/reports', reportRoutes);
+// app.use('/api/ninebox', nineBoxRoutes);
+// app.use('/api/reports', reportsRoutes);
 
-// ============================================
-// TRATAMENTO DE ERROS
-// ============================================
-
-// Rota não encontrada
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Rota não encontrada'
-  });
-});
-
-// Middleware de erro global
+// Middleware de erro (sempre por último)
 app.use(errorHandler);
 
-export { app };
+export default app;
 ```
 
----
+Aqui configuramos o Express com:
+- `helmet()` - adiciona headers de segurança
+- `cors()` - permite que o frontend faça requisições
+- `express.json()` - faz parse de JSON no body (limite de 10MB para fotos)
+- `health check` - rota para verificar se a API está funcionando
+- `errorHandler` - captura todos os erros
 
-## 🎯 Passo 8: Criar Servidor
+## Passo 8: Criar Servidor
 
-### Arquivo: `server.js` (raiz do projeto)
+Crie o arquivo `server.js` na raiz do projeto:
 
 ```javascript
 import 'dotenv/config';
-import { app } from './src/app.js';
+import app from './src/app.js';
 import { prisma } from './src/config/database.js';
 
 const PORT = process.env.PORT || 3000;
 
-// Iniciar servidor
 const server = app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
-  console.log(`📍 http://localhost:${PORT}`);
-  console.log(`🏥 Health check: http://localhost:${PORT}/health`);
+  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`http://localhost:${PORT}`);
+  console.log(`Health check: http://localhost:${PORT}/health`);
 });
 
-// Graceful shutdown
+// Graceful shutdown - desliga o servidor de forma limpa
 process.on('SIGTERM', () => {
-  console.log('⚠️  SIGTERM recebido. Encerrando servidor...');
+  console.log('SIGTERM recebido. Encerrando servidor...');
   server.close(async () => {
     await prisma.$disconnect();
-    console.log('👋 Servidor encerrado');
+    console.log('Servidor encerrado');
     process.exit(0);
   });
 });
 
 process.on('SIGINT', () => {
-  console.log('\n⚠️  SIGINT recebido. Encerrando servidor...');
+  console.log('\nSIGINT recebido. Encerrando servidor...');
   server.close(async () => {
     await prisma.$disconnect();
-    console.log('👋 Servidor encerrado');
+    console.log('Servidor encerrado');
     process.exit(0);
   });
 });
 ```
 
----
+O graceful shutdown garante que quando você parar o servidor (Ctrl+C), ele vai fechar as conexões com o banco antes de desligar completamente.
 
-## 🧪 Passo 9: Testar o Servidor
+## Passo 9: Testar o Servidor
+
+Inicie o servidor:
 
 ```bash
-# Iniciar servidor em modo desenvolvimento
 npm run dev
 ```
 
-**Saída esperada:**
+Você deve ver:
+
 ```
-✅ Conectado ao banco de dados
-🚀 Servidor rodando na porta 3000
-📍 http://localhost:3000
-🏥 Health check: http://localhost:3000/health
-```
-
-### Testar Health Check
-
-```bash
-# Via curl
-curl http://localhost:3000/health
-
-# Via navegador
-# Abra: http://localhost:3000/health
+Conectado ao banco de dados
+Servidor rodando na porta 3000
+http://localhost:3000
+Health check: http://localhost:3000/health
 ```
 
-**Resposta esperada:**
+Teste o health check abrindo no navegador: `http://localhost:3000/health`
+
+Deve retornar:
+
 ```json
 {
-  "success": true,
-  "message": "API está funcionando",
+  "status": "ok",
   "timestamp": "2026-05-08T10:30:00.000Z"
 }
 ```
 
----
+## Verificação
 
-## ✅ Verificação
-
-Neste ponto, você deve ter:
+Neste ponto você deve ter:
 
 ```
 backend/
 ├── src/
 │   ├── config/
-│   │   └── database.js          ✅
+│   │   └── database.js
 │   ├── middlewares/
-│   │   ├── auth.js              ✅
-│   │   ├── errorHandler.js      ✅
-│   │   └── validate.js          ✅
+│   │   ├── auth.js
+│   │   ├── errorHandler.js
+│   │   └── validate.js
 │   ├── utils/
-│   │   └── errors.js            ✅
-│   └── app.js                   ✅
-├── server.js                    ✅
-└── .env                         ✅
+│   │   └── errors.js
+│   └── app.js
+├── server.js
+└── .env
 ```
 
-**Servidor deve estar:**
-- ✅ Rodando na porta 3000
-- ✅ Conectado ao banco de dados
-- ✅ Respondendo ao health check
+E o servidor deve estar:
+- Rodando na porta 3000
+- Conectado ao banco de dados
+- Respondendo ao health check
 
----
-
-## 🎯 Próximos Passos
-
-Continue para **PARTE4_MODULO_USERS.md** para:
-1. Criar sistema de autenticação (login/register)
-2. Implementar CRUD de usuários
-3. Criar rotas protegidas
-4. Testar autenticação JWT
-
----
-
-**Tempo estimado:** 30-40 minutos  
-**Dificuldade:** ⭐⭐ Médio
+Próximo passo: criar os módulos da aplicação (users, evaluations, competencies, ninebox, reports).

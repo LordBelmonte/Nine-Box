@@ -1,23 +1,22 @@
 # Portal de Avaliação de Desempenho - ENIAC
 
-Sistema completo de avaliação de desempenho com avaliações 180° e 360°, Nine Box e gestão de competências.
+Sistema de avaliação de desempenho com avaliações 180° e 360°, Nine Box e gestão de competências.
 
-## 🎯 Status do Projeto
+## Status
 
-✅ **Backend Real Conectado** - Sistema migrado de dados mock para PostgreSQL
+Backend conectado ao PostgreSQL. Sistema funcionando com dados reais.
 
-## 📋 Visão Geral
+## O que é
 
-Este projeto consiste em:
+Projeto com:
+- Frontend: HTML, CSS e JavaScript
+- Backend: Node.js + Express + Prisma
+- Banco: PostgreSQL
+- Auth: JWT
 
-- **Frontend:** HTML, CSS e JavaScript puro (Vanilla JS)
-- **Backend:** Node.js + Express + Prisma
-- **Banco de Dados:** PostgreSQL
-- **Autenticação:** JWT (JSON Web Tokens)
+## Como rodar
 
-## 🚀 Quick Start
-
-### 1. Iniciar o Backend
+### Backend
 
 ```bash
 cd backend
@@ -25,91 +24,69 @@ npm install
 npm run dev
 ```
 
-Backend estará disponível em: **http://localhost:3000**
+Vai rodar em http://localhost:3000
 
-### 2. Popular o Banco de Dados
+### Popular o banco
 
 ```bash
 cd backend
 npm run prisma:seed
 ```
 
-### 3. Acessar o Frontend
+### Frontend
 
 Abrir no navegador: `frontend-ref/pages/login.html`
 
-**Usuários de teste:**
+Usuários de teste:
 - Admin: `admin@eniac.edu.br` / `admin123`
 - Gestor: `joao.silva@eniac.edu.br` / `senha123`
 - Colaborador: `ana.costa@eniac.edu.br` / `senha123`
 
-## 📁 Estrutura do Projeto
+## Estrutura
 
 ```
 myversion/
-├── backend/                    # Backend Node.js + Express
-│   ├── src/
-│   │   ├── modules/           # Módulos da aplicação
-│   │   │   ├── users/         # Usuários
-│   │   │   ├── evaluations/   # Avaliações
-│   │   │   ├── competencies/  # Competências
-│   │   │   ├── ninebox/       # Nine Box
-│   │   │   └── reports/       # Relatórios
-│   │   ├── middlewares/       # Middlewares (auth, validate, etc.)
-│   │   ├── config/            # Configurações
-│   │   └── utils/             # Utilitários
+├── backend/                    # API Node.js
+│   ├── src/modules/           # Módulos (users, evaluations, etc)
 │   ├── prisma/                # Schema e migrations
-│   └── README.md              # Documentação do backend
+│   └── README.md
 │
-├── frontend-ref/              # Frontend (HTML, CSS, JS)
+├── frontend-ref/              # Interface
 │   ├── pages/                 # Páginas HTML
-│   ├── js/                    # JavaScript
-│   │   ├── api.js            # Cliente HTTP
-│   │   ├── auth.js           # Autenticação
-│   │   ├── config.js         # Configurações
-│   │   └── mockData.js       # Dados mock (referência)
+│   ├── js/                    # Scripts
 │   └── css/                   # Estilos
 │
-└── docsmeus/                  # Documentação
-    ├── GUIA_COMPLETO.md       # Guia completo do sistema
-    ├── GUIA_MOCK_TO_REAL.md   # Migração mock → real
-    ├── GUIA_DEPLOY.md         # Deploy
-    ├── GUIA_EVALUATIONS.md    # API de Avaliações
-    ├── GUIA_NINEBOX.md        # API Nine Box
-    ├── GUIA_COMPETENCIES.md   # API de Competências
-    └── GUIA_REPORTS.md        # API de Relatórios
+└── docsmeus/                  # Docs
 ```
 
-## 📚 Documentação
+## Documentação
 
-### Guias Principais
+### Tutorial Completo (Passo a Passo)
 
-- **[GUIA_COMPLETO.md](docsmeus/GUIA_COMPLETO.md)** - Como fazer o projeto do zero
-- **[GUIA_MOCK_TO_REAL.md](docsmeus/GUIA_MOCK_TO_REAL.md)** - Migração de mock para backend real
-- **[GUIA_DEPLOY.md](docsmeus/GUIA_DEPLOY.md)** - Como fazer deploy
+1. `PARTE1_SETUP_INICIAL.md` - Instalar Node, PostgreSQL e criar projeto
+2. `PARTE2_SCHEMA_BANCO.md` - Criar schema do banco e popular dados
+3. `PARTE3_ESTRUTURA_BACKEND.md` - Configurar Express, middlewares e estrutura
+4. `PARTE4_MODULOS_BACKEND.md` - Criar todos os módulos (users, evaluations, etc)
 
-### Guias de API
+### Guias de Referência
 
-- **[GUIA_EVALUATIONS.md](docsmeus/GUIA_EVALUATIONS.md)** - API de Avaliações
-- **[GUIA_NINEBOX.md](docsmeus/GUIA_NINEBOX.md)** - API Nine Box
-- **[GUIA_COMPETENCIES.md](docsmeus/GUIA_COMPETENCIES.md)** - API de Competências
-- **[GUIA_REPORTS.md](docsmeus/GUIA_REPORTS.md)** - API de Relatórios
+- `GUIA_COMPLETO.md` - Visão geral do sistema
+- `GUIA_MOCK_TO_REAL.md` - Migração mock → real
+- `GUIA_DEPLOY.md` - Deploy em produção
+- `GUIA_EVALUATIONS.md` - API de Avaliações
+- `GUIA_NINEBOX.md` - API Nine Box
+- `GUIA_COMPETENCIES.md` - API de Competências
+- `GUIA_REPORTS.md` - API de Relatórios
 
-### Changelog
-
-- **[CHANGELOG_MOCK_TO_REAL.md](CHANGELOG_MOCK_TO_REAL.md)** - Mudanças da migração
-- **[RESUMO_MIGRACAO.txt](RESUMO_MIGRACAO.txt)** - Resumo visual da migração
-
-## 🔧 Configuração
+## Configuração
 
 ### Backend (.env)
 
 ```env
 PORT=3000
 DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
-JWT_SECRET="seu_secret_aqui"
+JWT_SECRET="seu_secret"
 JWT_EXPIRES_IN=30d
-NODE_ENV=development
 ```
 
 ### Frontend (config.js)
@@ -119,145 +96,46 @@ const CONFIG = {
   API_BASE_URL: 'http://localhost:3000/api',
   TOKEN_KEY: 'portal_token',
   USER_KEY: 'portal_user',
-  DARK_MODE_KEY: 'darkMode',
 };
 ```
 
-## ✅ Funcionalidades
+## Funcionalidades
 
-### Avaliações
-- ✅ Avaliação 180° (Gestor → Colaborador)
-- ✅ Avaliação 360° (Colaborador → Gestor)
-- ✅ Avaliações anônimas
-- ✅ Critérios personalizáveis
-- ✅ Comentários opcionais
+- Avaliação 180° (Gestor → Colaborador)
+- Avaliação 360° (Colaborador → Gestor)
+- Nine Box (Performance x Potencial)
+- Gestão de competências
+- Relatórios e dashboard
+- Upload de fotos de perfil
+- Exportação de dados (CSV)
 
-### Nine Box
-- ✅ Matriz 3x3 (Performance x Potencial)
-- ✅ Visualização gráfica
-- ✅ Histórico de posições
-- ✅ Distribuição por quadrante
+## Problemas comuns
 
-### Competências
-- ✅ Gestão de competências
-- ✅ Tipos: Técnica, Comportamental, Liderança, Desempenho
-- ✅ CRUD completo
-
-### Relatórios
-- ✅ Dashboard geral
-- ✅ Relatórios por usuário
-- ✅ Relatórios por equipe
-- ✅ Exportação de dados
-
-### Usuários
-- ✅ Cadastro e autenticação
-- ✅ Perfis: Admin, Gestor, Colaborador
-- ✅ Gestão de permissões
-- ✅ Perfil de usuário
-
-## 🔐 Segurança
-
-- ✅ Autenticação JWT
-- ✅ Senhas criptografadas (bcrypt)
-- ✅ Validação de dados (Joi)
-- ✅ Proteção CORS
-- ✅ Helmet.js para headers de segurança
-- ✅ Middleware de autenticação
-
-## 🧪 Testes
-
-### Verificar Health Check
-
+**Servidor indisponível**
 ```bash
-curl http://localhost:3000/health
-```
-
-### Testar Login
-
-```bash
-curl -X POST http://localhost:3000/api/users/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@eniac.edu.br","senha":"admin123"}'
-```
-
-## 🐛 Troubleshooting
-
-### Erro: "Servidor indisponível"
-
-```bash
-# Verificar se backend está rodando
-curl http://localhost:3000/health
-
-# Iniciar backend
 cd backend
 npm run dev
 ```
 
-### Erro: "Usuário não encontrado"
-
+**Usuário não encontrado**
 ```bash
-# Popular banco de dados
 cd backend
 npm run prisma:seed
 ```
 
-### Erro: "Token inválido"
+**Token inválido**
+- Fazer logout e login de novo
+- Limpar localStorage (F12 → Application → Local Storage)
 
-- Fazer logout e login novamente
-- Limpar localStorage do navegador (F12 → Application → Local Storage)
+## Tech Stack
 
-**Mais soluções:** [GUIA_MOCK_TO_REAL.md](docsmeus/GUIA_MOCK_TO_REAL.md) → Seção Troubleshooting
+Backend: Node.js, Express, Prisma, PostgreSQL, JWT, Bcrypt
+Frontend: HTML, CSS, JavaScript
 
-## 📊 Tecnologias
+## Licença
 
-### Backend
-- Node.js
-- Express
-- Prisma ORM
-- PostgreSQL
-- JWT
-- Bcrypt
-- Joi
-
-### Frontend
-- HTML5
-- CSS3
-- JavaScript (Vanilla)
-- Fetch API
-
-## 🎯 Próximos Passos
-
-### Desenvolvimento
-- [ ] Adicionar testes automatizados
-- [ ] Implementar upload de fotos
-- [ ] Adicionar notificações
-- [ ] Melhorar UI/UX
-
-### Produção
-- [ ] Configurar HTTPS
-- [ ] Deploy do backend
-- [ ] Deploy do frontend
-- [ ] Configurar domínio
-
-## 👥 Contribuindo
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📝 Licença
-
-Este projeto é privado e de uso educacional.
-
-## 📞 Suporte
-
-Em caso de dúvidas:
-1. Consultar documentação em `docsmeus/`
-2. Verificar logs do backend
-3. Verificar console do navegador (F12)
+Projeto educacional - ENIAC
 
 ---
 
-**Desenvolvido para ENIAC** | Versão 1.0.0 | 2024
+v1.0.0 | 2024

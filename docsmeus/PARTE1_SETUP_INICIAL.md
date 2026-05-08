@@ -1,70 +1,55 @@
-# 🚀 Parte 1: Setup Inicial do Backend
+# Parte 1: Setup Inicial do Backend
 
-## 📋 Pré-requisitos
+## O que você precisa ter instalado
 
-Antes de começar, instale:
-- **Node.js** (v18 ou superior)
-- **PostgreSQL** (v14 ou superior)
-- **npm** ou **yarn**
-- **Git**
+- Node.js (v18 ou mais novo)
+- PostgreSQL (v14 ou mais novo)
+- npm ou yarn
+- Git
 
----
-
-## 🎯 Estrutura do Projeto
-
-Vamos criar um backend com esta estrutura:
+## Estrutura que vamos criar
 
 ```
 backend/
 ├── prisma/
-│   ├── schema.prisma          # Schema do banco de dados
+│   ├── schema.prisma          # Schema do banco
 │   ├── seed.js                # Dados iniciais
-│   └── migrations/            # Histórico de migrações
+│   └── migrations/            # Histórico de mudanças no banco
 ├── src/
 │   ├── config/
-│   │   └── database.js        # Configuração do Prisma
+│   │   └── database.js        # Config do Prisma
 │   ├── middlewares/
-│   │   ├── auth.js            # Autenticação JWT
-│   │   ├── errorHandler.js   # Tratamento de erros
-│   │   └── validate.js        # Validação de dados
+│   │   ├── auth.js            # JWT
+│   │   ├── errorHandler.js   # Erros
+│   │   └── validate.js        # Validações
 │   ├── modules/
-│   │   ├── users/             # Módulo de usuários
-│   │   ├── evaluations/       # Módulo de avaliações
-│   │   ├── competencies/      # Módulo de competências
-│   │   ├── ninebox/           # Módulo nine-box
-│   │   └── reports/           # Módulo de relatórios
+│   │   ├── users/             # Usuários
+│   │   ├── evaluations/       # Avaliações
+│   │   ├── competencies/      # Competências
+│   │   ├── ninebox/           # Nine Box
+│   │   └── reports/           # Relatórios
 │   ├── utils/
-│   │   └── errors.js          # Classes de erro customizadas
-│   └── app.js                 # Configuração do Express
-├── server.js                  # Ponto de entrada
+│   │   └── errors.js          # Erros customizados
+│   └── app.js                 # Config do Express
+├── server.js                  # Arquivo principal
 ├── .env                       # Variáveis de ambiente
-├── .gitignore                 # Arquivos ignorados pelo Git
-└── package.json               # Dependências do projeto
+├── .gitignore                 
+└── package.json               
 ```
 
----
-
-## 📦 Passo 1: Criar o Projeto
+## Passo 1: Criar o projeto
 
 ```bash
-# Criar pasta do projeto
 mkdir backend
 cd backend
-
-# Inicializar projeto Node.js
 npm init -y
-
-# Configurar como módulo ES6
 npm pkg set type="module"
 ```
 
----
-
-## 📦 Passo 2: Instalar Dependências
-
-### Dependências de Produção
+## Passo 2: Instalar pacotes
 
 ```bash
+# Produção
 npm install express@5.2.1
 npm install @prisma/client@6.19.3
 npm install bcryptjs@3.0.3
@@ -73,34 +58,27 @@ npm install joi@18.2.1
 npm install cors@2.8.6
 npm install helmet@8.1.0
 npm install dotenv@17.4.2
-```
 
-**O que cada uma faz:**
-- `express` - Framework web
-- `@prisma/client` - ORM para banco de dados
-- `bcryptjs` - Hash de senhas
-- `jsonwebtoken` - Autenticação JWT
-- `joi` - Validação de dados
-- `cors` - Permitir requisições cross-origin
-- `helmet` - Segurança HTTP
-- `dotenv` - Variáveis de ambiente
-
-### Dependências de Desenvolvimento
-
-```bash
+# Desenvolvimento
 npm install -D prisma@6.19.3
 npm install -D nodemon@3.1.14
 ```
 
-**O que cada uma faz:**
+O que cada um faz:
+- `express` - Framework web
+- `@prisma/client` - ORM (conversa com o banco)
+- `bcryptjs` - Criptografa senhas
+- `jsonwebtoken` - Autenticação
+- `joi` - Valida dados
+- `cors` - Permite requisições de outros domínios
+- `helmet` - Segurança
+- `dotenv` - Variáveis de ambiente
 - `prisma` - CLI do Prisma
-- `nodemon` - Reinicia servidor automaticamente
+- `nodemon` - Reinicia o servidor automaticamente
 
----
+## Passo 3: Configurar scripts
 
-## 📦 Passo 3: Configurar package.json
-
-Edite o arquivo `package.json` e adicione os scripts:
+Edite `package.json` e adicione os scripts:
 
 ```json
 {
@@ -132,20 +110,17 @@ Edite o arquivo `package.json` e adicione os scripts:
 }
 ```
 
----
+## Passo 4: Configurar PostgreSQL
 
-## 🗄️ Passo 4: Configurar PostgreSQL
-
-### Opção 1: PostgreSQL Local
+### Opção 1: Local
 
 ```bash
-# Criar banco de dados
 psql -U postgres
 CREATE DATABASE avaliacao_db;
 \q
 ```
 
-### Opção 2: PostgreSQL via Docker
+### Opção 2: Docker
 
 ```bash
 docker run --name postgres-avaliacao \
@@ -155,105 +130,64 @@ docker run --name postgres-avaliacao \
   -d postgres:14
 ```
 
----
+## Passo 5: Criar .env
 
-## 🔐 Passo 5: Criar arquivo .env
-
-Crie o arquivo `.env` na raiz do projeto:
+Crie o arquivo `.env`:
 
 ```env
-# Banco de Dados
 DATABASE_URL="postgresql://postgres:senha123@localhost:5432/avaliacao_db?schema=public"
-
-# JWT
-JWT_SECRET="seu-secret-super-seguro-aqui-mude-em-producao"
+JWT_SECRET="seu-secret-super-seguro-mude-em-producao"
 JWT_EXPIRES_IN="7d"
-
-# Servidor
 PORT=3000
 NODE_ENV="development"
 ```
 
-**⚠️ IMPORTANTE:**
-- Nunca commite o arquivo `.env` no Git!
-- Em produção, use secrets managers (AWS Secrets, Azure Key Vault, etc.)
+**Importante:**
+- Nunca suba o `.env` pro Git
+- Em produção, use um secret manager
 - Gere um JWT_SECRET forte: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
 
----
-
-## 🚫 Passo 6: Criar .gitignore
-
-Crie o arquivo `.gitignore`:
+## Passo 6: Criar .gitignore
 
 ```gitignore
-# Dependências
 node_modules/
-
-# Variáveis de ambiente
 .env
 .env.local
 .env.*.local
-
-# Logs
 logs/
 *.log
-npm-debug.log*
-
-# Sistema operacional
 .DS_Store
 Thumbs.db
-
-# IDE
 .vscode/
 .idea/
-*.swp
-*.swo
-
-# Build
 dist/
 build/
 ```
 
----
-
-## 🗄️ Passo 7: Inicializar Prisma
+## Passo 7: Inicializar Prisma
 
 ```bash
-# Inicializar Prisma
 npx prisma init
-
-# Isso cria:
-# - prisma/schema.prisma
-# - .env (se não existir)
 ```
 
----
+Isso cria `prisma/schema.prisma` e `.env` (se não existir).
 
-## ✅ Verificação
+## Verificação
 
-Neste ponto, você deve ter:
+Você deve ter:
 
 ```
 backend/
-├── node_modules/          ✅
+├── node_modules/          ✓
 ├── prisma/
-│   └── schema.prisma      ✅
-├── .env                   ✅
-├── .gitignore             ✅
-└── package.json           ✅
+│   └── schema.prisma      ✓
+├── .env                   ✓
+├── .gitignore             ✓
+└── package.json           ✓
 ```
 
----
+## Próximo passo
 
-## 🎯 Próximos Passos
+Continue na **PARTE2_SCHEMA_BANCO.md** para criar o schema do banco.
 
-Continue para **PARTE2_SCHEMA_BANCO.md** para:
-1. Criar o schema do banco de dados
-2. Definir os modelos (User, Evaluation, etc.)
-3. Criar as migrações
-4. Popular o banco com dados iniciais
-
----
-
-**Tempo estimado:** 15-20 minutos  
-**Dificuldade:** ⭐ Fácil
+Tempo: ~15 minutos
