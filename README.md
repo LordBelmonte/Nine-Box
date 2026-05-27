@@ -101,35 +101,27 @@ nineboxfix/
 ├── backend/                    # API Node.js
 │   ├── src/modules/           # Módulos (users, evaluations, etc)
 │   ├── prisma/                # Schema e migrations
+│   ├── scripts/               # Scripts auxiliares
 │   ├── .env.example          # Exemplo de configuração
-│   └── README.md
+│   ├── server.js              # Entry point do servidor
+│   └── package.json
 │
 ├── frontend-ref/              # Interface
 │   ├── pages/                 # Páginas HTML
 │   ├── js/                    # Scripts
-│   └── css/                   # Estilos
+│   ├── css/                   # Estilos
+│   ├── index.html             # Página inicial
+│   └── perfil.html            # Página de perfil
 │
-└── docsmeus/                  # Docs
+├── CHANGELOG_MOCK_TO_REAL.md  # Histórico de mudanças
+└── README.md                  # Este arquivo
 ```
 
 ## Documentação
 
-### Tutorial Completo (Passo a Passo)
+### Histórico de Mudanças
 
-1. `PARTE1_SETUP_INICIAL.md` - Instalar Node, PostgreSQL e criar projeto
-2. `PARTE2_SCHEMA_BANCO.md` - Criar schema do banco e popular dados
-3. `PARTE3_ESTRUTURA_BACKEND.md` - Configurar Express, middlewares e estrutura
-4. `PARTE4_MODULOS_BACKEND.md` - Criar todos os módulos (users, evaluations, etc)
-
-### Guias de Referência
-
-- `GUIA_COMPLETO.md` - Visão geral do sistema
-- `GUIA_MOCK_TO_REAL.md` - Migração mock → real
-- `GUIA_DEPLOY.md` - Deploy em produção
-- `GUIA_EVALUATIONS.md` - API de Avaliações
-- `GUIA_NINEBOX.md` - API Nine Box
-- `GUIA_COMPETENCIES.md` - API de Competências
-- `GUIA_REPORTS.md` - API de Relatórios
+- `CHANGELOG_MOCK_TO_REAL.md` - Histórico detalhado da migração de mock para dados reais
 
 ## Funcionalidades
 
