@@ -1,0 +1,12 @@
+.navbar {
+    background-color: #1a237e;
+}
+
+.navbar-brand{
+    padding-left: 1rem;
+}
+
+.header-avaliacao {
+    color: aliceblue;
+    font-size: 30px;
+}

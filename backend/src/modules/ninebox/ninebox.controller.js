@@ -140,6 +140,32 @@ class NineBoxController {
       next(error);
     }
   }
+
+  async calculateForPerson(req, res, next) {
+    try {
+      const { pessoaId } = req.params;
+      const nineBox = await nineBoxService.calculateNineBoxFromEvaluations(pessoaId);
+      return res.json({
+        success: true,
+        data: nineBox
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async calculateForTeam(req, res, next) {
+    try {
+      const gestorId = req.user.userId;
+      const teamNineBox = await nineBoxService.calculateTeamNineBox(gestorId);
+      return res.json({
+        success: true,
+        data: teamNineBox
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export { NineBoxController };

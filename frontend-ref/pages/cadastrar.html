@@ -135,11 +135,13 @@
         <i class="fa-solid fa-star"></i><span>Avaliações</span><i class="fa-solid fa-chevron-down navbar-chevron"></i>
       </a>
       <ul class="navbar-submenu">
-        <li><a href="avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-star"></i> Avaliações</a></li>
+                <li data-role="admin"><a href="campanhas.html" class="navbar-submenu-link"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
+<li><a href="avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-star"></i> Avaliações</a></li>
         <li data-role="gestorOrAdmin"><a href="nine-box.html" class="navbar-submenu-link"><i class="fa-solid fa-th"></i> Nine Box</a></li>
         <li><a href="competencias.html" class="navbar-submenu-link"><i class="fa-solid fa-clipboard-check"></i> Competências</a></li>
       </ul>
     </li>
+    <li class="navbar-item" data-role="gestorOrAdmin"><a href="grupos.html" class="navbar-link"><i class="fa-solid fa-users"></i><span>Grupos</span></a></li>
     <li class="navbar-item"><a href="relatorios.html" class="navbar-link"><i class="fa-solid fa-chart-bar"></i><span>Relatórios</span></a></li>
     <li class="navbar-item"><a href="../perfil.html" class="navbar-link"><i class="fa-solid fa-user"></i><span>Perfil</span></a></li>
   </ul>
@@ -197,6 +199,15 @@
       <input type="text" id="cad-departamento" placeholder="Ex: TI, RH, Financeiro...">
     </div>
 
+    <!-- Gestor (apenas para colaboradores) -->
+    <div class="pg-field" id="gestor-field" style="display: none;">
+      <label for="cad-gestor">Gestor Responsável</label>
+      <select id="cad-gestor">
+        <option value="">Selecione um gestor...</option>
+      </select>
+      <span class="ra-hint">Gestor ao qual este colaborador será subordinado</span>
+    </div>
+
     <button class="pg-btn" id="btn-cadastrar" onclick="cadastrarUsuario()">
       <i class="fa-solid fa-user-plus"></i> Cadastrar
     </button>
@@ -213,11 +224,37 @@
   // Apenas admin pode cadastrar
   requireRole('admin');
 
+  // Carregar gestores para o select
+  async function carregarGestores() {
+    try {
+      const response = await usersApi.list({ tipo: 'gestor', limit: 100 });
+      const gestores = response.data?.users || [];
+      const select = document.getElementById('cad-gestor');
+      
+      gestores.forEach(gestor => {
+        const option = document.createElement('option');
+        option.value = gestor.id;
+        option.textContent = `${gestor.nome} - ${gestor.cargo || 'Gestor'}`;
+        select.appendChild(option);
+      });
+    } catch (error) {
+      console.error('Erro ao carregar gestores:', error);
+    }
+  }
+
   window.setTipoCad = function(tipo) {
     document.getElementById('cad-tipo').value = tipo;
     document.querySelectorAll('.pg-type-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tipo === tipo);
     });
+    
+    // Mostrar/ocultar campo de gestor
+    const gestorField = document.getElementById('gestor-field');
+    if (tipo === 'colaborador') {
+      gestorField.style.display = 'block';
+    } else {
+      gestorField.style.display = 'none';
+    }
   };
 
   window.cadastrarUsuario = async function() {
@@ -228,6 +265,7 @@
     const tipo         = document.getElementById('cad-tipo').value;
     const cargo        = document.getElementById('cad-cargo').value.trim();
     const departamento = document.getElementById('cad-departamento').value.trim();
+    const gestorId     = document.getElementById('cad-gestor').value;
 
     if (!validateCadastroForm({ ra, nome, email, senha, tipo })) return;
 
@@ -236,11 +274,11 @@
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cadastrando...';
 
     try {
-      await usersApi.register({ ra, nome, email, senha, tipo, cargo, departamento });
+      await usersApi.register({ ra, nome, email, senha, tipo, cargo, departamento, gestorId });
       showToast('Usuário cadastrado com sucesso!', 'success');
 
       // Limpa o formulário
-      ['cad-ra','cad-nome','cad-email','cad-senha','cad-cargo','cad-departamento'].forEach(id => {
+      ['cad-ra','cad-nome','cad-email','cad-senha','cad-cargo','cad-departamento','cad-gestor'].forEach(id => {
         document.getElementById(id).value = '';
       });
       window.setTipoCad('colaborador');
@@ -251,7 +289,12 @@
       btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Cadastrar';
     }
   };
+
+  // Carregar gestores ao iniciar
+  carregarGestores();
+  
+  // Inicializar com tipo colaborador para mostrar campo de gestor
+  setTipoCad('colaborador');
 </script>
 </body>
 </html>
-

@@ -1,0 +1,145 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {   
+    background-color: #f4f7fc;
+}
+
+/* --- Estilos dos Cards --- */
+.model-card {
+    transition: all 0.2s ease-in-out;
+    border: 2px solid #e2e8f0;
+}
+
+.model-card:hover {
+    border-color: #93c5fd;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.model-card.selected {
+    border-color: #1e3a8a;
+    background-color: #eff6ff;
+}
+
+/* Checkmark (V) no canto do card selecionado */
+.model-card.selected::after {
+    content: '\f00c';
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #1e3a8a;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+/* --- Transições de Tela --- */
+.view-section {
+    display: none; 
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.view-section.display-block {
+    display: block;
+}
+
+.view-section.visible {
+    opacity: 1;
+}
+
+/* Utilitário para garantir que o hidden funcione com Tailwind */
+.hidden {
+    display: none !important;
+}
+
+/* Estilo e animação do modal de edição de contato */
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.modal-header h2 {
+  color: rgb(0, 0, 255);
+  font-size: 24px;
+}
+
+.modal-content {
+  max-width: 450px;
+}
+
+
+/* para tabela de sugestions ao adicionar um avaliado */
+
+@layer utilities {
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.25s ease-out forwards;
+  }
+}

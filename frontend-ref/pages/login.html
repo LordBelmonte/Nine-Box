@@ -156,21 +156,44 @@
 
     <div class="login-info">
       <i class="fa-solid fa-circle-info"></i>
-      <span>Apenas usuários cadastrados pelo administrador podem acessar o sistema.</span>
+      <span>Apenas usuários cadastrados podem acessar o sistema.</span>
+    </div>
+
+    <div class="login-info" id="logout-info" style="display: none; background: #fef2f2; border-color: #fecaca; color: #991b1b;">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span>Você já está logado. <a href="#" onclick="fazerLogout()" style="text-decoration: underline; color: #991b1b; font-weight: 600;">Clique aqui para sair</a> e fazer login com outra conta.</span>
     </div>
   </div>
 </div>
 
 <script type="module">
   import { usersApi } from '../js/api.js';
-  import { setToken, setUser, isLoggedIn } from '../js/auth.js';
+  import { setToken, setUser, isLoggedIn, getUser, logout } from '../js/auth.js';
   import { validateLoginForm } from '../js/validators.js';
   import { showToast } from '../js/components/toast.js';
 
-  // Se já logado, redireciona
+  // Se já logado, mostrar opção de logout
   if (isLoggedIn()) {
-    window.location.href = '../index.html';
+    const user = getUser();
+    const logoutInfo = document.getElementById('logout-info');
+    if (logoutInfo) {
+      logoutInfo.style.display = 'flex';
+    }
+    
+    // Redirecionar após um pequeno delay se não fizer logout
+    setTimeout(() => {
+      if (user.tipo === 'colaborador') {
+        window.location.href = 'avaliacoes.html';
+      } else {
+        window.location.href = '../index.html';
+      }
+    }, 5000);
   }
+
+  window.fazerLogout = function() {
+    logout();
+    window.location.reload();
+  };
 
   window.fazerLogin = async function() {
     const email = document.getElementById('login-email').value.trim();
@@ -186,7 +209,13 @@
       const res = await usersApi.login({ email, senha });
       setToken(res.data.token);
       setUser(res.data.user);
-      window.location.href = '../index.html';
+      
+      // Colaboradores vão direto para avaliações
+      if (res.data.user.tipo === 'colaborador') {
+        window.location.href = 'avaliacoes.html';
+      } else {
+        window.location.href = '../index.html';
+      }
     } catch (err) {
       // Erro já exibido pelo api.js via toast
     } finally {

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Ninebox</title>
+</head>
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        height: 1000px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .dados {
+        display: flex;
+        width: 650px;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+
+    .matriz {
+        width: 650px;
+        height: 650px;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .box {
+        border: 1px solid #000000;
+        width: 200px;
+        height: 200px;
+    }
+</style>
+
+<body>
+
+    <div class="dados">
+        <div><label for="potencial">Potencial</label>
+            <input class="potencial" type="number">
+        </div>
+        <div><label for="desempenho">Desempenho</label>
+            <input class="desempenho" type="number">
+        </div>
+        <div><button type="button" id="calcular">Calcular</button></div>
+    </div>
+
+    <div class="matriz">
+        <div class="box A1">A1</div>
+        <div class="box A2">A2</div>
+        <div class="box A3">A3</div>
+        <div class="box M1">M1</div>
+        <div class="box M2">M2</div>
+        <div class="box M3">M3</div>
+        <div class="box B1">B1</div>
+        <div class="box B2">B2</div>
+        <div class="box B3">B3</div>
+    </div>
+    <div class="profissional">Tipo de Profissional: </div>
+    <div class="perfil">Perfil: </div>
+    <div class="plano">Plano de ação: </div>
+
+</body>
+<script>
+
+    const potencial = document.querySelector(".potencial");
+    const desempenho = document.querySelector(".desempenho");
+    const calcular = document.getElementById("calcular");
+
+    calcular.addEventListener("click", (e) => {
+        
+        limparCampos();
+
+        const value = Ninebox();
+
+        if(!value){
+            alert("Preencha valores válidos para Potencial (0–16) e Desempenho (0–9).");
+        return;
+        }
+
+        switch (value) {
+
+            case "B1":
+                document.querySelector(".B1").textContent += "X";
+                document.querySelector(".profissional").textContent += "Insuficiente";
+                document.querySelector(".perfil").textContent += "Potencial baixo e desempenho abaixo do esperado";
+                document.querySelector(".plano").textContent += "Identificar obstáculos que poderiam justificar o baixo desempenho e ajudá-lo a removê-los ou encontrar outro cargo interno no qual suas habilidades serãm melhor utilizadas. Se não houver melhorias, recomenda-se o desligamento da empresa.";
+                break;
+
+            case "B2":
+                document.querySelector(".B2").textContent += "X";
+                document.querySelector(".profissional").textContent += "Eficaz";
+                document.querySelector(".perfil").textContent += "Potencial baixo e desempenho dentro do esperado";
+                document.querySelector(".plano").textContent += "Dar feedback, treiná-los para se tornarem mais inovadores, identificar áreas específicas de melhoria e definir um plano de desenvolvimento pessoal, com o objetivo de conduzi-lo à categoria de alto desempenho.";
+                break;
+
+            case "B3":
+                document.querySelector(".B3").textContent += "X";
+                document.querySelector(".profissional").textContent += "Comprometido";
+                document.querySelector(".perfil").textContent += "Potencial baixo e desempenho acima do esperado";
+                document.querySelector(".plano").textContent += "Apesar do bom desempenho, da mentalidade de trabalho certa e da sua dedicação, esses profissionais nao tem muito potencial ou ambição de crescimento. O ideal é mantê-los felizes e recompensá-los com aumentos e bônus.";
+                break;
+
+            case "M1":
+                document.querySelector(".M1").textContent += "X";
+                document.querySelector(".profissional").textContent += "Questionável";
+                document.querySelector(".perfil").textContent += "Potencial mediano e desempenho abaixo do esperado";
+                document.querySelector(".plano").textContent += "Identificar bloqueios para perfomance - motivos pessoais, dificuldades com a cultura organizacional, falhas no onboarding... Comunique claramente o que se espera do profissional e proporcione um programa de mentoria interno, motivação e oportunidades de desenvolvimento.";
+                break;
+
+            case "M2":
+                document.querySelector(".M2").textContent += "X";
+                document.querySelector(".profissional").textContent += "Mantenedor";
+                document.querySelector(".perfil").textContent += "Potencial e desempenho em nível mediano";
+                document.querySelector(".plano").textContent += "Invista nesses profissionais chaves para a organização, ao oferecer novos projetos e tarefas que os mantenham engajados, e comece a prepará-los para oportunidades futuras, treinando-os em gestão de pessoas.";
+                break;
+
+            case "M3":
+                document.querySelector(".M3").textContent += "X";
+                document.querySelector(".profissional").textContent += "Forte desempenho";
+                document.querySelector(".perfil").textContent += "Potencial mediano e desempenho acima do esperado";
+                document.querySelector(".plano").textContent += "Entenda primeiramente se eles estão prontos para o crescimento e mais responsabilidades ou se precisam de mais tempo para se desenvolverem. Trabalhe suas habilidades de pensamento tático e estratégico, que serão úteis para seu futuro na organização.";
+                break;
+
+            case "A1":
+                document.querySelector(".A1").textContent += "X";
+                document.querySelector(".profissional").textContent += "Enigma";
+                document.querySelector(".perfil").textContent += "Alto potencial e desempenho abaixo do esperado";
+                document.querySelector(".plano").textContent += "Mesmo que tenham muito potencial, esses profissionais não estão entregando o que se espera deles, seja porque não têm a experiência necessária ou pela falta de compatibilidade com a função atual. Dê a esses profissionais tempo para ganhar experiència e feedback contínuo para construir confiança.";
+                break;
+
+            case "A2":
+                document.querySelector(".A2").textContent += "X"
+                document.querySelector(".profissional").textContent += "Em crescimento";
+                document.querySelector(".perfil").textContent += "Alto potencial e desempenho dentro do esperado";
+                document.querySelector(".plano").textContent += "Proporcione mais exposição para que alcancem maior desempenho, através de oportunidades de treinamento, projetos desafiadores e monitoramento de progresso com KPIs claras.";
+                break;
+
+            case "A3":
+                document.querySelector(".A3").textContent += "X";
+                document.querySelector(".profissional").textContent += "Destaque";
+                document.querySelector(".perfil").textContent += "Alto potencial e desempenho acima do esperado";
+                document.querySelector(".plano").textContent += "Profissional que já se desenvolveu completamente dentro da sua função e está pronto para uma promoção e novas responsabilidades; é uma boa referência para os demais colaboradores da empresa pela sua capacidade de resolução de problemas, pensamento estratégico e motivação pessoal.";
+                break;
+
+        }
+    });
+
+    function Ninebox() {
+        const valorPotencial = potencial.value;
+        const valorDesempenho = desempenho.value;
+
+        if (isNaN(valorPotencial) || isNaN(valorDesempenho)) return null;
+        if (valorPotencial < 0 || valorPotencial > 16 || valorDesempenho < 0 || valorDesempenho > 9) return null;
+
+
+        if (valorPotencial <= 5.3) {
+            if (valorDesempenho <= 3) return "B1";
+            if (valorDesempenho <= 6) return "B2";
+            if (valorDesempenho <= 9) return "B3";
+        }
+
+        if (valorPotencial <= 10.6) {
+            if (valorDesempenho <= 3) return "M1";
+            if (valorDesempenho <= 6) return "M2";
+            if (valorDesempenho <= 9) return "M3";
+        }
+
+        if (valorPotencial <= 16) {
+            if (valorDesempenho <= 3) return "A1";
+            if (valorDesempenho <= 6) return "A2";
+            if (valorDesempenho <= 9) return "A3";
+        }
+    }
+
+    function limparCampos() {
+        document.querySelectorAll(".box").forEach(box => box.textContent = box.className.split(" ")[1]);
+        document.querySelector(".profissional").textContent = "Tipo de Profissional: ";
+        document.querySelector(".perfil").textContent = "Perfil: ";
+        document.querySelector(".plano").textContent = "Plano de ação: ";
+    }
+
+</script>
+
+</html>

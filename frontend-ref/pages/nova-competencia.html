@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nova Competência</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<header>
+  <h2>Nova Competência</h2>
+  <button id="dark-mode-btn" onclick="toggleDarkMode()" title="Modo escuro">
+    <i class="fa-solid fa-moon"></i>
+  </button>
+  <div class="user-menu" id="user-menu">
+    <div class="user" id="user-btn" onclick="toggleUserMenu()" title="Minha conta">
+      <i class="fa-solid fa-user" aria-hidden="true"></i>
+    </div>
+    <div class="user-dropdown" id="user-dropdown">
+      <div class="user-dropdown-info" id="user-dropdown-info">
+        <div class="user-dropdown-avatar" id="user-dropdown-avatar">
+          <i class="fa-solid fa-user"></i>
+        </div>
+        <div>
+          <div class="user-dropdown-nome" id="user-dropdown-nome">Carregando...</div>
+          <div class="user-dropdown-tipo" id="user-dropdown-tipo"></div>
+        </div>
+      </div>
+      <div class="user-dropdown-divider"></div>
+      <a href="../perfil.html" class="user-dropdown-item">
+        <i class="fa-solid fa-user-pen"></i> Meu Perfil
+      </a>
+      <button class="user-dropdown-item user-dropdown-sair" id="btn-sair-header" onclick="sairDaConta()" style="display:none">
+        <i class="fa-solid fa-right-from-bracket"></i> Sair da conta
+      </button>
+    </div>
+  </div>
+</header>
+
+<style>
+  .nova-competencia-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .nova-competencia-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .nova-competencia-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .nova-competencia-header h3 {
+    color: var(--primary);
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 14px;
+    background: var(--background);
+    color: var(--text);
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  .form-control-textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .buttons-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+  }
+
+  .btn-voltar,
+  .btn-proximo {
+    padding: 12px 30px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-voltar {
+    background: white;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+  }
+
+  .btn-voltar:hover {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-proximo {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-proximo:hover {
+    background: #1d4ed8;
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .modal-overlay.show {
+    display: flex;
+  }
+
+  .modal {
+    background: var(--surface);
+    padding: 30px;
+    border-radius: var(--radius);
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+  }
+
+  .modal h3 {
+    color: var(--primary);
+    margin-bottom: 15px;
+  }
+
+  .modal p {
+    color: var(--text-muted);
+    margin-bottom: 25px;
+    line-height: 1.6;
+  }
+
+  .modal-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+  }
+
+  .btn-modal {
+    padding: 10px 25px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-modal-cancel {
+    background: var(--border);
+    color: var(--text);
+  }
+
+  .btn-modal-cancel:hover {
+    background: var(--text-muted);
+  }
+
+  .btn-modal-confirm {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-modal-confirm:hover {
+    background: #1d4ed8;
+  }
+</style>
+
+<main class="wrapper">
+  <div class="nova-competencia-container">
+    <div class="nova-competencia-card">
+      <div class="nova-competencia-header">
+        <h3>Preencha os campos para criar a competência a ser avaliada</h3>
+      </div>
+
+      <form id="formCompetencia">
+        <div class="form-group">
+          <label for="competencia" class="form-label">Competência:</label>
+          <input type="text" class="form-control" id="competencia" name="competencia"
+            placeholder="Insira o título da competência..." required>
+        </div>
+
+        <div class="form-group">
+          <label for="competenciaTipo" class="form-label">Tipo de competência:</label>
+          <select class="form-control" id="competenciaTipo" name="competenciaTipo" required>
+            <option value="" selected disabled>Selecione</option>
+            <option value="Potencial">Potencial</option>
+            <option value="Desempenho">Desempenho</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="descricaoCompetencia" class="form-label">Descrição:</label>
+          <textarea class="form-control form-control-textarea" id="descricaoCompetencia" name="descricaoCompetencia"
+            placeholder="Insira a descrição da competência..." required></textarea>
+        </div>
+
+        <div class="buttons-container">
+          <button type="button" class="btn-voltar" onclick="redirecionarVoltar()">Voltar</button>
+          <button type="submit" class="btn-proximo" id="btn-proximo">Próximo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<!-- Modal de erro -->
+<div class="modal-overlay" id="modalErro">
+  <div class="modal">
+    <h3>Preencha todos os campos!</h3>
+    <p>Preencha o título e descrição da competência antes de prosseguir</p>
+    <div class="modal-buttons">
+      <button class="btn-modal btn-modal-cancel" id="btn-fechar-erro">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { requireAuth, isAdmin } from '../js/auth.js';
+  import '../js/navbar.js';
+
+  requireAuth();
+
+  // Verificar se é admin
+  if (!isAdmin()) {
+    window.location.href = '../index.html';
+  }
+
+  // Carregar dados do localStorage ao carregar a página
+  document.addEventListener('DOMContentLoaded', function() {
+    if (localStorage.getItem('competencia')) {
+      document.getElementById('competencia').value = localStorage.getItem('competencia');
+    }
+
+    if (localStorage.getItem('competenciaTipo')) {
+      document.getElementById('competenciaTipo').value = localStorage.getItem('competenciaTipo');
+    }
+
+    if (localStorage.getItem('descricaoCompetencia')) {
+      document.getElementById('descricaoCompetencia').value = localStorage.getItem('descricaoCompetencia');
+    }
+  });
+
+  // Salvar dados no localStorage ao clicar no botão "Próximo"
+  document.getElementById('btn-proximo').addEventListener('click', function(event) {
+    event.preventDefault();
+
+    const form = document.getElementById('formCompetencia');
+
+    // Validar campos
+    if (!form.checkValidity()) {
+      document.getElementById('modalErro').classList.add('show');
+      return;
+    }
+
+    // Salvar no localStorage
+    const competencia = document.getElementById('competencia').value;
+    const competenciaTipo = document.getElementById('competenciaTipo').value;
+    const descricaoCompetencia = document.getElementById('descricaoCompetencia').value;
+
+    localStorage.setItem('competencia', competencia);
+    localStorage.setItem('competenciaTipo', competenciaTipo);
+    localStorage.setItem('descricaoCompetencia', descricaoCompetencia);
+
+    // Redirecionar para a próxima página
+    window.location.href = 'nova-competencia-2.html';
+  });
+
+  // Fechar modal de erro
+  document.getElementById('btn-fechar-erro').addEventListener('click', function() {
+    document.getElementById('modalErro').classList.remove('show');
+  });
+
+  // Função para redirecionar voltar
+  window.redirecionarVoltar = function() {
+    const origem = sessionStorage.getItem('origemNavegacao');
+
+    if (origem === 'competencias.html' || origem === 'index.html') {
+      window.location.href = origem;
+    } else {
+      window.location.href = 'competencias.html';
+    }
+  };
+</script>
+
+</body>
+</html>

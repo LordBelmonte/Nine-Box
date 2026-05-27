@@ -8,14 +8,14 @@ class EvaluationController {
   async create(req, res, next) {
     try {
       const evaluation = await evaluationService.create(
-        req.user.userId, 
-        req.user.tipo, 
+        req.user.userId,
+        req.user.tipo,
         req.body
       );
       return res.status(201).json({
         success: true,
         data: evaluation,
-        message: 'Avaliação anônima criada com sucesso'
+        message: 'Avaliação criada com sucesso'
       });
     } catch (error) {
       next(error);
@@ -29,10 +29,7 @@ class EvaluationController {
         req.user.userId,
         req.user.tipo
       );
-      return res.json({
-        success: true,
-        data: evaluation
-      });
+      return res.json({ success: true, data: evaluation });
     } catch (error) {
       next(error);
     }
@@ -40,21 +37,13 @@ class EvaluationController {
 
   async findAll(req, res, next) {
     try {
-      const { page, limit, tipoAvaliacao, avaliadoId } = req.query;
+      const { page, limit, campaignId, avaliadoId } = req.query;
       const result = await evaluationService.findAll(
-        {
-          page: parseInt(page) || 1,
-          limit: parseInt(limit) || 10,
-          tipoAvaliacao,
-          avaliadoId
-        },
+        { page: parseInt(page) || 1, limit: parseInt(limit) || 10, campaignId, avaliadoId },
         req.user.userId,
         req.user.tipo
       );
-      return res.json({
-        success: true,
-        data: result
-      });
+      return res.json({ success: true, data: result });
     } catch (error) {
       next(error);
     }
@@ -65,17 +54,11 @@ class EvaluationController {
       const { page, limit } = req.query;
       const result = await evaluationService.findByAvaliado(
         req.params.avaliadoId,
-        {
-          page: parseInt(page) || 1,
-          limit: parseInt(limit) || 10
-        },
+        { page: parseInt(page) || 1, limit: parseInt(limit) || 10 },
         req.user.userId,
         req.user.tipo
       );
-      return res.json({
-        success: true,
-        data: result
-      });
+      return res.json({ success: true, data: result });
     } catch (error) {
       next(error);
     }
@@ -86,17 +69,24 @@ class EvaluationController {
       const { page, limit } = req.query;
       const result = await evaluationService.findByAvaliador(
         req.params.avaliadorId,
-        {
-          page: parseInt(page) || 1,
-          limit: parseInt(limit) || 10
-        },
+        { page: parseInt(page) || 1, limit: parseInt(limit) || 10 },
         req.user.userId,
         req.user.tipo
       );
-      return res.json({
-        success: true,
-        data: result
-      });
+      return res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async findByCampaign(req, res, next) {
+    try {
+      const evaluations = await evaluationService.findByCampaign(
+        req.params.campaignId,
+        req.user.userId,
+        req.user.tipo
+      );
+      return res.json({ success: true, data: evaluations });
     } catch (error) {
       next(error);
     }
@@ -127,10 +117,7 @@ class EvaluationController {
         req.user.userId,
         req.user.tipo
       );
-      return res.json({
-        success: true,
-        message: result.message
-      });
+      return res.json({ success: true, message: result.message });
     } catch (error) {
       next(error);
     }
@@ -143,10 +130,7 @@ class EvaluationController {
         req.user.userId,
         req.user.tipo
       );
-      return res.json({
-        success: true,
-        data: stats
-      });
+      return res.json({ success: true, data: stats });
     } catch (error) {
       next(error);
     }

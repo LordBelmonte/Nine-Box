@@ -1,22 +1,30 @@
 import { prisma } from '../../config/database.js';
 
+// Campos públicos do avaliado (sem senha)
+const avaliadoSelect = {
+  id: true,
+  ra: true,
+  nome: true,
+  email: true,
+  tipo: true,
+  cargo: true,
+  departamento: true,
+  foto: true
+};
+
+// Include padrão para avaliações (sem avaliador para manter anonimato)
+const defaultInclude = {
+  avaliado: { select: avaliadoSelect },
+  campaign: {
+    select: { id: true, nome: true, tipoAlvo: true, status: true }
+  }
+};
+
 class EvaluationRepository {
   async create(data) {
     return prisma.evaluation.create({
       data,
-      include: {
-        avaliado: {
-          select: {
-            id: true,
-            ra: true,
-            nome: true,
-            email: true,
-            tipo: true,
-            foto: true
-          }
-        }
-        // avaliador NÃO incluído para manter anonimato
-      }
+      include: defaultInclude
     });
   }
 
@@ -24,26 +32,18 @@ class EvaluationRepository {
     return prisma.evaluation.findUnique({
       where: { id },
       include: {
-        avaliado: {
-          select: {
-            id: true,
-            ra: true,
-            nome: true,
-            email: true,
-            tipo: true,
-            foto: true
-          }
-        }
-        // avaliador incluído apenas para controle interno
+        ...defaultInclude,
+        // avaliador incluído apenas para controle interno (service decide se expõe)
+        avaliador: { select: avaliadoSelect }
       }
     });
   }
 
-  async findAll({ page = 1, limit = 10, tipoAvaliacao, avaliadoId, avaliadorId }) {
+  async findAll({ page = 1, limit = 10, campaignId, avaliadoId, avaliadorId }) {
     const skip = (page - 1) * limit;
     const where = {};
 
-    if (tipoAvaliacao) where.tipoAvaliacao = tipoAvaliacao;
+    if (campaignId) where.campaignId = campaignId;
     if (avaliadoId) where.avaliadoId = avaliadoId;
     if (avaliadorId) where.avaliadorId = avaliadorId;
 
@@ -52,19 +52,7 @@ class EvaluationRepository {
         where,
         skip,
         take: limit,
-        include: {
-          avaliado: {
-            select: {
-              id: true,
-              ra: true,
-              nome: true,
-              email: true,
-              tipo: true,
-              foto: true
-            }
-          }
-          // avaliador NÃO incluído para manter anonimato
-        },
+        include: defaultInclude,
         orderBy: { createdAt: 'desc' }
       }),
       prisma.evaluation.count({ where })
@@ -72,103 +60,65 @@ class EvaluationRepository {
 
     return {
       evaluations,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit)
-      }
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
     };
   }
 
   async findByAvaliado(avaliadoId, { page = 1, limit = 10 }) {
     const skip = (page - 1) * limit;
-
     const [evaluations, total] = await Promise.all([
       prisma.evaluation.findMany({
         where: { avaliadoId },
         skip,
         take: limit,
-        include: {
-          avaliado: {
-            select: {
-              id: true,
-              ra: true,
-              nome: true,
-              email: true,
-              tipo: true,
-              foto: true
-            }
-          }
-        },
+        include: defaultInclude,
         orderBy: { createdAt: 'desc' }
       }),
       prisma.evaluation.count({ where: { avaliadoId } })
     ]);
-
     return {
       evaluations,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit)
-      }
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
     };
   }
 
   async findByAvaliador(avaliadorId, { page = 1, limit = 10 }) {
     const skip = (page - 1) * limit;
-
     const [evaluations, total] = await Promise.all([
       prisma.evaluation.findMany({
         where: { avaliadorId },
         skip,
         take: limit,
-        include: {
-          avaliado: {
-            select: {
-              id: true,
-              ra: true,
-              nome: true,
-              email: true,
-              tipo: true,
-              foto: true
-            }
-          }
-        },
+        include: defaultInclude,
         orderBy: { createdAt: 'desc' }
       }),
       prisma.evaluation.count({ where: { avaliadorId } })
     ]);
-
     return {
       evaluations,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit)
-      }
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
     };
+  }
+
+  async findByCampaignAndAvaliador(campaignId, avaliadorId) {
+    return prisma.evaluation.findMany({
+      where: { campaignId, avaliadorId },
+      include: defaultInclude,
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  async findOne(campaignId, avaliadorId, avaliadoId) {
+    return prisma.evaluation.findUnique({
+      where: { campaignId_avaliadorId_avaliadoId: { campaignId, avaliadorId, avaliadoId } }
+    });
   }
 
   async update(id, data) {
     return prisma.evaluation.update({
       where: { id },
       data,
-      include: {
-        avaliado: {
-          select: {
-            id: true,
-            ra: true,
-            nome: true,
-            email: true,
-            tipo: true,
-            foto: true
-          }
-        }
-      }
+      include: defaultInclude
     });
   }
 
@@ -179,11 +129,7 @@ class EvaluationRepository {
   async getStatsByAvaliado(avaliadoId) {
     const evaluations = await prisma.evaluation.findMany({
       where: { avaliadoId },
-      select: {
-        media: true,
-        tipoAvaliacao: true,
-        data: true
-      }
+      select: { media: true, campaignId: true, data: true, criterios: true }
     });
 
     const total = evaluations.length;
@@ -191,26 +137,14 @@ class EvaluationRepository {
       ? evaluations.reduce((sum, ev) => sum + (ev.media || 0), 0) / total
       : 0;
 
-    const porTipo = evaluations.reduce((acc, ev) => {
-      if (!acc[ev.tipoAvaliacao]) {
-        acc[ev.tipoAvaliacao] = { count: 0, mediaSum: 0 };
-      }
-      acc[ev.tipoAvaliacao].count++;
-      acc[ev.tipoAvaliacao].mediaSum += ev.media || 0;
-      return acc;
-    }, {});
-
-    const estatisticas = Object.entries(porTipo).map(([tipo, data]) => ({
-      tipo,
-      total: data.count,
-      media: data.mediaSum / data.count
-    }));
-
     return {
       total,
-      mediaGeral: parseFloat(mediaGeral.toFixed(2)),
-      estatisticas
+      mediaGeral: parseFloat(mediaGeral.toFixed(2))
     };
+  }
+
+  async count() {
+    return prisma.evaluation.count();
   }
 }
 

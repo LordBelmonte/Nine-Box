@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grupos Gestor-Colaborador</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script>(function(){const dm=localStorage.getItem('darkMode');if(dm==='1'||(dm===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark-mode');if(document.body)document.body.classList.add('dark-mode');}})();</script>
+  <style>
+    .grupos-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .grupos-header {
+      margin-bottom: 30px;
+    }
+
+    .grupos-titulo {
+      color: var(--primary);
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .grupos-subtitulo {
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    .gestores-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+    }
+
+    .gestor-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .gestor-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    .gestor-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .gestor-info h4 {
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .gestor-info p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .colaboradores-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .colaborador-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .colaborador-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .colaborador-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .colaborador-info h5 {
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .colaborador-info p {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin: 0;
+    }
+
+    .btn-remove {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-width: auto;
+      width: auto;
+    }
+
+    .btn-remove:hover {
+      background: #dc2626;
+    }
+
+    .btn-add {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    .btn-add:hover {
+      background: #1d4ed8;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: 28px;
+      width: 100%;
+      max-width: 500px;
+      border: 1.5px solid var(--border);
+    }
+
+    .modal-titulo {
+      color: var(--primary);
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .modal-select {
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--bg);
+      margin-bottom: 20px;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: none;
+    }
+
+    .modal-botoes {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn-modal-cancelar,
+    .btn-modal-confirmar {
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-modal-cancelar {
+      background: var(--bg);
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+
+    .btn-modal-cancelar:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-modal-confirmar {
+      background: var(--primary);
+      color: white;
+      border: none;
+    }
+
+    .btn-modal-confirmar:hover {
+      background: #1d4ed8;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h2 id="page-title">Grupos</h2>
+  <button id="dark-mode-btn" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i></button>
+  <div class="user-menu" id="user-menu">
+    <div class="user" id="user-btn" onclick="toggleUserMenu()"><i class="fa-solid fa-user"></i></div>
+    <div class="user-dropdown" id="user-dropdown">
+      <div class="user-dropdown-info">
+        <div class="user-dropdown-avatar" id="user-dropdown-avatar"><i class="fa-solid fa-user"></i></div>
+        <div>
+          <div class="user-dropdown-nome" id="user-dropdown-nome">Carregando...</div>
+          <div class="user-dropdown-tipo" id="user-dropdown-tipo"></div>
+        </div>
+      </div>
+      <div class="user-dropdown-divider"></div>
+      <a href="../perfil.html" class="user-dropdown-item"><i class="fa-solid fa-user-pen"></i> Meu Perfil</a>
+      <button class="user-dropdown-item user-dropdown-sair" id="btn-sair-header" onclick="sairDaConta()" style="display:none">
+        <i class="fa-solid fa-right-from-bracket"></i> Sair
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="navbar">
+  <ul class="navbar-nav">
+    <li class="navbar-item"><a href="../index.html" class="navbar-link"><i class="fa-solid fa-home"></i><span>Inicio</span></a></li>
+    <li class="navbar-item" data-role="admin"><a href="cadastrar.html" class="navbar-link"><i class="fa-solid fa-user-plus"></i><span>Cadastrar</span></a></li>
+    <li class="navbar-item" data-role="gestorOrAdmin"><a href="consultar.html" class="navbar-link"><i class="fa-solid fa-magnifying-glass"></i><span>Consultar</span></a></li>
+    <li class="navbar-item navbar-item-dropdown">
+      <a href="#" class="navbar-link navbar-link-dropdown" onclick="toggleSubmenu(event, this)">
+        <i class="fa-solid fa-star"></i><span>Avaliacoes</span><i class="fa-solid fa-chevron-down navbar-chevron"></i>
+      </a>
+      <ul class="navbar-submenu">
+        <li data-role="admin"><a href="campanhas.html" class="navbar-submenu-link"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
+        <li><a href="avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-star"></i> Avaliacoes</a></li>
+        <li data-role="gestorOrAdmin"><a href="nine-box.html" class="navbar-submenu-link"><i class="fa-solid fa-th"></i> Nine Box</a></li>
+        <li><a href="competencias.html" class="navbar-submenu-link"><i class="fa-solid fa-clipboard-check"></i> Competencias</a></li>
+      </ul>
+    </li>
+    <li class="navbar-item" data-role="gestorOrAdmin"><a href="grupos.html" class="navbar-link active"><i class="fa-solid fa-users"></i><span>Grupos</span></a></li>
+    <li class="navbar-item"><a href="relatorios.html" class="navbar-link"><i class="fa-solid fa-chart-bar"></i><span>Relatorios</span></a></li>
+    <li class="navbar-item"><a href="../perfil.html" class="navbar-link"><i class="fa-solid fa-user"></i><span>Perfil</span></a></li>
+  </ul>
+</nav>
+
+<main class="wrapper">
+  <div class="grupos-container">
+    <div class="grupos-header">
+      <h3 class="grupos-titulo">Grupos Gestor-Colaborador</h3>
+      <p class="grupos-subtitulo">Gerencie os relacionamentos entre gestores e seus colaboradores subordinados.</p>
+    </div>
+
+    <div id="gestores-container" class="gestores-grid">
+      <div class="loading">Carregando gestores...</div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal para adicionar colaborador -->
+<div class="modal-overlay" id="modal-add-colaborador">
+  <div class="modal-box">
+    <h4 class="modal-titulo">Adicionar Colaborador</h4>
+    <select id="colaborador-select" class="modal-select">
+      <option value="">Selecione um colaborador...</option>
+    </select>
+    <div class="modal-botoes">
+      <button class="btn-modal-cancelar" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-modal-confirmar" onclick="confirmarAdicionar()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { requireAuth, getUser, isAdmin } from '../js/auth.js';
+  import { usersApi, groupsApi } from '../js/api.js';
+  import '../js/navbar.js';
+
+  requireAuth();
+
+  const user = getUser();
+  let gestorAtual = null;
+  let colaboradoresDisponiveis = [];
+
+  async function carregarGestores() {
+    const container = document.getElementById('gestores-container');
+    try {
+      const response = await usersApi.list({ page: 1, limit: 100, tipo: 'gestor' });
+      const gestores = response.data?.users || [];
+
+      if (gestores.length === 0) {
+        container.innerHTML = '<div class="empty-state">Nenhum gestor encontrado.</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+
+      for (const gestor of gestores) {
+        const colaboradores = await groupsApi.getColaboradores(gestor.id);
+        const colaboradoresData = colaboradores.data || [];
+
+        const card = document.createElement('div');
+        card.className = 'gestor-card';
+        card.innerHTML = `
+          <div class="gestor-header">
+            <div class="gestor-avatar">${gestor.nome.charAt(0).toUpperCase()}</div>
+            <div class="gestor-info">
+              <h4>${gestor.nome}</h4>
+              <p>${gestor.cargo || 'Gestor'} - ${gestor.departamento || ''}</p>
+            </div>
+          </div>
+          <div class="colaboradores-list">
+            ${colaboradoresData.length === 0 
+              ? '<div class="empty-state">Nenhum colaborador subordinado.</div>'
+              : colaboradoresData.map(col => `
+                  <div class="colaborador-item">
+                    <div class="colaborador-info">
+                      <div class="colaborador-avatar">${col.nome.charAt(0).toUpperCase()}</div>
+                      <div>
+                        <h5>${col.nome}</h5>
+                        <p>${col.cargo || 'Colaborador'}</p>
+                      </div>
+                    </div>
+                    <button class="btn-remove" onclick="removerColaborador('${gestor.id}', '${col.id}')">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                `).join('')
+            }
+          </div>
+          <button class="btn-add" onclick="abrirModal('${gestor.id}')">
+            <i class="fa-solid fa-plus"></i> Adicionar Colaborador
+          </button>
+        `;
+        container.appendChild(card);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar gestores:', error);
+      container.innerHTML = '<div class="empty-state">Erro ao carregar gestores.</div>';
+    }
+  }
+
+  async function carregarColaboradoresDisponiveis() {
+    try {
+      const response = await usersApi.list({ page: 1, limit: 100, tipo: 'colaborador' });
+      colaboradoresDisponiveis = response.data?.users || [];
+    } catch (error) {
+      console.error('Erro ao carregar colaboradores:', error);
+    }
+  }
+
+  window.abrirModal = function(gestorId) {
+    gestorAtual = gestorId;
+    const select = document.getElementById('colaborador-select');
+    select.innerHTML = '<option value="">Selecione um colaborador...</option>';
+    
+    colaboradoresDisponiveis.forEach(col => {
+      const option = document.createElement('option');
+      option.value = col.id;
+      option.textContent = `${col.nome} - ${col.cargo || 'Colaborador'}`;
+      select.appendChild(option);
+    });
+
+    document.getElementById('modal-add-colaborador').classList.add('open');
+  };
+
+  window.fecharModal = function() {
+    document.getElementById('modal-add-colaborador').classList.remove('open');
+    gestorAtual = null;
+  };
+
+  window.confirmarAdicionar = async function() {
+    const colaboradorId = document.getElementById('colaborador-select').value;
+    if (!colaboradorId || !gestorAtual) {
+      alert('Selecione um colaborador.');
+      return;
+    }
+
+    try {
+      await groupsApi.addColaborador(gestorAtual, colaboradorId);
+      fecharModal();
+      carregarGestores();
+    } catch (error) {
+      console.error('Erro ao adicionar colaborador:', error);
+      alert('Erro ao adicionar colaborador.');
+    }
+  };
+
+  window.removerColaborador = async function(gestorId, colaboradorId) {
+    if (!confirm('Deseja remover este colaborador do grupo?')) return;
+
+    try {
+      await groupsApi.removeColaborador(gestorId, colaboradorId);
+      carregarGestores();
+    } catch (error) {
+      console.error('Erro ao remover colaborador:', error);
+      alert('Erro ao remover colaborador.');
+    }
+  };
+
+  carregarGestores();
+  carregarColaboradoresDisponiveis();
+</script>
+</body>
+</html>

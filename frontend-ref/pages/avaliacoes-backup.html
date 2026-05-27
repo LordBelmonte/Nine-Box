@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avaliacoes — Portal de Gestao de Pessoas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/avaliacoes.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+  <link rel="stylesheet" href="../css/choices-custom.css">
+  <script>
+    (function() {
+      const dm = localStorage.getItem('darkMode');
+      if (dm === '1' || (dm === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark-mode');
+        if (document.body) document.body.classList.add('dark-mode');
+      }
+    })();
+  </script>
+</head>
+<body>
+
+<header>
+  <h2 id="av-header-title">Avaliacoes</h2>
+  <button id="dark-mode-btn" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i></button>
+  <div class="user-menu" id="user-menu">
+    <div class="user" id="user-btn" onclick="toggleUserMenu()"><i class="fa-solid fa-user"></i></div>
+    <div class="user-dropdown" id="user-dropdown">
+      <div class="user-dropdown-info">
+        <div class="user-dropdown-avatar" id="user-dropdown-avatar"><i class="fa-solid fa-user"></i></div>
+        <div>
+          <div class="user-dropdown-nome" id="user-dropdown-nome">Carregando...</div>
+          <div class="user-dropdown-tipo" id="user-dropdown-tipo"></div>
+        </div>
+      </div>
+      <div class="user-dropdown-divider"></div>
+      <a href="../perfil.html" class="user-dropdown-item"><i class="fa-solid fa-user-pen"></i> Meu Perfil</a>
+      <button class="user-dropdown-item user-dropdown-sair" id="btn-sair-header" onclick="sairDaConta()" style="display:none">
+        <i class="fa-solid fa-right-from-bracket"></i> Sair
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="navbar">
+  <ul class="navbar-nav">
+    <li class="navbar-item"><a href="../index.html" class="navbar-link"><i class="fa-solid fa-home"></i><span>Inicio</span></a></li>
+    <li class="navbar-item" data-role="admin"><a href="cadastrar.html" class="navbar-link"><i class="fa-solid fa-user-plus"></i><span>Cadastrar</span></a></li>
+    <li class="navbar-item" data-role="gestorOrAdmin"><a href="consultar.html" class="navbar-link"><i class="fa-solid fa-magnifying-glass"></i><span>Consultar</span></a></li>
+    <li class="navbar-item navbar-item-dropdown">
+      <a href="#" class="navbar-link navbar-link-dropdown active" onclick="toggleSubmenu(event, this)">
+        <i class="fa-solid fa-star"></i><span>Avaliacoes</span><i class="fa-solid fa-chevron-down navbar-chevron"></i>
+      </a>
+      <ul class="navbar-submenu">
+                <li data-role="admin"><a href="campanhas.html" class="navbar-submenu-link"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
+<li><a href="avaliacoes.html" class="navbar-submenu-link active"><i class="fa-solid fa-star"></i> Avaliacoes</a></li>
+        <li data-role="gestorOrAdmin"><a href="nine-box.html" class="navbar-submenu-link"><i class="fa-solid fa-th"></i> Nine Box</a></li>
+        <li><a href="competencias.html" class="navbar-submenu-link"><i class="fa-solid fa-clipboard-check"></i> Competencias</a></li>
+      </ul>
+    </li>
+    <li class="navbar-item" data-role="gestorOrAdmin"><a href="grupos.html" class="navbar-link"><i class="fa-solid fa-users"></i><span>Grupos</span></a></li>
+    <li class="navbar-item"><a href="relatorios.html" class="navbar-link"><i class="fa-solid fa-chart-bar"></i><span>Relatorios</span></a></li>
+    <li class="navbar-item"><a href="../perfil.html" class="navbar-link"><i class="fa-solid fa-user"></i><span>Perfil</span></a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <!-- ETAPA 1: SELECIONAR CAMPANHA -->
+  <div class="av-step" id="step-campanha">
+    <div class="av-step-box">
+      <p class="av-step-subtitle">Selecione a campanha de avaliacao:</p>
+      <div id="campanhas-lista" style="width:100%;max-width:560px;display:flex;flex-direction:column;gap:12px">
+        <p class="av-empty">Carregando campanhas...</p>
+      </div>
+      <div class="av-step-actions" style="margin-top:20px">
+        <a href="../index.html" class="av-btn-voltar">Voltar</a>
+        <button class="av-btn-proximo" id="btn-proximo-campanha" onclick="irParaFormulario()" disabled>
+          Proximo <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ETAPA 2: FORMULARIO + HISTORICO -->
+  <div class="av-step" id="step-form" style="display:none">
+    <div class="wrapper av-wrapper">
+
+      <section class="av-form-card">
+
+        <!-- Info da campanha selecionada -->
+        <div id="campanha-info-box" style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:16px;font-size:13px">
+          <div style="font-weight:600;color:var(--primary)" id="campanha-info-nome"></div>
+          <div style="color:var(--text-muted);margin-top:2px;font-size:12px" id="campanha-info-periodo"></div>
+        </div>
+
+        <div class="av-field">
+          <label for="avaliado" id="avaliado-label">Selecione o colaborador</label>
+          <select id="avaliado"><option value="">Carregando...</option></select>
+        </div>
+
+        <!-- Criterios dinamicos (injetados pelo JS) -->
+        <div class="av-criterios" id="criterios-container">
+          <p class="av-section-title">Criterios de Avaliacao</p>
+          <div id="criterios-lista"></div>
+        </div>
+
+        <div class="av-media-box" id="media-box" style="display:none">
+          <span>Media geral</span>
+          <span class="av-media-valor" id="media-geral">-</span>
+        </div>
+
+        <div class="av-field">
+          <label for="comentario">Comentario <span class="av-opcional">(opcional)</span></label>
+          <textarea id="comentario" placeholder="Descreva sua avaliacao..." rows="3"></textarea>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button class="av-btn-voltar-form" onclick="voltarParaCampanha()">
+            <i class="fa-solid fa-arrow-left"></i> Voltar
+          </button>
+          <button class="av-submit" onclick="enviarAvaliacao()" id="btn-submit" style="flex:1;margin-top:0">
+            <i class="fa-solid fa-paper-plane"></i> <span id="btn-text">Enviar Avaliacao</span>
+          </button>
+        </div>
+
+      </section>
+
+      <section class="av-historico-card">
+        <div class="av-historico-header">
+          <p class="av-section-title">Historico desta campanha</p>
+          <button onclick="exportarCSV()" style="padding:6px 12px;font-size:11px;background:#10b981;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:4px">
+            <i class="fa-solid fa-file-csv"></i> Exportar
+          </button>
+        </div>
+        <div id="historico-lista"><p class="av-empty">Carregando...</p></div>
+      </section>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- Modal de Edicao -->
+<style>
+  .modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease }
+  .modal-overlay.open { display:flex }
+  .modal-box-edit { background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:28px;width:100%;max-width:520px;animation:slideUp .3s ease;max-height:90vh;overflow-y:auto;border:1.5px solid var(--border) }
+  .modal-box-confirm { background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:28px;width:100%;max-width:420px;animation:slideUp .3s ease;border:1.5px solid var(--border) }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+  body.dark-mode .modal-box-edit, body.dark-mode .modal-box-confirm { background:#1e293b;border-color:#334155 }
+  body.dark-mode .modal-overlay { background:rgba(0,0,0,.8) }
+</style>
+
+<div class="modal-overlay" id="modal-editar-avaliacao">
+  <div class="modal-box-edit">
+    <div class="av-field">
+      <label>Avaliado</label>
+      <input type="text" id="edit-avaliado-nome" disabled style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:#f1f5f9;color:var(--text-muted);cursor:not-allowed;font-family:inherit">
+      <p style="font-size:11px;color:var(--text-muted);margin-top:6px"><i class="fa-solid fa-lock"></i> Nao e possivel alterar o avaliado</p>
+    </div>
+    <div class="av-criterios">
+      <p class="av-section-title">Criterios de Avaliacao</p>
+      <div id="edit-criterios-lista"></div>
+    </div>
+    <div class="av-media-box" id="edit-media-box">
+      <span>Media geral</span>
+      <span class="av-media-valor" id="edit-media-geral">-</span>
+    </div>
+    <div class="av-field">
+      <label for="edit-comentario">Comentario <span class="av-opcional">(opcional)</span></label>
+      <textarea id="edit-comentario" placeholder="Descreva sua avaliacao..." rows="3"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="av-btn-voltar-form" onclick="fecharModalEditar()"><i class="fa-solid fa-times"></i> Cancelar</button>
+      <button class="av-submit" onclick="salvarEdicao()" id="btn-salvar-edicao" style="flex:1;margin-top:0"><i class="fa-solid fa-save"></i> Salvar Alteracoes</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-confirmar-exclusao">
+  <div class="modal-box-confirm">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="width:64px;height:64px;margin:0 auto 16px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center">
+        <i class="fa-solid fa-triangle-exclamation" style="font-size:28px;color:#dc2626"></i>
+      </div>
+      <h4 style="font-size:18px;font-weight:700;color:var(--text);margin:0 0 8px">Confirmar Exclusao</h4>
+      <p style="font-size:14px;color:var(--text-muted);margin:0">Tem certeza que deseja excluir esta avaliacao?</p>
+    </div>
+    <div style="background:#fef3c7;border:1.5px solid #fde68a;border-radius:var(--radius-sm);padding:12px;margin-bottom:20px">
+      <p style="font-size:13px;color:#92400e;margin:0"><i class="fa-solid fa-info-circle"></i> <strong>Avaliado:</strong> <span id="confirm-nome-avaliado">-</span></p>
+    </div>
+    <div style="background:#fee2e2;border:1.5px solid #fecaca;border-radius:var(--radius-sm);padding:12px;margin-bottom:24px">
+      <p style="font-size:12px;color:#991b1b;margin:0"><i class="fa-solid fa-exclamation-triangle"></i> Esta acao nao pode ser desfeita.</p>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button onclick="fecharModalConfirmarExclusao()" class="av-btn-voltar-form" style="flex:1"><i class="fa-solid fa-times"></i> Cancelar</button>
+      <button id="btn-confirmar-exclusao" onclick="confirmarExclusao()" style="flex:1;padding:12px;background:#dc2626;color:white;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;margin:0;display:flex;align-items:center;justify-content:center;gap:8px">
+        <i class="fa-solid fa-trash"></i> Excluir
+      </button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { requireAuth, getUser, isGestor, isAdmin } from '../js/auth.js';
+  import { campaignsApi, groupsApi, evaluationsApi } from '../js/api.js';
+  import { showToast } from '../js/components/toast.js';
+  import '../js/navbar.js';
+
+  requireAuth();
+
+  const user = getUser();
+
+  // Estado global
+  let campanhaAtual = null;   // objeto campanha selecionada
+  let notas = {};             // { [nomeCriterio]: nota }
+  let editNotas = {};
+  let todasAvaliacoes = [];
+  let avaliacaoEditandoId = null;
+  let avaliacaoExcluindoId = null;
+  let avaliacaoExcluindoNome = null;
+  let choicesAvaliado = null;
+
+  // ─── ETAPA 1: Listar campanhas ativas ────────────────────────────────────────
+
+  async function carregarCampanhas() {
+    const container = document.getElementById('campanhas-lista');
+    try {
+      const res = await campaignsApi.listAtivas();
+      const campanhas = res.data || [];
+      if (!campanhas.length) {
+        container.innerHTML = '<p class="av-empty">Nenhuma campanha de avaliacao ativa no momento.</p>';
+        return;
+      }
+      container.innerHTML = campanhas.map(c => {
+        const inicio = new Date(c.dataInicio).toLocaleDateString('pt-BR');
+        const fim    = new Date(c.dataFim).toLocaleDateString('pt-BR');
+        const qtd    = c._count?.avaliacoes ?? 0;
+        return `<div class="av-tipo-card" data-id="${c.id}" onclick="selecionarCampanha('${c.id}')" style="text-align:left;padding:16px 20px;cursor:pointer">
+          <div style="font-weight:600;font-size:14px;color:var(--text)">${c.nome}</div>
+          ${c.descricao ? `<div style="font-size:12px;color:var(--text-muted);margin-top:4px">${c.descricao}</div>` : ''}
+          <div style="font-size:11px;color:var(--text-muted);margin-top:8px;display:flex;gap:12px;flex-wrap:wrap">
+            <span><i class="fa-regular fa-calendar"></i> ${inicio} ate ${fim}</span>
+            <span><i class="fa-solid fa-list-check"></i> ${c.criterios.length} criterios</span>
+            <span><i class="fa-solid fa-check-circle" style="color:#10b981"></i> ${qtd} avaliacao(oes) feita(s)</span>
+          </div>
+        </div>`;
+      }).join('');
+      // Guarda campanhas para lookup
+      window._campanhas = campanhas;
+    } catch (e) {
+      container.innerHTML = '<p class="av-empty">Erro ao carregar campanhas.</p>';
+    }
+  }
+
+  window.selecionarCampanha = function(id) {
+    document.querySelectorAll('#campanhas-lista .av-tipo-card').forEach(c => {
+      c.classList.toggle('selected', c.dataset.id === id);
+    });
+    campanhaAtual = (window._campanhas || []).find(c => c.id === id) || null;
+    document.getElementById('btn-proximo-campanha').disabled = !campanhaAtual;
+  };
+
+  window.irParaFormulario = function() {
+    if (!campanhaAtual) return;
+    document.getElementById('step-campanha').style.display = 'none';
+    document.getElementById('step-form').style.display = 'block';
+    document.getElementById('av-header-title').textContent = campanhaAtual.nome;
+
+    // Info da campanha
+    document.getElementById('campanha-info-nome').textContent = campanhaAtual.nome;
+    const ini = new Date(campanhaAtual.dataInicio).toLocaleDateString('pt-BR');
+    const fim = new Date(campanhaAtual.dataFim).toLocaleDateString('pt-BR');
+    document.getElementById('campanha-info-periodo').textContent = `Periodo: ${ini} a ${fim}`;
+
+    // Inicializa notas zeradas
+    notas = {};
+    campanhaAtual.criterios.forEach(c => { notas[c.nome] = 0; });
+
+    renderCriterios(campanhaAtual.criterios, 'criterios-lista', notas, atualizarMedia);
+    carregarColaboradores();
+    carregarHistorico();
+  };
+
+  window.voltarParaCampanha = function() {
+    document.getElementById('step-form').style.display = 'none';
+    document.getElementById('step-campanha').style.display = 'flex';
+    document.getElementById('av-header-title').textContent = 'Avaliacoes';
+    campanhaAtual = null;
+    document.querySelectorAll('#campanhas-lista .av-tipo-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('btn-proximo-campanha').disabled = true;
+    if (choicesAvaliado) { choicesAvaliado.destroy(); choicesAvaliado = null; }
+  };
+
+  // ─── Renderizar criterios dinamicamente ──────────────────────────────────────
+
+  function renderCriterios(criterios, containerId, notasObj, onUpdate) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = criterios.map(c => `
+      <div class="av-criterio">
+        <span class="av-criterio-label">${c.nome}${c.descricao ? `<small style="display:block;font-size:10px;color:var(--text-muted);font-weight:400">${c.descricao}</small>` : ''}</span>
+        <div class="stars" data-criterio="${c.nome}" data-escala="${c.escala}" role="group">
+          ${Array.from({length: c.escala}, (_,i) => `<span data-index="${i}">&#9733;</span>`).join('')}
+        </div>
+        <span class="av-criterio-escala" style="font-size:10px;color:var(--text-muted);margin-left:4px">1-${c.escala}</span>
+      </div>
+    `).join('');
+
+    // Inicializa eventos de estrelas
+    container.querySelectorAll('.stars').forEach(group => {
+      const nome   = group.dataset.criterio;
+      const escala = parseInt(group.dataset.escala);
+      const spans  = group.querySelectorAll('span');
+
+      spans.forEach((star, i) => {
+        star.addEventListener('mouseover', () => highlight(spans, i));
+        star.addEventListener('mouseout',  () => highlight(spans, (notasObj[nome] || 0) - 1));
+        star.addEventListener('click', () => {
+          notasObj[nome] = i + 1;
+          highlight(spans, i);
+          if (onUpdate) onUpdate();
+        });
+      });
+      // Highlight inicial
+      highlight(spans, (notasObj[nome] || 0) - 1);
+    });
+  }
+
+  function highlight(spans, upTo) {
+    spans.forEach((s, i) => s.classList.toggle('active', i <= upTo));
+  }
+
+  function atualizarMedia() {
+    const vals = Object.values(notas).filter(v => v > 0);
+    const box  = document.getElementById('media-box');
+    const el   = document.getElementById('media-geral');
+    if (!vals.length) { box.style.display = 'none'; return; }
+    box.style.display = 'flex';
+    el.textContent = (vals.reduce((a,b) => a+b, 0) / vals.length).toFixed(1) + ' \u2605';
+  }
+
+  // ─── Carregar colaboradores do grupo do gestor ────────────────────────────────
+
+  async function carregarColaboradores() {
+    const select = document.getElementById('avaliado');
+    try {
+      const res = await groupsApi.getColaboradores(user.id);
+      const colaboradores = res.data || [];
+      if (!colaboradores.length) {
+        select.innerHTML = '<option value="">Nenhum colaborador no seu grupo</option>';
+        if (choicesAvaliado) { choicesAvaliado.destroy(); choicesAvaliado = null; }
+        return;
+      }
+      select.innerHTML = '<option value="">Selecione...</option>' +
+        colaboradores.map(u => `<option value="${u.id}">${u.nome} (RA: ${u.ra})</option>`).join('');
+
+      if (choicesAvaliado) choicesAvaliado.destroy();
+      choicesAvaliado = new Choices('#avaliado', {
+        searchEnabled: true, itemSelectText: '', shouldSort: false,
+        position: 'bottom', searchPlaceholderValue: 'Buscar...'
+      });
+    } catch {
+      select.innerHTML = '<option value="">Erro ao carregar colaboradores</option>';
+    }
+  }
+
+  // ─── Enviar avaliacao ─────────────────────────────────────────────────────────
+
+  window.enviarAvaliacao = async function() {
+    const avaliadoId = document.getElementById('avaliado').value;
+    const comentario = document.getElementById('comentario').value.trim();
+    if (!avaliadoId) { showToast('Selecione o colaborador a ser avaliado.', 'error'); return; }
+    if (!Object.values(notas).some(v => v > 0)) { showToast('Avalie pelo menos um criterio.', 'error'); return; }
+
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
+    try {
+      await evaluationsApi.create({
+        campaignId: campanhaAtual.id,
+        avaliadoId,
+        criterios: { ...notas },
+        comentario: comentario || null,
+        anonima: true
+      });
+      showToast('Avaliacao enviada com sucesso!', 'success');
+      // Reset
+      campanhaAtual.criterios.forEach(c => { notas[c.nome] = 0; });
+      renderCriterios(campanhaAtual.criterios, 'criterios-lista', notas, atualizarMedia);
+      document.getElementById('avaliado').value = '';
+      if (choicesAvaliado) choicesAvaliado.setChoiceByValue('');
+      document.getElementById('comentario').value = '';
+      document.getElementById('media-box').style.display = 'none';
+      carregarHistorico();
+    } catch (e) {
+      showToast(e.message || 'Erro ao enviar avaliacao.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span id="btn-text">Enviar Avaliacao</span>';
+    }
+  };
+
+  // ─── Historico ────────────────────────────────────────────────────────────────
+
+  async function carregarHistorico() {
+    const container = document.getElementById('historico-lista');
+    container.innerHTML = '<p class="av-empty">Carregando...</p>';
+    try {
+      const res = await evaluationsApi.listByCampaign(campanhaAtual.id);
+      todasAvaliacoes = Array.isArray(res.data) ? res.data : (res.data?.evaluations || []);
+      renderHistorico();
+    } catch { container.innerHTML = '<p class="av-empty">Erro ao carregar.</p>'; }
+  }
+
+  function renderHistorico() {
+    const container = document.getElementById('historico-lista');
+    if (!todasAvaliacoes.length) {
+      container.innerHTML = '<p class="av-empty">Nenhuma avaliacao nesta campanha ainda.</p>';
+      return;
+    }
+    container.innerHTML = todasAvaliacoes.map(a => {
+      const nome = a.avaliado?.nome || 'Usuario';
+      const data = new Date(a.data || a.createdAt).toLocaleDateString('pt-BR');
+      const criteriosBadges = a.criterios
+        ? Object.entries(a.criterios).map(([k,v]) =>
+            `<span class="av-criterio-badge">${k}<span class="mini-stars">${'&#9733;'.repeat(v)}</span></span>`
+          ).join('')
+        : '';
+      const podeEditar = isAdmin();
+      const podeExcluir = isAdmin();
+      let acoes = '';
+      if (podeEditar || podeExcluir) {
+        acoes = '<div style="display:flex;gap:6px;margin-top:8px">';
+        if (podeEditar) acoes += `<button onclick="editarAvaliacao('${a.id}')" style="padding:4px 10px;font-size:11px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:6px;cursor:pointer;font-weight:600"><i class="fa-solid fa-pen"></i> Editar</button>`;
+        if (podeExcluir) acoes += `<button onclick="excluirAvaliacao('${a.id}','${nome.replace(/'/g,"\\'")}'')" style="padding:4px 10px;font-size:11px;background:transparent;color:var(--danger);border:1px solid #fecaca;border-radius:6px;cursor:pointer;font-weight:600"><i class="fa-solid fa-trash"></i> Excluir</button>`;
+        acoes += '</div>';
+      }
+      return `<div class="av-item">
+        <div class="av-item-header">
+          <span class="av-item-nome">${nome}</span>
+          <div class="av-item-meta">
+            ${a.anonima ? '<span style="font-size:11px;background:#f5f3ff;color:#6d28d9;padding:2px 8px;border-radius:100px;font-weight:600"><i class="fa-solid fa-user-secret"></i> Anonima</span>' : ''}
+            <span class="av-item-data">${data}</span>
+          </div>
+        </div>
+        ${criteriosBadges ? `<div class="av-item-criterios">${criteriosBadges}</div>` : ''}
+        ${a.media ? `<div class="av-item-media">Media: ${a.media} &#9733;</div>` : ''}
+        ${a.comentario ? `<p class="av-item-comentario">"${a.comentario}"</p>` : ''}
+        ${acoes}
+      </div>`;
+    }).join('');
+  }
+
+  // ─── Editar avaliacao ─────────────────────────────────────────────────────────
+
+  window.editarAvaliacao = async function(id) {
+    try {
+      const res = await evaluationsApi.getById(id);
+      const av = res.data;
+      avaliacaoEditandoId = id;
+      editNotas = { ...av.criterios };
+      document.getElementById('edit-avaliado-nome').value = av.avaliado?.nome || 'Usuario';
+      document.getElementById('edit-comentario').value = av.comentario || '';
+      // Renderiza criterios da campanha atual no modal
+      renderCriterios(campanhaAtual.criterios, 'edit-criterios-lista', editNotas, calcularEditMedia);
+      // Preenche notas existentes
+      campanhaAtual.criterios.forEach(c => {
+        const nota = editNotas[c.nome] || 0;
+        const group = document.querySelector(`#edit-criterios-lista .stars[data-criterio="${c.nome}"]`);
+        if (group) highlight(group.querySelectorAll('span'), nota - 1);
+      });
+      calcularEditMedia();
+      document.getElementById('modal-editar-avaliacao').classList.add('open');
+    } catch { showToast('Erro ao carregar avaliacao.', 'error'); }
+  };
+
+  function calcularEditMedia() {
+    const vals = Object.values(editNotas).filter(v => v > 0);
+    document.getElementById('edit-media-geral').textContent =
+      vals.length ? (vals.reduce((a,b) => a+b, 0) / vals.length).toFixed(1) : '-';
+  }
+
+  window.fecharModalEditar = function() {
+    document.getElementById('modal-editar-avaliacao').classList.remove('open');
+    avaliacaoEditandoId = null; editNotas = {};
+  };
+
+  window.salvarEdicao = async function() {
+    if (!avaliacaoEditandoId) return;
+    const btn = document.getElementById('btn-salvar-edicao');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+    try {
+      const comentario = document.getElementById('edit-comentario').value.trim();
+      if (!Object.values(editNotas).some(v => v > 0)) {
+        showToast('Avalie pelo menos um criterio.', 'error');
+        return;
+      }
+      await evaluationsApi.update(avaliacaoEditandoId, { criterios: editNotas, comentario: comentario || null });
+      showToast('Avaliacao atualizada!', 'success');
+      fecharModalEditar();
+      carregarHistorico();
+    } catch (e) { showToast(e.message || 'Erro ao salvar.', 'error'); }
+    finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-save"></i> Salvar Alteracoes'; }
+  };
+
+  document.getElementById('modal-editar-avaliacao').addEventListener('click', e => {
+    if (e.target === e.currentTarget) fecharModalEditar();
+  });
+
+  // ─── Excluir avaliacao ────────────────────────────────────────────────────────
+
+  window.excluirAvaliacao = function(id, nome) {
+    avaliacaoExcluindoId = id;
+    avaliacaoExcluindoNome = nome;
+    document.getElementById('confirm-nome-avaliado').textContent = nome;
+    document.getElementById('modal-confirmar-exclusao').classList.add('open');
+  };
+
+  window.fecharModalConfirmarExclusao = function() {
+    document.getElementById('modal-confirmar-exclusao').classList.remove('open');
+    avaliacaoExcluindoId = null; avaliacaoExcluindoNome = null;
+  };
+
+  window.confirmarExclusao = async function() {
+    if (!avaliacaoExcluindoId) return;
+    const btn = document.getElementById('btn-confirmar-exclusao');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Excluindo...';
+    try {
+      await evaluationsApi.delete(avaliacaoExcluindoId);
+      showToast('Avaliacao excluida.', 'success');
+      fecharModalConfirmarExclusao();
+      carregarHistorico();
+    } catch (e) { showToast(e.message || 'Erro ao excluir.', 'error'); }
+    finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-trash"></i> Excluir'; }
+  };
+
+  document.getElementById('modal-confirmar-exclusao').addEventListener('click', e => {
+    if (e.target === e.currentTarget) fecharModalConfirmarExclusao();
+  });
+
+  // ─── Exportar CSV ─────────────────────────────────────────────────────────────
+
+  window.exportarCSV = function() {
+    if (!todasAvaliacoes.length) { showToast('Nenhuma avaliacao para exportar.', 'error'); return; }
+    const criterioNomes = campanhaAtual?.criterios.map(c => c.nome) || [];
+    const BOM = '\uFEFF';
+    const headers = ['Data', 'Avaliado', 'Campanha', ...criterioNomes, 'Media', 'Comentario'];
+    const rows = todasAvaliacoes.map(a => [
+      new Date(a.data || a.createdAt).toLocaleDateString('pt-BR'),
+      a.avaliado?.nome || '',
+      campanhaAtual?.nome || '',
+      ...criterioNomes.map(n => a.criterios?.[n] ?? ''),
+      a.media ?? '',
+      (a.comentario || '').replace(/"/g, '""')
+    ]);
+    const csv = BOM + [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `avaliacoes_${campanhaAtual?.nome.replace(/\s+/g,'_')}_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    showToast('CSV exportado!', 'success');
+  };
+
+  // ─── Init ─────────────────────────────────────────────────────────────────────
+
+  function isColaborador() {
+    return user?.tipo === 'colaborador';
+  }
+
+  async function carregarPendenciasColaborador() {
+    const container = document.getElementById('campanhas-lista');
+    const passo1 = document.getElementById('step-campanha');
+    const passo2 = document.getElementById('step-form');
+    passo1.style.display = 'flex';
+    passo2.style.display = 'none';
+    document.getElementById('av-header-title').textContent = 'Avaliações';
+
+    container.innerHTML = '<p class="av-empty">Carregando pendências...</p>';
+
+    try {
+      // No backend, colaborador (via service) já filtra avaliações onde evaluation.avaliadoId === user.id
+      const res = await evaluationsApi.list({ page: 1, limit: 1000 });
+      const evaluations = res.data?.evaluations || [];
+
+      if (!evaluations.length) {
+        container.innerHTML = '<p class="av-empty">Você não possui avaliações pendentes.</p>';
+        document.getElementById('btn-proximo-campanha').style.display = 'none';
+        return;
+      }
+
+      // Agrupa por campanha para exibir melhor
+      const byCampaign = {};
+      for (const ev of evaluations) {
+        const c = ev.campaign || {};
+        const cid = c.id || ev.campaignId;
+        if (!byCampaign[cid]) {
+          byCampaign[cid] = { campaign: c, evaluations: [] };
+        }
+        byCampaign[cid].evaluations.push(ev);
+      }
+
+      const itens = Object.values(byCampaign)
+        .sort((a,b) => new Date(b.campaign.dataFim || b.campaign?.dataInicio || 0) - new Date(a.campaign.dataFim || a.campaign?.dataInicio || 0))
+        .map(({ campaign, evaluations: evs }) => {
+          const nomeCamp = campaign.nome || 'Campanha';
+          const periodo = campaign.status ? campaign.status : '';
+          const qtd = evs.length;
+          // regra simples: se tipoAlvo for 'gestor' => 360° (colaborador avalia gestor)
+          // se tipoAlvo for 'colaborador' => 180° (gestor avalia colaborador)
+          const tipoAlvo = campaign.tipoAlvo;
+          const alvoLabel = tipoAlvo === 'gestor' ? '360° (Gestor →)' : (tipoAlvo === 'colaborador' ? '180° (Gestor → Colaborador)' : 'Avaliação');
+
+          return `
+            <div class="av-tipo-card" data-campaign-id="${cid}" onclick="abrirAvaliacaoColaborador('${cid}')" style="text-align:left;padding:16px 20px;cursor:pointer">
+              <div style="font-weight:600;font-size:14px;color:var(--text)">${nomeCamp}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:8px;display:flex;gap:12px;flex-wrap:wrap">
+                <span><i class="fa-solid fa-list-check"></i> ${qtd} avaliação(ões)</span>
+                <span><i class="fa-solid fa-star"></i> ${alvoLabel}</span>
+                ${periodo ? `<span><i class="fa-regular fa-calendar"></i> ${periodo}</span>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      container.innerHTML = itens;
+      window._pendencias_colaborador = evaluations;
+      document.getElementById('btn-proximo-campanha').style.display = 'none';
+
+      // handler alvo: abrir primeira avaliação da campanha (as telas 180/360 aqui são “por tipo”, não por campaign)
+      window.abrirAvaliacaoColaborador = function(campaignId) {
+        const ev = (window._pendencias_colaborador || []).find(x => x.campaignId === campaignId) || null;
+        if (!ev) {
+          showToast('Avaliação não encontrada.', 'error');
+          return;
+        }
+
+        const tipoAlvo = ev.campaign?.tipoAlvo;
+        const target = tipoAlvo === 'gestor' ? '../pages/avaliacao-360.html' : '../pages/avaliacao-180.html';
+        localStorage.setItem('pending_evaluation_id', ev.id);
+        localStorage.setItem('pending_campaign_id', ev.campaignId);
+        localStorage.setItem('pending_tipo_alvo', tipoAlvo || '');
+        window.location.href = target;
+      };
+
+    } catch (e) {
+      container.innerHTML = '<p class="av-empty">Erro ao carregar pendências.</p>';
+    }
+  }
+
+  if (isColaborador()) {
+    carregarPendenciasColaborador();
+  } else {
+    carregarCampanhas();
+  }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+</body>
+</html>
+

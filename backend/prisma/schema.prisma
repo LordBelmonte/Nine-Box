@@ -3,9 +3,174 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                    String              @id @default(uuid())
+  ra                    String              @unique
+  nome                  String
+  email                 String              @unique
+  senha                 String
+  tipo                  UserType
+  foto                  String?
+  cargo                 String?
+  departamento          String?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  campanhasResponsavel  CampaignGestor[]
+  avaliacoesRecebidas   Evaluation[]        @relation("AvaliadoRelation")
+  avaliacoesFeitas      Evaluation[]        @relation("AvaliadorRelation")
+  gruposComoColaborador GestorColaborador[] @relation("ColaboradorRelation")
+  gruposComoGestor      GestorColaborador[] @relation("GestorRelation")
+  nineBoxAvaliacoes     NineBox[]
+
+  @@index([ra])
+  @@index([email])
+  @@map("users")
+}
+
+model GestorColaborador {
+  id            String   @id @default(uuid())
+  gestorId      String
+  colaboradorId String
+  createdAt     DateTime @default(now())
+  colaborador   User     @relation("ColaboradorRelation", fields: [colaboradorId], references: [id], onDelete: Cascade)
+  gestor        User     @relation("GestorRelation", fields: [gestorId], references: [id], onDelete: Cascade)
+
+  @@unique([gestorId, colaboradorId])
+  @@index([gestorId])
+  @@index([colaboradorId])
+  @@map("gestor_colaborador")
+}
+
+model EvaluationCampaign {
+  id           String               @id @default(uuid())
+  nome         String
+  descricao    String?
+  dataInicio   DateTime
+  dataFim      DateTime
+  status       CampaignStatus       @default(planejamento)
+  tipoAlvo     String
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  competencias CampaignCompetency[]
+  gestores     CampaignGestor[]
+  avaliacoes   Evaluation[]
+
+  @@index([status])
+  @@map("evaluation_campaigns")
+}
+
+model CampaignCompetency {
+  id           String             @id @default(uuid())
+  campaignId   String
+  competencyId String
+  createdAt    DateTime           @default(now())
+  campaign     EvaluationCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  competency   Competency         @relation(fields: [competencyId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, competencyId])
+  @@index([campaignId])
+  @@index([competencyId])
+  @@map("campaign_competencies")
+}
+
+model CampaignGestor {
+  id         String             @id @default(uuid())
+  campaignId String
+  gestorId   String
+  createdAt  DateTime           @default(now())
+  campaign   EvaluationCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  gestor     User               @relation(fields: [gestorId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, gestorId])
+  @@index([campaignId])
+  @@index([gestorId])
+  @@map("campaign_gestores")
+}
+
+model Evaluation {
+  id          String             @id @default(uuid())
+  campaignId  String
+  avaliadorId String
+  avaliadoId  String
+  criterios   Json
+  media       Float?
+  comentario  String?
+  anonima     Boolean            @default(true)
+  data        DateTime           @default(now())
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  avaliado    User               @relation("AvaliadoRelation", fields: [avaliadoId], references: [id], onDelete: Cascade)
+  avaliador   User               @relation("AvaliadorRelation", fields: [avaliadorId], references: [id], onDelete: Cascade)
+  campaign    EvaluationCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, avaliadorId, avaliadoId])
+  @@index([campaignId])
+  @@index([avaliadoId])
+  @@index([avaliadorId])
+  @@index([data])
+  @@map("evaluations")
+}
+
+model NineBox {
+  id          String   @id @default(uuid())
+  pessoaId    String
+  performance Float
+  potential   Float
+  categoria   String
+  comentario  String?
+  data        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  pessoa      User     @relation(fields: [pessoaId], references: [id], onDelete: Cascade)
+
+  @@index([pessoaId])
+  @@map("nine_box")
+}
+
+model Competency {
+  id            String               @id @default(uuid())
+  nome          String               @unique
+  descricao     String
+  tipo          String
+  competenciaDe String
+  criterios     String[]
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  a_melhorar    String?
+  bom           String?
+  ideal         String?
+  mediano       String?
+  campaigns     CampaignCompetency[]
+
+  @@map("competencies")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  entityType String
+  entityId   String
+  action     String
+  userId     String
+  userTipo   String
+  changes    String
+  timestamp  DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+model evaluation_templates {
+  id        String   @id
+  nome      String
+  tipo      String
+  descricao String?
+  criterios Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime
 }
 
 enum UserType {
@@ -14,85 +179,8 @@ enum UserType {
   colaborador
 }
 
-model User {
-  id           String   @id @default(uuid())
-  ra           String   @unique
-  nome         String
-  email        String   @unique
-  senha        String
-  tipo         UserType
-  foto         String?
-  cargo        String?
-  departamento String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  avaliacoesFeitas    Evaluation[] @relation("AvaliadorRelation")
-  avaliacoesRecebidas Evaluation[] @relation("AvaliadoRelation")
-  nineBoxAvaliacoes   NineBox[]
-
-  @@index([ra])
-  @@index([email])
-  @@map("users")
-}
-
-model Evaluation {
-  id            String        @id @default(uuid())
-  tipoAvaliacao TipoAvaliacao
-  avaliadorId   String
-  avaliadoId    String
-  criterios     Json
-  media         Float?
-  comentario    String?
-  anonima       Boolean       @default(true)
-  data          DateTime      @default(now())
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-
-  avaliador User @relation("AvaliadorRelation", fields: [avaliadorId], references: [id], onDelete: Cascade)
-  avaliado  User @relation("AvaliadoRelation", fields: [avaliadoId], references: [id], onDelete: Cascade)
-
-  @@index([avaliadoId])
-  @@index([avaliadorId])
-  @@index([data])
-  @@index([tipoAvaliacao])
-  @@index([anonima])
-  @@map("evaluations")
-}
-
-enum TipoAvaliacao {
-  gestor_para_colaborador
-  colaborador_para_gestor
-  avaliacao_360
-  avaliacao_180
-}
-
-model NineBox {
-  id          String   @id @default(uuid())
-  pessoaId    String
-  performance Int
-  potential   Int
-  categoria   String
-  comentario  String?
-  data        DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  pessoa User @relation(fields: [pessoaId], references: [id], onDelete: Cascade)
-
-  @@index([pessoaId])
-  @@map("nine_box")
-}
-
-model Competency {
-  id             String   @id @default(uuid())
-  nome           String   @unique
-  descricao      String
-  tipo           String
-  competenciaDe  String
-  criterios      String[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  @@map("competencies")
+enum CampaignStatus {
+  planejamento
+  ativa
+  finalizada
 }

@@ -9,7 +9,7 @@ import CONFIG from './config.js';
 import { getToken, logout, loginMock } from './auth.js';
 import { showToast } from './components/toast.js';
 import { showLoading, hideLoading } from './components/loading.js';
-import { MOCK_SYSTEM_USERS, MOCK_EVALUATIONS, MOCK_COMPETENCIES, MOCK_NINEBOXES } from './mockData.js';
+import { MOCK_SYSTEM_USERS, MOCK_EVALUATIONS, MOCK_COMPETENCIES, MOCK_NINEBOXES, MOCK_CAMPAIGNS, MOCK_GRUPOS } from './mockData.js';
 
 // =============================================
 // MODO MOCK (para desenvolvimento sem backend)
@@ -76,6 +76,7 @@ const api = {
   get:    (endpoint, silent)       => request(endpoint, { method: 'GET' }, silent),
   post:   (endpoint, body, silent) => request(endpoint, { method: 'POST', body }, silent),
   put:    (endpoint, body, silent) => request(endpoint, { method: 'PUT', body }, silent),
+  patch:  (endpoint, body, silent) => request(endpoint, { method: 'PATCH', body }, silent),
   delete: (endpoint, silent)       => request(endpoint, { method: 'DELETE' }, silent),
 };
 
@@ -297,7 +298,7 @@ export const usersApi = {
       
       // Não permitir excluir admin
       if (user.tipo === 'admin') {
-        throw new Error('Não é possível excluir administradores');
+        throw new Error('Não é possível excluir este usuário');
       }
       
       // Remover usuário
@@ -465,6 +466,17 @@ export const evaluationsApi = {
   
   getByAvaliado: (id, p) => api.get(`/evaluations/avaliado/${id}${buildQuery(p)}`),
   getStats: (id) => api.get(`/evaluations/stats/avaliado/${id}`),
+
+  listByCampaign: async (campaignId) => {
+    if (MOCK_MODE) {
+      await new Promise(r => setTimeout(r, 200));
+      const stored = localStorage.getItem('mock_evaluations');
+      const all = stored ? JSON.parse(stored) : [...MOCK_EVALUATIONS];
+      const filtered = all.filter(e => e.campaignId === campaignId);
+      return { success: true, data: filtered };
+    }
+    return api.get(`/evaluations/campanha/${campaignId}`);
+  },
   
   update: async (id, body) => {
     if (MOCK_MODE) {
@@ -591,6 +603,8 @@ export const nineBoxApi = {
   
   getById: (id) => api.get(`/ninebox/${id}`),
   
+  findById: (id) => api.get(`/ninebox/${id}`),
+  
   getByPessoa: async (id) => {
     if (MOCK_MODE) {
       await new Promise(resolve => setTimeout(resolve, 200));
@@ -650,7 +664,15 @@ export const nineBoxApi = {
     }
     return api.get('/ninebox/stats/distribution');
   },
-  
+
+  calculateTeam: async () => {
+    return api.get('/ninebox/calculate/team');
+  },
+
+  calculateForPerson: async (pessoaId) => {
+    return api.get(`/ninebox/calculate/person/${pessoaId}`);
+  },
+
   update: (id, b) => api.put(`/ninebox/${id}`, b),
   
   delete: async (id) => {
@@ -873,27 +895,136 @@ export const reportsApi = {
   export: (id) => api.get(`/reports/export/${id}`),
 };
 
-// Helper para calcular média por critério
+// Helper para calcular média por critério (dinâmico)
 function calcularMediaCriterios(avaliacoes) {
-  if (avaliacoes.length === 0) return {};
-  
-  const criterios = ['pontualidade', 'comunicacao', 'tecnico', 'proatividade', 'equipe'];
-  const medias = {};
-  
-  criterios.forEach(criterio => {
-    const valores = avaliacoes
-      .map(a => a.criterios?.[criterio])
-      .filter(v => v > 0);
-    
-    if (valores.length > 0) {
-      medias[criterio] = parseFloat((valores.reduce((a, b) => a + b, 0) / valores.length).toFixed(1));
-    } else {
-      medias[criterio] = 0;
+  if (!avaliacoes || avaliacoes.length === 0) return {};
+  const totais = {}, contagens = {};
+  for (const av of avaliacoes) {
+    if (av.criterios && typeof av.criterios === 'object') {
+      for (const [nome, nota] of Object.entries(av.criterios)) {
+        if (typeof nota === 'number') {
+          totais[nome] = (totais[nome] || 0) + nota;
+          contagens[nome] = (contagens[nome] || 0) + 1;
+        }
+      }
     }
-  });
-  
+  }
+  const medias = {};
+  for (const nome of Object.keys(totais)) {
+    medias[nome] = parseFloat((totais[nome] / contagens[nome]).toFixed(1));
+  }
   return medias;
 }
+
+// =============================================
+// ENDPOINTS — CAMPANHAS
+// =============================================
+export const campaignsApi = {
+  // Lista campanhas ativas para o gestor logado
+  listAtivas: async () => {
+    if (MOCK_MODE) {
+      await new Promise(r => setTimeout(r, 200));
+      const token = getToken();
+      const userId = token ? JSON.parse(atob(token.split('.')[1] || 'e30=')).userId : null;
+      const campanhas = MOCK_CAMPAIGNS.filter(c => {
+        if (c.status !== 'ativa') return false;
+        // Se gestor, filtra apenas campanhas onde é responsável
+        if (userId) return c.gestores.some(g => g.gestorId === userId);
+        return true;
+      });
+      return { success: true, data: campanhas };
+    }
+    return api.get('/campaigns/ativas/gestor');
+  },
+
+  // Lista campanhas pendentes para colaborador
+  getPendingForColaborador: async () => {
+    if (MOCK_MODE) {
+      await new Promise(r => setTimeout(r, 200));
+      const token = getToken();
+      const userId = token ? JSON.parse(atob(token.split('.')[1] || 'e30=')).userId : null;
+      const campanhas = MOCK_CAMPAIGNS.filter(c => {
+        if (c.status !== 'ativa') return false;
+        if (c.tipoAlvo !== 'gestor') return false; // Colaborador avalia gestor
+        return true;
+      });
+      return { success: true, data: campanhas };
+    }
+    return api.get('/campaigns/colaborador/pendentes');
+  },
+
+  // Lista campanhas pendentes para gestor
+  getPendingForGestor: async () => {
+    if (MOCK_MODE) {
+      await new Promise(r => setTimeout(r, 200));
+      const token = getToken();
+      const userId = token ? JSON.parse(atob(token.split('.')[1] || 'e30=')).userId : null;
+      const campanhas = MOCK_CAMPAIGNS.filter(c => {
+        if (c.status !== 'ativa') return false;
+        if (userId) return c.gestores.some(g => g.gestorId === userId);
+        return true;
+      });
+      return { success: true, data: campanhas };
+    }
+    return api.get('/campaigns/gestor/pendentes');
+  },
+
+  list: async (params) => {
+    if (MOCK_MODE) {
+      await new Promise(r => setTimeout(r, 200));
+      let campanhas = [...MOCK_CAMPAIGNS];
+      if (params?.status) campanhas = campanhas.filter(c => c.status === params.status);
+      return { success: true, data: { campaigns: campanhas, pagination: { total: campanhas.length } } };
+    }
+    return api.get(`/campaigns${buildQuery(params)}`);
+  },
+
+  getById: async (id) => {
+    if (MOCK_MODE) {
+      await new Promise(r => setTimeout(r, 200));
+      const c = MOCK_CAMPAIGNS.find(c => c.id === id);
+      if (!c) throw new Error('Campanha não encontrada');
+      return { success: true, data: c };
+    }
+    return api.get(`/campaigns/${id}`);
+  },
+
+  create: (body) => api.post('/campaigns', body),
+  update: (id, body) => api.put(`/campaigns/${id}`, body),
+  updateStatus: (id, status) => api.patch ? api.patch(`/campaigns/${id}/status`, { status }) : request(`/campaigns/${id}/status`, { method: 'PATCH', body: { status } }),
+  delete: (id) => api.delete(`/campaigns/${id}`),
+
+  getProgress: (campaignId, gestorId) =>
+    api.get(`/campaigns/${campaignId}/progresso${gestorId ? '/' + gestorId : ''}`),
+};
+
+// =============================================
+// ENDPOINTS — GRUPOS (gestor → colaboradores)
+// =============================================
+export const groupsApi = {
+  getColaboradores: async (gestorId) => {
+    if (MOCK_MODE) {
+      await new Promise(r => setTimeout(r, 200));
+      const grupo = MOCK_GRUPOS.find(g => g.gestorId === gestorId);
+      const ids = grupo?.colaboradorIds || [];
+      const colaboradores = MOCK_SYSTEM_USERS.filter(u => ids.includes(u.id));
+      return { success: true, data: colaboradores };
+    }
+    return api.get(`/groups/gestor/${gestorId}/colaboradores`);
+  },
+
+  addColaborador: (gestorId, colaboradorId) =>
+    api.post(`/groups/gestor/${gestorId}/colaboradores`, { colaboradorId }),
+
+  removeColaborador: (gestorId, colaboradorId) =>
+    api.delete(`/groups/gestor/${gestorId}/colaboradores/${colaboradorId}`),
+
+  setColaboradores: (gestorId, colaboradorIds) =>
+    api.put(`/groups/gestor/${gestorId}/colaboradores`, { colaboradorIds }),
+
+  getGestores: (colaboradorId) =>
+    api.get(`/groups/colaborador/${colaboradorId}/gestores`),
+};
 
 // =============================================
 // HELPER — monta query string

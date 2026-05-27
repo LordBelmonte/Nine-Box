@@ -10,15 +10,13 @@ class ReportsController {
       // Adaptar formato para compatibilidade com frontend
       const response = {
         totalUsuarios: stats.usuarios.total,
-        totalGestores: stats.usuarios.porTipo.gestor || 0,
-        totalColaboradores: stats.usuarios.porTipo.colaborador || 0,
+        totalGestores: stats.usuarios.porTipo?.gestor || 0,
+        totalColaboradores: stats.usuarios.porTipo?.colaborador || 0,
         totalAvaliacoes: stats.avaliacoes.total,
-        totalNineBox: stats.nineBox.total || 0,
-        avaliacoes180: stats.avaliacoes.porTipo.gestor_para_colaborador || 0,
-        avaliacoes360: stats.avaliacoes.porTipo.colaborador_para_gestor || 0,
-        mediaGeral: parseFloat(stats.avaliacoes.mediaGeral.toFixed(1)),
+        totalNineBox: stats.nineBox?.total || 0,
+        campanhasAtivas: stats.campanhasAtivas || 0,
+        mediaGeral: parseFloat((stats.avaliacoes.mediaGeral || 0).toFixed(1)),
         ultimasAvaliacoes: stats.avaliacoes.lista || [],
-        // Manter também o formato original para compatibilidade
         usuarios: stats.usuarios,
         avaliacoes: stats.avaliacoes,
         nineBox: stats.nineBox,
@@ -70,22 +68,26 @@ class ReportsController {
   
   calcularMediaCriterios(avaliacoes) {
     if (!avaliacoes || avaliacoes.length === 0) return {};
-    
-    const criterios = ['pontualidade', 'comunicacao', 'tecnico', 'proatividade', 'equipe'];
-    const medias = {};
-    
-    criterios.forEach(criterio => {
-      const valores = avaliacoes
-        .map(a => a.criterios?.[criterio])
-        .filter(v => v > 0);
-      
-      if (valores.length > 0) {
-        medias[criterio] = parseFloat((valores.reduce((a, b) => a + b, 0) / valores.length).toFixed(1));
-      } else {
-        medias[criterio] = 0;
+
+    // Critérios são dinâmicos — agrega todos os critérios encontrados nas avaliações
+    const totais = {};
+    const contagens = {};
+
+    for (const av of avaliacoes) {
+      if (av.criterios && typeof av.criterios === 'object') {
+        for (const [nome, nota] of Object.entries(av.criterios)) {
+          if (typeof nota === 'number') {
+            totais[nome] = (totais[nome] || 0) + nota;
+            contagens[nome] = (contagens[nome] || 0) + 1;
+          }
+        }
       }
-    });
-    
+    }
+
+    const medias = {};
+    for (const nome of Object.keys(totais)) {
+      medias[nome] = parseFloat((totais[nome] / contagens[nome]).toFixed(1));
+    }
     return medias;
   }
 

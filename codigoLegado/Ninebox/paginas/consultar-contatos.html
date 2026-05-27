@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Contatos</title>
+    <!-- Linked external CSS file -->
+     
+    <link rel="stylesheet" href="../CSS/consultar-contatos.css">
+    <!-- Estilo do navbar -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="../CSS/navbar.css">
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Added search container -->
+        <div class="search-section">
+            <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar por nome ou CPF..."
+                onkeyup="handleSearch()">
+        </div>
+
+        <div class="filter-section">
+            <span class="filter-label">Filtrar por:</span>
+            <button class="filter-btn active" onclick="filterContacts('todos')">Todos</button>
+            <button class="filter-btn" onclick="filterContacts('avaliado')">Avaliados</button>
+            <button class="filter-btn" onclick="filterContacts('gestor')">Gestores</button>
+
+            <span class="filter-separator">|</span>
+            <span class="filter-label">Ordenar:</span>
+            <button class="filter-btn sort-btn" onclick="sortContacts('asc')">A-Z</button>
+            <button class="filter-btn sort-btn" onclick="sortContacts('desc')">Z-A</button>
+
+            <span class="filter-separator">|</span>
+            <button class="filter-btn clear-btn" onclick="clearFilters()">Limpar Filtros</button>
+        </div>
+
+        <div class="table-container">
+            <table id="contactsTable">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Cpf</th>
+                        <th>Email</th>
+                        <th>Tipo</th>
+                        <th>Genero</th>
+                        <th>Empresa</th>
+                        <th>Gestor</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!--Gerado dinamicamente-->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Contato</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="editForm">
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" id="editNome">
+                </div>
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <input type="text" id="editTipo" readonly>
+                </div>
+                <div class="form-group">
+                    <label>CPF</label>
+                    <input type="text" id="editCpf" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="editEmail">
+                </div>
+                <div class="form-group">
+                    <label>Data Nascimento</label>
+                    <input type="date" id="editDate">
+                </div>
+                <div class="form-group">
+                    <label>Gênero</label>
+                    <select id="editGenero">
+                        <option value="">Selecione...</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Feminino">Feminino</option>
+                        <option value="Outro">Outro</option>
+                        <option value="Prefiro não informar">Prefiro não informar</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Empresa</label>
+                    <input type="text" id="editEmpresa">
+                </div>
+                <div class="form-group">
+                    <label>Gestor</label>
+                    <select id="editGestor">
+
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <!-- Evaluations Modal -->
+    <div id="evaluationsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Avaliações</h2>
+                <button class="close-btn" onclick="closeEvaluationsModal()">&times;</button>
+            </div>
+            <div id="evaluationsList"></div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-primary" onclick="closeEvaluationsModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="modal confirmation-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirmar Alterações</h2>
+                <button class="close-btn" onclick="closeConfirmationModal()">&times;</button>
+            </div>
+            <div id="alertMessage" class="alert"></div>
+            <div class="confirmation-message">
+                Tem certeza que deseja salvar as alterações?
+            </div>
+            <div class="confirmation-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeConfirmationModal()">Não</button>
+                <button type="button" id="confirmarAlterar" class="btn btn-success">Sim</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script src="../navbar.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    crossorigin="anonymous"></script>
+
+<script>
+    window.nomePagina = "Consultar contatos";
+
+    let contacts = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+        carregarContatos();
+    });
+
+    function carregarContatos() {
+        Promise.all([
+            fetch("http://localhost:3001/avaliado").then(r => r.json()),
+            fetch("http://localhost:3001/gestor").then(r => r.json())
+        ]).then(([avaliadosData, gestoresData]) => {
+            const avaliados = avaliadosData.map(avaliado => ({
+                nome: avaliado.nome,
+                cpf: avaliado.cpf,
+                email: avaliado.email || "",
+                dataNascimento: avaliado.dataNascimento ? new Date(avaliado.dataNascimento).toISOString().split("T")[0] : "",
+                tipo: "avaliado",
+                genero: avaliado.genero,
+                empresa: avaliado.empresa,
+                gestor: avaliado.nome_gestor || "",
+                cpf_gestor: avaliado.cpf_gestor || "",
+            }));
+
+            const gestores = gestoresData.map(gestor => ({
+                nome: gestor.nome,
+                cpf: gestor.cpf,
+                email: gestor.email || "",
+                dataNascimento: gestor.dataNascimento ? new Date(gestor.dataNascimento).toISOString().split("T")[0] : "",
+                tipo: "gestor",
+                genero: gestor.genero,
+                empresa: gestor.empresa,
+                gestor: "",
+            }));
+
+            contacts = [...avaliados, ...gestores];
+
+            //Faz o render dos contatos na lista
+            renderContacts(contacts);
+        }).catch(error => console.error("Erro ao carregar contatos:", error));
+    }
+
+
+    function renderContacts(filteredContacts) {
+        const tbody = document.querySelector("#contactsTable tbody");
+        tbody.innerHTML = ""; // limpa antes de renderizar
+
+        filteredContacts.forEach((contact, cpf) => {
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
+            <td>${contact.nome}</td>
+            <td>${formatarCpf(contact.cpf)}</td>
+            <td><a href="mailto:${contact.email}" class="email-link">${contact.email}</a></td>
+            <td>${contact.tipo}</td>
+            <td>${contact.genero}</td>
+            <td>${contact.empresa}</td>
+            <td>${contact.gestor || ""}</td>
+            <td>
+                <div class="actions">
+                    <button class="action-btn" onclick="viewContact(${contact.cpf})" title="Editar">
+                        <img src="../ImagensMenu/eye.svg" alt="view-contact" width="25x">
+                    </button>
+                    <button class="action-btn" onclick="editContact(${contact.cpf})" title="Visualizar">
+                        <img src="../ImagensMenu/edit.svg" alt="edit-contact" height="23x">
+                    </button>
+                </div>
+            </td>
+        `;
+
+            tbody.appendChild(tr);
+        });
+    }
+
+
+
+    let currentEditIndex = -1
+    let currentFilter = "todos"
+    let currentSort = null
+    let currentSearch = ""
+
+
+
+    function handleSearch() {
+        const searchInput = document.getElementById("searchInput")
+        currentSearch = searchInput.value.toLowerCase()
+        updateTable()
+    }
+
+    async function viewContact(cpf) {
+        const contact = contacts.find(c => c.cpf == cpf);
+        const evaluationsList = document.getElementById("evaluationsList");
+        console.log("Parametro recebido:", cpf);
+        console.log("CPFs no array:", contacts.map(c => c.cpf));
+
+
+        try {
+            // chamada ao endpoint do back
+            const response = await fetch(`http://localhost:3001/avaliacoes/${contact.cpf}`);
+            const avaliacoes = await response.json();
+            console.log(avaliacoes);
+
+            if (avaliacoes && avaliacoes.length > 0) {
+                evaluationsList.innerHTML = avaliacoes
+                    .map(
+                        (av) => `
+            <div class="evaluation-item">
+                <div class="evaluation-header">
+                    <span class="evaluation-name">${av.nomeAvaliacao}</span>
+                    <span class="evaluation-date">
+                        ${new Date(av.dataInicio).toLocaleDateString()} - ${new Date(av.dataFim).toLocaleDateString()}
+                    </span>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong style="color: rgb(0, 0, 255);">Gestor:</strong> ${av.gestor || "Não definido"}
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong style="color: rgb(0, 0, 255);">Respondida:</strong> ${av.respondida}
+                </div>
+                ${av.data_resposta
+                                ? `<div class="evaluation-date"><strong>Data da resposta:</strong> ${new Date(av.data_resposta).toLocaleDateString()}</div>`
+                                : ""
+                            }
+            </div>
+        `
+                    )
+                    .join("");
+            } else {
+                evaluationsList.innerHTML = `
+            <div class="no-evaluations">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p>Nenhuma avaliação encontrada para este contato.</p>
+            </div>
+        `;
+            }
+
+            document.getElementById("evaluationsModal").classList.add("active");
+        } catch (error) {
+            console.error("Erro ao buscar avaliações:", error);
+            evaluationsList.innerHTML = `<p style="color:red;">Erro ao carregar avaliações.</p>`;
+        }
+    }
+
+
+    function editContact(cpf) {
+        // encontra o índice real no array
+        currentEditIndex = contacts.findIndex(c => c.cpf == cpf);
+        const contact = contacts[currentEditIndex];
+
+        document.getElementById("editNome").value = contact.nome;
+        document.getElementById("editTipo").value = contact.tipo;
+        document.getElementById("editCpf").value = formatarCpf(contact.cpf);
+        document.getElementById("editEmail").value = contact.email;
+        document.getElementById("editDate").value = contact.dataNascimento;
+        document.getElementById("editGenero").value = contact.genero;
+        document.getElementById("editEmpresa").value = contact.empresa;
+
+        const gestorSelect = document.getElementById("editGestor");
+        gestorSelect.innerHTML = '';
+
+        contacts
+            .filter((c) => c.tipo === "gestor")
+            .forEach((gestor) => {
+                const option = document.createElement("option");
+                option.value = gestor.cpf;
+                option.textContent = gestor.nome;
+                if (contact.cpf_gestor && contact.cpf_gestor === gestor.cpf) {
+                    option.selected = true;
+                }
+                gestorSelect.appendChild(option);
+            });
+
+        document.getElementById("editModal").classList.add("active");
+        
+    }
+
+
+    document.getElementById("editForm").addEventListener("submit", (e) => {
+        e.preventDefault()
+
+        if (currentEditIndex !== -1) {
+            document.getElementById("confirmationModal").classList.add("active")
+        }
+    })
+
+    // Captura o submit do formulário de edição de avaliado
+    document.getElementById("confirmarAlterar").addEventListener("click", async function (e) {
+        e.preventDefault(); // evita reload da página
+        debugger;
+
+        const tipo = document.getElementById("editTipo").value;
+
+        if (tipo === "avaliado") {
+
+            // pega os valores do formulário
+            const cpf = document.getElementById("editCpf").value.replace(/\D/g, ""); // remove pontos/traços
+            const nome = document.getElementById("editNome").value;
+            const email = document.getElementById("editEmail").value;
+            const dataNascimento = document.getElementById("editDate").value; // já vem no formato YYYY-MM-DD
+            const genero = document.getElementById("editGenero").value;
+            const empresa = document.getElementById("editEmpresa").value;
+            const cpf_gestor = document.getElementById("editGestor").value;
+
+            // monta o objeto para enviar
+            const payload = {
+                nome,
+                email,
+                dataNascimento,
+                genero,
+                empresa,
+                cpf_gestor
+            };
+
+            try {
+                const response = await fetch(`http://localhost:3001/editarAvaliado/${cpf}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error("Erro ao atualizar contato");
+                }
+
+                const result = await response.json();
+                alert("Contato atualizado com sucesso!");
+
+                carregarContatos()
+
+                // fecha modal e atualiza lista
+                closeConfirmationModal()
+                closeModal()
+                clearFilters()
+
+            } catch (error) {
+                console.error("Erro:", error);
+                closeConfirmationModal()
+                closeModal()
+                alert("Não foi possível atualizar o contato.");
+                clearFilters()
+            }
+        }
+
+        if (tipo === "gestor") {
+            // pega os valores do formulário
+            const cpf = document.getElementById("editCpf").value.replace(/\D/g, ""); // remove pontos/traços
+            const nome = document.getElementById("editNome").value;
+            const email = document.getElementById("editEmail").value;
+            const dataNascimento = document.getElementById("editDate").value; // já vem no formato YYYY-MM-DD
+            const genero = document.getElementById("editGenero").value;
+            const empresa = document.getElementById("editEmpresa").value;
+            const cpf_gestor = document.getElementById("editGestor").value;
+
+            // monta o objeto para enviar
+            const payload = {
+                nome,
+                email,
+                dataNascimento,
+                genero,
+                empresa,
+            };
+
+            try {
+                const response = await fetch(`http://localhost:3001/editarGestor/${cpf}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error("Erro ao atualizar contato");
+                }
+
+                const result = await response.json();
+                alert("Contato atualizado com sucesso!");
+
+                carregarContatos()
+
+                // fecha modal e atualiza lista
+                closeConfirmationModal()
+                closeModal()
+                clearFilters()
+
+            } catch (error) {
+                console.error("Erro:", error);
+                closeConfirmationModal()
+                closeModal()
+                alert("Não foi possível atualizar o contato.");
+                clearFilters()
+            }
+        }
+    });
+
+
+    function closeModal() {
+        document.getElementById("editModal").classList.remove("active")
+        currentEditIndex = -1
+    }
+
+
+    function closeEvaluationsModal() {
+        document.getElementById("evaluationsModal").classList.remove("active")
+        currentEditIndex = -1
+    }
+
+    function closeConfirmationModal() {
+        document.getElementById("confirmationModal").classList.remove("active")
+        currentEditIndex = -1
+    }
+
+    function showAlert(message, type) {
+        const alert = document.getElementById("alertMessage")
+        alert.textContent = message
+        alert.className = `alert alert-${type} show`
+
+        // Auto hide after 3 seconds
+        setTimeout(() => {
+            alert.classList.remove("show")
+        }, 3000)
+    }
+
+
+    function filterContacts(tipo) {
+        currentFilter = tipo
+
+        // Update active button
+        document.querySelectorAll(".filter-btn:not(.sort-btn)").forEach((btn) => {
+            btn.classList.remove("active")
+        })
+        event.target.classList.add("active")
+
+        updateTable()
+    }
+
+    function sortContacts(order) {
+        currentSort = order
+
+        // Update active sort button
+        document.querySelectorAll(".sort-btn").forEach((btn) => {
+            btn.classList.remove("active")
+        })
+        event.target.classList.add("active")
+
+        updateTable()
+    }
+
+    function clearFilters() {
+        currentFilter = "todos"
+        currentSort = null
+        currentSearch = ""
+
+        // Reset all filter buttons
+        document.querySelectorAll(".filter-btn:not(.sort-btn):not(.clear-btn)").forEach((btn) => {
+            btn.classList.remove("active")
+        })
+        document.querySelector(".filter-btn[onclick=\"filterContacts('todos')\"]").classList.add("active")
+
+        // Reset all sort buttons
+        document.querySelectorAll(".sort-btn").forEach((btn) => {
+            btn.classList.remove("active")
+        })
+
+        updateTable()
+    }
+
+    function updateTable() {
+        const tbody = document.querySelector("#contactsTable tbody");
+        tbody.innerHTML = "";
+
+        // Filtra contatos pelo filtro atual
+        let filteredContacts =
+            currentFilter === "todos"
+                ? contacts
+                : contacts.filter((contact) => contact.tipo === currentFilter);
+
+        // Filtro de busca por nome ou CPF
+        if (currentSearch) {
+            const searchLower = currentSearch.toLowerCase();
+            filteredContacts = filteredContacts.filter((contact) => {
+                const nameMatch = contact.nome.toLowerCase().includes(searchLower);
+                const cpfMatch = String(contact.cpf).includes(currentSearch);
+                return nameMatch || cpfMatch;
+            });
+        }
+
+        // Ordenação
+        if (currentSort === "asc") {
+            filteredContacts = [...filteredContacts].sort((a, b) =>
+                a.nome.localeCompare(b.nome)
+            );
+        } else if (currentSort === "desc") {
+            filteredContacts = [...filteredContacts].sort((a, b) =>
+                b.nome.localeCompare(a.nome)
+            );
+        }
+
+        // Renderização da tabela
+        filteredContacts.forEach((contact) => {
+            const row = tbody.insertRow();
+            row.innerHTML = `
+            <td>${contact.nome}</td>
+            <td>${formatarCpf(contact.cpf)}</td>
+            <td><a href="mailto:${contact.email}" class="email-link">${contact.email}</a></td>
+            <td>${contact.tipo}</td>
+            <td>${contact.genero}</td>
+            <td>${contact.empresa}</td>
+            <td>${contact.gestor || "-"}</td>
+            <td>
+                <div class="actions">
+                    <button class="action-btn" onclick="viewContact('${contact.cpf}')" title="Visualizar">
+                        <img src="../ImagensMenu/eye.svg" alt="view-contact" width="25">
+                    </button>
+                    <button class="action-btn" onclick="editContact('${contact.cpf}')" title="Editar">
+                        <img src="../ImagensMenu/edit.svg" alt="edit-contact" height="23">
+                    </button>
+                </div>
+            </td>
+        `;
+        });
+    }
+
+    function formatarCpf(cpf) {
+        // remove tudo que não for número
+        const apenasNumeros = String(cpf).replace(/\D/g, "");
+
+        // aplica a máscara
+        return apenasNumeros.replace(
+            /(\d{3})(\d{3})(\d{3})(\d{2})/,
+            "$1.$2.$3-$4"
+        );
+    }
+
+    document.getElementById("editForm").addEventListener("submit", (e) => {
+        e.preventDefault()
+
+        if (currentEditIndex !== -1) {
+            document.getElementById("confirmationModal").classList.add("active")
+        }
+    })
+
+    document.getElementById("editModal").addEventListener("click", function (e) {
+        if (e.target === this) {
+            closeModal()
+        }
+    })
+
+    document.getElementById("evaluationsModal").addEventListener("click", function (e) {
+        if (e.target === this) {
+            closeEvaluationsModal()
+        }
+    })
+
+    document.getElementById("confirmationModal").addEventListener("click", function (e) {
+        if (e.target === this) {
+            closeConfirmationModal()
+        }
+    })
+
+    document.getElementById("searchInput").addEventListener("input", handleSearch)
+
+        //Função para voltar para o menu ao apertar o botão voltar
+    const btnVoltar = document.getElementById("btnVoltar");
+
+    btnVoltar.addEventListener("click", function (e) {
+      window.location = "./paginas/menu.html";
+    })
+
+
+
+</script>
+
+
+</html>

@@ -55,11 +55,13 @@
         <i class="fa-solid fa-star"></i><span>Avaliações</span><i class="fa-solid fa-chevron-down navbar-chevron"></i>
       </a>
       <ul class="navbar-submenu">
-        <li><a href="avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-star"></i> Avaliações</a></li>
+                <li data-role="admin"><a href="campanhas.html" class="navbar-submenu-link"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
+<li><a href="avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-star"></i> Avaliações</a></li>
         <li data-role="gestorOrAdmin"><a href="nine-box.html" class="navbar-submenu-link active"><i class="fa-solid fa-th"></i> Nine Box</a></li>
         <li><a href="competencias.html" class="navbar-submenu-link"><i class="fa-solid fa-clipboard-check"></i> Competências</a></li>
       </ul>
     </li>
+    <li class="navbar-item" data-role="gestorOrAdmin"><a href="grupos.html" class="navbar-link"><i class="fa-solid fa-users"></i><span>Grupos</span></a></li>
     <li class="navbar-item"><a href="relatorios.html" class="navbar-link"><i class="fa-solid fa-chart-bar"></i><span>Relatórios</span></a></li>
     <li class="navbar-item"><a href="../perfil.html" class="navbar-link"><i class="fa-solid fa-user"></i><span>Perfil</span></a></li>
   </ul>
@@ -67,82 +69,8 @@
 
 <main class="nb-page">
 
-  <!-- PAINEL ESQUERDO: FORMULÁRIO (apenas gestor/admin) -->
-  <aside class="nb-panel" id="nb-panel">
-
-    <div class="nb-panel-header">
-      <i class="fa-solid fa-sliders"></i>
-      <span>Posicionar Pessoa</span>
-    </div>
-
-    <!-- SELECT PESSOA -->
-    <div class="nb-field">
-      <label id="nb-pessoa-label">Colaborador</label>
-      <select id="nb-pessoa">
-        <option value="">Selecione...</option>
-      </select>
-    </div>
-
-    <!-- PERFORMANCE -->
-    <div class="nb-axis-section">
-      <div class="nb-axis-label">
-        <i class="fa-solid fa-chart-line"></i>
-        Performance
-        <span class="nb-axis-sub">Desempenho atual</span>
-      </div>
-      <div class="nb-axis-btns" id="perf-btns">
-        <button class="nb-axis-btn" data-val="1" onclick="selectAxis('perf',1)">
-          <span class="nb-axis-dot dot-low"></span>Baixo
-        </button>
-        <button class="nb-axis-btn" data-val="2" onclick="selectAxis('perf',2)">
-          <span class="nb-axis-dot dot-mid"></span>Médio
-        </button>
-        <button class="nb-axis-btn" data-val="3" onclick="selectAxis('perf',3)">
-          <span class="nb-axis-dot dot-high"></span>Alto
-        </button>
-      </div>
-    </div>
-
-    <!-- POTENTIAL -->
-    <div class="nb-axis-section">
-      <div class="nb-axis-label">
-        <i class="fa-solid fa-rocket"></i>
-        Potential
-        <span class="nb-axis-sub">Potencial de crescimento</span>
-      </div>
-      <div class="nb-axis-btns" id="pot-btns">
-        <button class="nb-axis-btn" data-val="1" onclick="selectAxis('pot',1)">
-          <span class="nb-axis-dot dot-low"></span>Baixo
-        </button>
-        <button class="nb-axis-btn" data-val="2" onclick="selectAxis('pot',2)">
-          <span class="nb-axis-dot dot-mid"></span>Médio
-        </button>
-        <button class="nb-axis-btn" data-val="3" onclick="selectAxis('pot',3)">
-          <span class="nb-axis-dot dot-high"></span>Alto
-        </button>
-      </div>
-    </div>
-
-    <!-- PREVIEW -->
-    <div class="nb-preview" id="nb-preview" style="display:none">
-      <i class="fa-solid fa-location-dot"></i>
-      Categoria: <strong id="nb-preview-cat">—</strong>
-    </div>
-
-    <!-- COMENTÁRIO -->
-    <div class="nb-field">
-      <label>Comentário <span class="nb-opt">(opcional)</span></label>
-      <textarea id="nb-comentario" placeholder="Justifique sua avaliação..." rows="3"></textarea>
-    </div>
-
-    <button class="nb-save-btn" id="btn-salvar-nb" onclick="salvarNB()">
-      <i class="fa-solid fa-floppy-disk"></i> Salvar Posição
-    </button>
-
-  </aside>
-
   <!-- ÁREA PRINCIPAL: GRID -->
-  <div class="nb-grid-area">
+  <div class="nb-grid-area" style="width: 100%">
 
     <div class="nb-grid-controls">
       <div class="nb-filtros">
@@ -173,44 +101,44 @@
         <div class="nb-grid" id="nb-grid">
 
           <!-- Linha 3: Alto Potential -->
-          <div class="nb-box nb-box-1-3" id="nb-box-1-3" onclick="clickBox(1,3)">
-            <div class="nb-box-header"><span class="nb-box-name">Enigma</span><span class="nb-box-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></span></div>
+          <div class="nb-box nb-box-1-3" id="nb-box-1-3">
+            <div class="nb-box-header"><span class="nb-box-name">Q7 (Forte Candidato)</span><span class="nb-box-icon"><i class="fa-solid fa-star"></i></span></div>
             <div class="nb-box-people" id="nb-people-1-3"></div>
           </div>
-          <div class="nb-box nb-box-2-3" id="nb-box-2-3" onclick="clickBox(2,3)">
-            <div class="nb-box-header"><span class="nb-box-name">Estrela</span><span class="nb-box-icon"><i class="fa-solid fa-star"></i></span></div>
+          <div class="nb-box nb-box-2-3" id="nb-box-2-3">
+            <div class="nb-box-header"><span class="nb-box-name">Q8 (Alto Desempenho)</span><span class="nb-box-icon"><i class="fa-solid fa-chart-line"></i></span></div>
             <div class="nb-box-people" id="nb-people-2-3"></div>
           </div>
-          <div class="nb-box nb-box-3-3" id="nb-box-3-3" onclick="clickBox(3,3)">
-            <div class="nb-box-header"><span class="nb-box-name">Superstar</span><span class="nb-box-icon"><i class="fa-solid fa-rocket"></i></span></div>
+          <div class="nb-box nb-box-3-3" id="nb-box-3-3">
+            <div class="nb-box-header"><span class="nb-box-name">Q9 (Estrela)</span><span class="nb-box-icon"><i class="fa-solid fa-rocket"></i></span></div>
             <div class="nb-box-people" id="nb-people-3-3"></div>
           </div>
 
           <!-- Linha 2: Médio Potential -->
-          <div class="nb-box nb-box-1-2" id="nb-box-1-2" onclick="clickBox(1,2)">
-            <div class="nb-box-header"><span class="nb-box-name">Dilema</span><span class="nb-box-icon"><i class="fa-solid fa-question"></i></span></div>
+          <div class="nb-box nb-box-1-2" id="nb-box-1-2">
+            <div class="nb-box-header"><span class="nb-box-name">Q4 (Dilema)</span><span class="nb-box-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></span></div>
             <div class="nb-box-people" id="nb-people-1-2"></div>
           </div>
-          <div class="nb-box nb-box-2-2" id="nb-box-2-2" onclick="clickBox(2,2)">
-            <div class="nb-box-header"><span class="nb-box-name">Núcleo</span><span class="nb-box-icon"><i class="fa-solid fa-gem"></i></span></div>
+          <div class="nb-box nb-box-2-2" id="nb-box-2-2">
+            <div class="nb-box-header"><span class="nb-box-name">Q5 (Mantenedor)</span><span class="nb-box-icon"><i class="fa-solid fa-gem"></i></span></div>
             <div class="nb-box-people" id="nb-people-2-2"></div>
           </div>
-          <div class="nb-box nb-box-3-2" id="nb-box-3-2" onclick="clickBox(3,2)">
-            <div class="nb-box-header"><span class="nb-box-name">Especialista</span><span class="nb-box-icon"><i class="fa-solid fa-bullseye"></i></span></div>
+          <div class="nb-box nb-box-3-2" id="nb-box-3-2">
+            <div class="nb-box-header"><span class="nb-box-name">Q6 (Especialista)</span><span class="nb-box-icon"><i class="fa-solid fa-bullseye"></i></span></div>
             <div class="nb-box-people" id="nb-people-3-2"></div>
           </div>
 
           <!-- Linha 1: Baixo Potential -->
-          <div class="nb-box nb-box-1-1" id="nb-box-1-1" onclick="clickBox(1,1)">
-            <div class="nb-box-header"><span class="nb-box-name">Questão</span><span class="nb-box-icon"><i class="fa-solid fa-circle-question"></i></span></div>
+          <div class="nb-box nb-box-1-1" id="nb-box-1-1">
+            <div class="nb-box-header"><span class="nb-box-name">Q1 (Insuficiente)</span><span class="nb-box-icon"><i class="fa-solid fa-circle-question"></i></span></div>
             <div class="nb-box-people" id="nb-people-1-1"></div>
           </div>
-          <div class="nb-box nb-box-2-1" id="nb-box-2-1" onclick="clickBox(2,1)">
-            <div class="nb-box-header"><span class="nb-box-name">Trabalhador</span><span class="nb-box-icon"><i class="fa-solid fa-gears"></i></span></div>
+          <div class="nb-box nb-box-2-1" id="nb-box-2-1">
+            <div class="nb-box-header"><span class="nb-box-name">Q2 (Questionável)</span><span class="nb-box-icon"><i class="fa-solid fa-question"></i></span></div>
             <div class="nb-box-people" id="nb-people-2-1"></div>
           </div>
-          <div class="nb-box nb-box-3-1" id="nb-box-3-1" onclick="clickBox(3,1)">
-            <div class="nb-box-header"><span class="nb-box-name">Âncora</span><span class="nb-box-icon"><i class="fa-solid fa-anchor"></i></span></div>
+          <div class="nb-box nb-box-3-1" id="nb-box-3-1">
+            <div class="nb-box-header"><span class="nb-box-name">Q3 (Eficaz)</span><span class="nb-box-icon"><i class="fa-solid fa-gears"></i></span></div>
             <div class="nb-box-people" id="nb-people-3-1"></div>
           </div>
 
@@ -254,58 +182,89 @@
   let allNineBoxes = [];
 
   const CATEGORIAS = {
-    '1-1': { nome: 'Questão',      icon: '<i class="fa-solid fa-circle-question"></i>' },
-    '2-1': { nome: 'Trabalhador',  icon: '<i class="fa-solid fa-gears"></i>' },
-    '3-1': { nome: 'Âncora',       icon: '<i class="fa-solid fa-anchor"></i>' },
-    '1-2': { nome: 'Dilema',       icon: '<i class="fa-solid fa-question"></i>' },
-    '2-2': { nome: 'Núcleo',       icon: '<i class="fa-solid fa-gem"></i>' },
-    '3-2': { nome: 'Especialista', icon: '<i class="fa-solid fa-bullseye"></i>' },
-    '1-3': { nome: 'Enigma',       icon: '<i class="fa-solid fa-wand-magic-sparkles"></i>' },
-    '2-3': { nome: 'Estrela',      icon: '<i class="fa-solid fa-star"></i>' },
-    '3-3': { nome: 'Superstar',    icon: '<i class="fa-solid fa-rocket"></i>' },
+    '1-1': {
+      nome: 'Q1 (Insuficiente)',
+      icon: '<i class="fa-solid fa-circle-question"></i>',
+      tipo: 'Insuficiente',
+      perfil: 'Potencial baixo e desempenho abaixo do esperado',
+      plano: 'Identificar obstáculos que poderiam justificar o baixo desempenho e ajudá-lo a removê-los ou encontrar outro cargo interno no qual suas habilidades serão melhor utilizadas. Se não houver melhorias, recomenda-se o desligamento da empresa.'
+    },
+    '2-1': {
+      nome: 'Q2 (Questionável)',
+      icon: '<i class="fa-solid fa-question"></i>',
+      tipo: 'Questionável',
+      perfil: 'Potencial baixo e desempenho dentro do esperado',
+      plano: 'Dar feedback, treiná-los para se tornarem mais inovadores, identificar áreas específicas de melhoria e definir um plano de desenvolvimento pessoal, com o objetivo de conduzi-lo à categoria de alto desempenho.'
+    },
+    '3-1': {
+      nome: 'Q3 (Eficaz)',
+      icon: '<i class="fa-solid fa-gears"></i>',
+      tipo: 'Eficaz',
+      perfil: 'Potencial baixo e desempenho acima do esperado',
+      plano: 'Apesar do bom desempenho, da mentalidade de trabalho certa e da sua dedicação, esses profissionais não têm muito potencial ou ambição de crescimento. O ideal é mantê-los felizes e recompensá-los com aumentos e bônus.'
+    },
+    '1-2': {
+      nome: 'Q4 (Dilema)',
+      icon: '<i class="fa-solid fa-wand-magic-sparkles"></i>',
+      tipo: 'Dilema',
+      perfil: 'Potencial mediano e desempenho abaixo do esperado',
+      plano: 'Identificar bloqueios para performance - motivos pessoais, dificuldades com a cultura organizacional, falhas no onboarding... Comunique claramente o que se espera do profissional e proporcione um programa de mentoria interna, motivação e oportunidades de desenvolvimento.'
+    },
+    '2-2': {
+      nome: 'Q5 (Mantenedor)',
+      icon: '<i class="fa-solid fa-gem"></i>',
+      tipo: 'Mantenedor',
+      perfil: 'Potencial e desempenho em nível mediano',
+      plano: 'Invista nesses profissionais chaves para a organização, ao oferecer novos projetos e tarefas que os mantenham engajados, e comece a prepará-los para oportunidades futuras, treinando-os em gestão de pessoas.'
+    },
+    '3-2': {
+      nome: 'Q6 (Especialista)',
+      icon: '<i class="fa-solid fa-bullseye"></i>',
+      tipo: 'Especialista',
+      perfil: 'Potencial mediano e desempenho acima do esperado',
+      plano: 'Entenda primeiramente se eles estão prontos para o crescimento e mais responsabilidades ou se precisam de mais tempo para se desenvolverem. Trabalhe suas habilidades de pensamento tático e estratégico, que serão úteis para seu futuro na organização.'
+    },
+    '1-3': {
+      nome: 'Q7 (Forte Candidato)',
+      icon: '<i class="fa-solid fa-star"></i>',
+      tipo: 'Forte Candidato',
+      perfil: 'Alto potencial e desempenho abaixo do esperado',
+      plano: 'Mesmo que tenham muito potencial, esses profissionais não estão entregando o que se espera deles, seja porque não têm a experiência necessária ou pela falta de compatibilidade com a função atual. Dê a esses profissionais tempo para ganhar experiência e feedback contínuo para construir confiança.'
+    },
+    '2-3': {
+      nome: 'Q8 (Alto Desempenho)',
+      icon: '<i class="fa-solid fa-chart-line"></i>',
+      tipo: 'Alto Desempenho',
+      perfil: 'Alto potencial e desempenho dentro do esperado',
+      plano: 'Proporcione mais exposição para que alcancem maior desempenho, através de oportunidades de treinamento, projetos desafiadores e monitoramento de progresso com KPIs claras.'
+    },
+    '3-3': {
+      nome: 'Q9 (Estrela)',
+      icon: '<i class="fa-solid fa-rocket"></i>',
+      tipo: 'Estrela',
+      perfil: 'Alto potencial e desempenho acima do esperado',
+      plano: 'Profissional que já se desenvolveu completamente dentro da sua função e está pronto para uma promoção e novas responsabilidades; é uma boa referência para os demais colaboradores da empresa pela sua capacidade de resolução de problemas, pensamento estratégico e motivação pessoal.'
+    },
   };
   const PERF_LABELS = { 1:'Baixo', 2:'Médio', 3:'Alto' };
 
-  // Oculta painel de formulário para colaboradores
-  if (!isGestorOrAdmin()) {
-    document.getElementById('nb-panel').style.display = 'none';
-  }
-
-  // Variável global para Choices.js
-  let choicesPessoa = null;
-
-  async function carregarPessoas() {
-    const select = document.getElementById('nb-pessoa');
-    try {
-      const res = await usersApi.list({ limit: 200 });
-      const users = res.data.users.filter(u => u.id !== user.id);
-      if (!users.length) { select.innerHTML = '<option value="">Nenhum usuário disponível</option>'; return; }
-      select.innerHTML = '<option value="">Selecione...</option>' +
-        users.map(u => `<option value="${u.id}" data-tipo="${u.tipo}">${u.nome} (${u.tipo}) — RA: ${u.ra}</option>`).join('');
-      
-      // Inicializar Choices.js
-      if (choicesPessoa) {
-        choicesPessoa.destroy();
-      }
-      choicesPessoa = new Choices('#nb-pessoa', {
-        searchEnabled: true,
-        itemSelectText: '',
-        shouldSort: false,
-        position: 'bottom',
-        searchPlaceholderValue: 'Buscar pessoa...'
-      });
-    } catch { select.innerHTML = '<option value="">Erro ao carregar</option>'; }
-  }
-
   async function carregarGrid() {
     try {
+      // Use the old list endpoint for now
       const res = await nineBoxApi.list({ limit: 200 });
-      allNineBoxes = res.data.nineBoxes;
+      console.log('Resposta list:', res);
+      allNineBoxes = res.data.nineBoxes || [];
+      console.log('allNineBoxes:', allNineBoxes);
       renderGrid();
-    } catch {}
+    } catch (error) {
+      console.error('Erro ao carregar grid:', error);
+      showToast('Erro ao carregar dados do Nine Box', 'error');
+    }
   }
 
   function renderGrid() {
+    console.log('renderGrid chamado, allNineBoxes:', allNineBoxes);
+    
     // Limpar todas as caixas primeiro
     for (let p = 1; p <= 3; p++) {
       for (let pt = 1; pt <= 3; pt++) {
@@ -314,88 +273,94 @@
       }
     }
 
-    // Não renderizar bolinhas - apenas manter as caixas vazias
-    // As pessoas são gerenciadas pelo backend, mas não exibimos indicadores visuais
-  }
-
-  window.selectAxis = function(axis, val) {
-    if (axis === 'perf') {
-      nbPerf = val;
-      document.querySelectorAll('#perf-btns .nb-axis-btn').forEach(b => b.classList.toggle('selected', parseInt(b.dataset.val) === val));
-    } else {
-      nbPot = val;
-      document.querySelectorAll('#pot-btns .nb-axis-btn').forEach(b => b.classList.toggle('selected', parseInt(b.dataset.val) === val));
+    // Filtrar dados baseado no filtro atual
+    let filteredNineBoxes = allNineBoxes;
+    if (filtroAtual === 'gestor') {
+      filteredNineBoxes = allNineBoxes.filter(nb => nb.pessoa?.tipo === 'gestor');
+    } else if (filtroAtual === 'colaborador') {
+      filteredNineBoxes = allNineBoxes.filter(nb => nb.pessoa?.tipo === 'colaborador');
     }
-    atualizarPreview();
-    destacarBox();
-  };
 
-  function atualizarPreview() {
-    const preview = document.getElementById('nb-preview');
-    const catEl   = document.getElementById('nb-preview-cat');
-    if (nbPerf && nbPot) {
-      const cat = CATEGORIAS[`${nbPerf}-${nbPot}`];
-      catEl.innerHTML = `${cat.icon} ${cat.nome}`;
-      preview.style.display = 'flex';
-    } else {
-      preview.style.display = 'none';
+    console.log('filteredNineBoxes:', filteredNineBoxes);
+
+    // Contar pessoas por quadrante
+    const contagem = {};
+    for (let p = 1; p <= 3; p++) {
+      for (let pt = 1; pt <= 3; pt++) {
+        contagem[`${p}-${pt}`] = [];
+      }
+    }
+
+    filteredNineBoxes.forEach(nb => {
+      console.log('Processando nb:', nb);
+      // Convert performance and potential to 1-3 scale for grid display
+      const perf = nb.performance !== null ? Math.round(nb.performance) : null;
+      const pot = nb.potential !== null ? Math.round(nb.potential) : null;
+      
+      console.log('perf:', perf, 'pot:', pot);
+      
+      if (perf && pot) {
+        const key = `${perf}-${pot}`;
+        if (contagem[key]) {
+          contagem[key].push(nb);
+        }
+      }
+    });
+
+    console.log('contagem:', contagem);
+
+    // Mostrar pessoas em cada caixa
+    for (let p = 1; p <= 3; p++) {
+      for (let pt = 1; pt <= 3; pt++) {
+        const key = `${p}-${pt}`;
+        const el = document.getElementById(`nb-people-${p}-${pt}`);
+        if (el) {
+          if (contagem[key].length > 0) {
+            // Mostrar até 4 pessoas visualmente, o restante como contador
+            const maxVisible = 4;
+            const pessoasVisiveis = contagem[key].slice(0, maxVisible);
+            const restantes = contagem[key].length - maxVisible;
+
+            pessoasVisiveis.forEach(nb => {
+              const avatarDiv = document.createElement('div');
+              avatarDiv.className = 'nb-person-avatar';
+              avatarDiv.title = `${nb.pessoa?.nome || 'Pessoa'} - Performance: ${nb.performance?.toFixed(2)} | Potential: ${nb.potential?.toFixed(2)}`;
+              avatarDiv.onclick = (e) => {
+                e.stopPropagation();
+                abrirModal(nb);
+              };
+              
+              // Iniciais do nome
+              const nome = nb.pessoa?.nome || 'P';
+              const iniciais = nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+              avatarDiv.textContent = iniciais;
+              
+              // Cor baseada no tipo
+              if (nb.pessoa?.tipo === 'gestor') {
+                avatarDiv.classList.add('gestor');
+              } else if (nb.pessoa?.tipo === 'colaborador') {
+                avatarDiv.classList.add('colaborador');
+              }
+              
+              el.appendChild(avatarDiv);
+            });
+
+            // Se houver mais pessoas, mostrar contador
+            if (restantes > 0) {
+              const moreDiv = document.createElement('div');
+              moreDiv.className = 'nb-person-more';
+              moreDiv.textContent = `+${restantes}`;
+              moreDiv.onclick = (e) => {
+                e.stopPropagation();
+                abrirListaPessoas(contagem[key]);
+              };
+              el.appendChild(moreDiv);
+            }
+          }
+        }
+      }
     }
   }
-
-  function destacarBox() {
-    document.querySelectorAll('.nb-box').forEach(b => b.classList.remove('highlight'));
-    if (nbPerf && nbPot) document.getElementById(`nb-box-${nbPerf}-${nbPot}`)?.classList.add('highlight');
-  }
-
-  window.clickBox = function(perf, pot) {
-    // Apenas para gestores/admins: selecionar a posição no formulário
-    if (!isGestorOrAdmin()) return;
-    
-    nbPerf = perf; 
-    nbPot = pot;
-    
-    // Atualizar botões selecionados
-    document.querySelectorAll('#perf-btns .nb-axis-btn').forEach(b => 
-      b.classList.toggle('selected', parseInt(b.dataset.val) === perf)
-    );
-    document.querySelectorAll('#pot-btns .nb-axis-btn').forEach(b => 
-      b.classList.toggle('selected', parseInt(b.dataset.val) === pot)
-    );
-    
-    atualizarPreview();
-    destacarBox();
-    
-    const cat = CATEGORIAS[`${perf}-${pot}`];
-    // Criar elemento temporário para renderizar o ícone
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = cat.icon;
-    const iconElement = tempDiv.firstChild;
-    showToast(`Posição selecionada: ${cat.nome}. Escolha a pessoa e clique em Salvar.`, 'info');
-  };
-
-  window.salvarNB = async function() {
-    const pessoaId   = document.getElementById('nb-pessoa').value;
-    const comentario = document.getElementById('nb-comentario').value.trim();
-    if (!pessoaId) { showToast('Selecione um colaborador.', 'error'); return; }
-    if (!nbPerf)   { showToast('Selecione o nível de Performance.', 'error'); return; }
-    if (!nbPot)    { showToast('Selecione o nível de Potential.', 'error'); return; }
-
-    const btn = document.getElementById('btn-salvar-nb');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
-    try {
-      await nineBoxApi.create({ pessoaId, performance: nbPerf, potential: nbPot, comentario: comentario || null });
-      showToast('Posição salva no Nine Box!', 'success');
-      document.getElementById('nb-pessoa').value = '';
-      document.getElementById('nb-comentario').value = '';
-      nbPerf = null; nbPot = null;
-      document.querySelectorAll('.nb-axis-btn').forEach(b => b.classList.remove('selected'));
-      document.querySelectorAll('.nb-box').forEach(b => b.classList.remove('highlight'));
-      document.getElementById('nb-preview').style.display = 'none';
-      carregarGrid();
-    } catch {}
-    finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar Posição'; }
-  };
 
   window.filtrarNB = function(filtro) {
     filtroAtual = filtro;
@@ -403,23 +368,84 @@
     renderGrid();
   };
 
+  function abrirListaPessoas(nineBoxes) {
+    // Convert performance and potential to 1-3 scale for category lookup
+    const perf = nineBoxes[0].performance !== null ? Math.round(nineBoxes[0].performance) : null;
+    const pot = nineBoxes[0].potential !== null ? Math.round(nineBoxes[0].potential) : null;
+    
+    if (!perf || !pot) {
+      showToast('Dados insuficientes para exibir categoria', 'error');
+      return;
+    }
+    
+    const cat = CATEGORIAS[`${perf}-${pot}`];
+    document.getElementById('nb-modal-header').innerHTML = `
+      <h4>${cat.nome} - ${nineBoxes.length} pessoa${nineBoxes.length > 1 ? 's' : ''}</h4>
+      <span class="nb-modal-cat">${cat.icon} ${cat.nome}</span>`;
+    
+    let pessoasHtml = nineBoxes.map(nb => `
+      <div class="nb-list-item" onclick="abrirModalById('${nb.id}')">
+        <div class="nb-list-item-info">
+          <div class="nb-list-item-name">${nb.pessoa?.nome || 'Pessoa'}</div>
+          <div class="nb-list-item-ra">RA: ${nb.pessoa?.ra || '—'}</div>
+          <div class="nb-list-item-tipo">${nb.pessoa?.tipo || '—'}</div>
+        </div>
+        <div class="nb-list-item-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+      </div>
+    `).join('');
+    
+    document.getElementById('nb-modal-body').innerHTML = `
+      <div class="nb-list">${pessoasHtml}</div>
+    `;
+    document.getElementById('nb-modal').classList.add('open');
+  }
+
+  window.abrirModalById = async function(id) {
+    try {
+      // Find the person in the cached team data
+      const nb = allNineBoxes.find(item => item.avaliadoId === id || item.pessoa?.id === id);
+      if (nb) {
+        abrirModal(nb);
+      } else {
+        showToast('Dados não encontrados', 'error');
+      }
+    } catch (error) {
+      showToast('Erro ao carregar avaliação.', 'error');
+    }
+  };
+
   function abrirModal(nb) {
-    const cat = CATEGORIAS[`${nb.performance}-${nb.potential}`];
+    // Convert performance and potential to 1-3 scale for category lookup
+    const perf = nb.performance !== null ? Math.round(nb.performance) : null;
+    const pot = nb.potential !== null ? Math.round(nb.potential) : null;
+    
+    if (!perf || !pot) {
+      showToast('Dados insuficientes para exibir categoria', 'error');
+      return;
+    }
+    
+    const cat = CATEGORIAS[`${perf}-${pot}`];
     document.getElementById('nb-modal-header').innerHTML = `
       <h4>${nb.pessoa?.nome || 'Pessoa'}</h4>
       <span class="nb-modal-cat">${cat.icon} ${cat.nome}</span>`;
     document.getElementById('nb-modal-body').innerHTML = `
-      <div class="nb-modal-row"><span>Tipo</span><span>${nb.pessoa?.tipo || '—'}</span></div>
-      <div class="nb-modal-row"><span>Performance</span><span>${PERF_LABELS[nb.performance]}</span></div>
-      <div class="nb-modal-row"><span>Potential</span><span>${PERF_LABELS[nb.potential]}</span></div>
-      <div class="nb-modal-row"><span>Data</span><span>${new Date(nb.data).toLocaleDateString('pt-BR')}</span></div>
-      ${nb.comentario ? `<div class="nb-modal-comentario">"${nb.comentario}"</div>` : ''}
-      ${isGestorOrAdmin() ? `
-        <div class="nb-modal-actions">
-          <button class="nb-modal-btn remove" onclick="deletarNB('${nb.id}')">
-            <i class="fa-solid fa-trash"></i> Remover
-          </button>
-        </div>` : ''}`;
+      <div class="nb-modal-row"><span>Tipo de usuário</span><span>${nb.pessoa?.tipo || '—'}</span></div>
+      <div class="nb-modal-row"><span>Performance</span><span>${nb.performance?.toFixed(2) || '—'}</span></div>
+      <div class="nb-modal-row"><span>Potential</span><span>${nb.potential?.toFixed(2) || '—'}</span></div>
+      <div class="nb-modal-row"><span>Categoria</span><span>${cat.nome}</span></div>
+      <div class="nb-modal-section">
+        <div class="nb-modal-section-title">Tipo de Profissional</div>
+        <div class="nb-modal-section-content">${cat.tipo}</div>
+      </div>
+      <div class="nb-modal-section">
+        <div class="nb-modal-section-title">Perfil</div>
+        <div class="nb-modal-section-content">${cat.perfil}</div>
+      </div>
+      <div class="nb-modal-section">
+        <div class="nb-modal-section-title">Plano de Ação</div>
+        <div class="nb-modal-section-content">${cat.plano}</div>
+      </div>
+      ${nb.message ? `<div class="nb-modal-comentario"><strong>Nota:</strong> ${nb.message}</div>` : ''}`;
     document.getElementById('nb-modal').classList.add('open');
   }
 
@@ -429,24 +455,12 @@
     }
   };
 
-  window.deletarNB = async function(id) {
-    if (!confirm('Remover esta avaliação Nine Box?')) return;
-    try {
-      await nineBoxApi.delete(id);
-      showToast('Removido do Nine Box.', 'success');
-      document.getElementById('nb-modal').classList.remove('open');
-      carregarGrid();
-    } catch {}
-  };
-
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') document.getElementById('nb-modal').classList.remove('open');
   });
 
-  if (isGestorOrAdmin()) carregarPessoas();
   carregarGrid();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 </body>
 </html>
 

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+  <link rel="stylesheet" href="../CSS/nova_avaliacao.css">
+  <!-- Estilo do navbar -->
+  <link rel="stylesheet" href="../CSS/navbar.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <title>Criar Nova Competência</title>
+
+</head>
+
+<body>
+
+  <div class="container mt-5">
+    <div class="card shadow-lg mx-auto" style="width: 70%;">
+      <div class="card-body">
+        <h5 class="text-center mb-4" id="titulo-card">Preencha os campos para criar a
+          competência a ser avaliada
+        </h5>
+        <form id="formCompetencia">
+          <div class="mb-3">
+            <label for="competencia" class="form-label">Competência:</label>
+            <input type="text" class="form-control" id="competencia" name="competencia"
+              placeholder="Insira o título da competência..." required>
+          </div>
+          <div class="mb-3">
+            <label for="competencia" class="form-label">Tipo de competência:</label>
+            <select class="form-select" id="competenciaTipo" name="competenciaTipo" value="Potencial" required>
+              <option value="" selected disabled hidden>Selecione</option>
+              <option value="Potencial">Potencial</option>
+              <option value="Desempenho">Desempenho</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="descricaoCompetencia" class="form-label">Descrição:</label>
+            <textarea class="form-control" id="descricaoCompetencia" name="descricaoCompetencia" rows="3"
+              placeholder="Insira a descrição da competencia..." required></textarea>
+          </div>
+          <div class="d-flex justify-content-between mt-5">
+            <a class="btn btn-outline-custom btn-voltar" onclick="redirecionarVoltar()">Voltar</a>
+            <button type="submit" class="btn btn-primary btn-proximo" id="criar-novo">Próximo</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal Erro / Esse modal serve para impedir o usuário de prosseguir para a próxima página sem preencher as informações -->
+  <div class="modal" id="modalErro" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="titulo-card">Preencha todos os campos!</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Preencha o título e descrição da competencia antes de prosseguir</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-custom btn-voltar" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Modal de logout-->
+  <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="logoutModalLabel">Confirmação de Logout</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Tem certeza de que deseja sair?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="confirmLogout">Sair</button>
+        </div>
+      </div>
+    </div>
+    <!-- Navbar e script do modal -->
+    <script src="../navbar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      crossorigin="anonymous"></script>
+    <script>
+
+
+      //Identificação da página para o navbar
+      window.nomePagina = "Criar nova competência";
+
+      $(document).ready(function () {
+
+        // Carregar os dados do localStorage ao carregar a página
+        if (localStorage.getItem('competencia')) {
+          $('#competencia').val(localStorage.getItem('competencia'));
+        }
+
+        if (localStorage.getItem('competenciaTipo')) {
+          $('#competenciaTipo').val(localStorage.getItem('competenciaTipo'));
+        }
+
+        if (localStorage.getItem('descricaoCompetencia')) {
+          $('#descricaoCompetencia').val(localStorage.getItem('descricaoCompetencia'));
+        }
+
+        // Salvar dados no localStorage ao clicar no botão "Próximo"
+        $('.btn-proximo').click(function (event) {
+          event.preventDefault();
+
+          const form = document.getElementById('formCompetencia');
+
+          //Aqui efetuamos a validação dos campos. Caso o usuário não tenha preenchido os dois campos, ele não pode prosseguir para a próxima página
+          if (!form.checkValidity()) {
+            form.classList.add("was-validated"); // Ativa as mensagens de erro do Bootstrap
+            const modalElement = document.getElementById("modalErro");
+            const modalInstance = new bootstrap.Modal(modalElement);
+            modalInstance.show();
+            return; // Se houver erro, interrompe o envio
+          }
+
+          //Se der tudo certo ele grava os campos no local storage e passa para a próxima página
+          var competencia = $('#competencia').val();
+          var competenciaTipo = $('#competenciaTipo').val();
+          var descricaoCompetencia = $('#descricaoCompetencia').val();
+
+          localStorage.setItem('competencia', competencia);
+          localStorage.setItem('competenciaTipo', competenciaTipo);
+          localStorage.setItem('descricaoCompetencia', descricaoCompetencia);
+
+          // Redirecionar para a próxima página
+          window.location.href = "paginas/nova_competencia2.html";
+        });
+      });
+
+      //Funcao que verifica a página a qual o btn-voltar deve redirecionar
+      //Se a página for chamada pela funcao criar nova avaliacao, deve voltar para a pagina nova_avaliacao2.html
+      //Se a pagina for chamada pelo menu, deve voltar para o menu.html
+      function redirecionarVoltar() {
+        const origem = sessionStorage.getItem("origemNavegacao");
+
+        if (origem === "menu.html" || origem === "paginas/novaAvaliacao/autoavaliacao/nova_avaliacao3.html" || origem === "paginas/novaAvaliacao/avaliacaoGestor/nova_avaliacao_gestor3.html" || origem === "paginas/modelos_avaliacao.html") {
+          window.location.href = origem;
+        } else {
+          window.location.href = "paginas/menu.html";
+        }
+      }
+
+    </script>
+
+</body>
+
+</html>

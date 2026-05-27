@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard Avaliado</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <!-- Navbar -->
+    <link rel="stylesheet" href="../CSS/navbar.css">
+    <!-- Charts.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+
+    <style>
+        /* Reset e estilos básicos */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f4f7fc;
+        }
+
+
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 15px;
+            padding: 25px 40px 35px 40px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            color: #222;
+            margin-top: 45px;
+        }
+
+        .card h2 {
+            color: #7a51cc;
+            text-align: center;
+            /* aumentei aqui de 10px para 30px */
+            font-weight: 700;
+        }
+
+        /* Matriz esquerda */
+
+        /*Estilizada com bootstrap*/
+
+        /* Estilo do painel direito do dashboard */
+
+        .infoMedia {
+            border: solid 1px #ccc;
+        }
+
+
+        .tituloMedia {
+            display: flex;
+            text-align: center;
+            font-weight: 700;
+            font-size: 16px;
+            color: #7A51cc;
+        }
+
+        #notaMedia {
+            font-weight: 700;
+            font-size: 38px;
+            color: #ffffff;
+            background-color: #9ecf3f;
+        }
+
+        .infoContainer {
+            border: solid 1px #ccc;
+            height: 45px;
+            display: grid;
+            align-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+
+        .infoContainer>label {
+            color: #7A51cc;
+            font-weight: 700;
+        }
+
+        .infoContainer>div {
+            background-color: #1a237e;
+            margin-left: 15%;
+            margin-right: 15%;
+            color: white;
+            font-weight: 700;
+            height: 80%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .painel-direita-meio {
+            gap: 5px;
+        }
+
+        /* Estilo do gráfico de barras */
+
+        #graficoRespostas {
+            background-color: white;
+            border: solid 1px #ccc;
+            border-radius: 2px;
+        }
+
+        .btn-voltar {
+            border-radius: 8px;
+            font-size: 16px;
+            color: #1a237e;
+            padding: 12px 30px;
+        }
+
+        .btn-voltar:hover {
+            background-color: #1a237e;
+            color: white;
+            transition: 0.2s;
+        }
+
+        .btn-detalhes {
+            background-color: #1a237e;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            padding: 12px 30px;
+        }
+
+        .btn-detalhes:hover {
+            background-color: white;
+            color: #1a237e;
+            border-color: #1a237e;
+            transition: 0.2s;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container card mb-5 justify-content-center">
+
+        <h2 class="mb-5 mt-2" id="nome-avaliacao"></h2>
+
+        <div class="d-lg-flex d-grid gap-3">
+
+            <!-- Esquerda - matriz -->
+            <div class="container lg-w-50 d-flex justify-content-center mb-3 w-md-100">
+                <img class="w-100 w-sm-25" src="../ImagensMenu/ninebox.svg" alt="matriz ninebox" id="matrizNinebox">
+            </div>
+
+            <!-- Direita - gráfico + informações -->
+            <div class="container-fluid d-grid p-0">
+                <div class="container infoDireita">
+                    <div class="d-flex gap-2">
+                        <div class="d-grid w-50 row-gap-3">
+                            <div class="infoMedia d-grid justify-content-center align-items-center">
+                                <h3 class="tituloMedia">Nota Média</h3>
+                                <div class="d-flex justify-content-center" id="notaMedia">
+                                    <!--aqui fica a nota méida do avaliado-->
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                        <!-- painel direita-direita, contem 2 divs principais -->
+                        <div class="d-grid w-100 painel-direita-direita row-gap-3">
+
+                            <div class="infoContainer">
+                                <label>Empresa</label>
+                                <div id="empresa-avaliado"></div>
+                            </div>
+
+                            <!-- aqui teremos uma quebra no meio do painel, uma terceira divisão -->
+                            <div class="d-flex painel-direita-meio">
+
+                                <div class="infoContainer w-50">
+                                    <label>Gestor</label>
+                                    <div id="gestor"></div>
+                                </div>
+
+
+                                <div class="infoContainer w-50">
+                                    <label>Gênero</label>
+                                    <div id="genero"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="d-flex gap-2 mt-2">
+                        <div class="infoContainer w-50">
+                            <label>Idade</label>
+                            <div id="data-nascimento">
+                                <!-- Aqui fica a idade do avaliado -->
+                            </div>
+                        </div>
+                        <div class="infoContainer w-100">
+                            <label>Respondida em:</label>
+                            <div id="dataResposta">
+                                <!-- Aqui fica a data de resposta do avaliado -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="container mt-3">
+                    <canvas class="w-100" id="graficoRespostas"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="button-group d-flex justify-content-between mt-5 gap-3">
+            <button class="btn btn-outline-primary btn-voltar">Voltar</button>
+            <button id="btnRespostas" class="btn btn-detalhes">Respostas</button>
+        </div>
+
+    </div>
+
+    <!-- Navbar e script do modal -->
+    <script src="../navbar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+
+    <script>
+
+        //Identificação da página para o navbar
+        window.nomePagina = "Minhas Avaliações - Dashboard Avaliado";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            consultarAvaliadoSelecionado();
+            consultarRespostas();
+        });
+
+
+
+        function criarGrafico(respostasArray, competenciasArray) {
+
+
+            const mapaCompetencias = {};
+            competenciasArray.forEach(c => {
+                mapaCompetencias[c.id] = c.competencia;
+            });
+
+            // Mostra a data da primeira resposta
+            document.getElementById('dataResposta').textContent =
+                new Date(respostasArray[0].data_resposta).toLocaleDateString("pt-BR");
+
+            // Converte os labels usando o nome da competência via mapa
+            const labels = respostasArray.map(r => {
+                const nomeOriginal = mapaCompetencias[r.id_competencia] || `Comp ${r.id_competencia}`;
+                return abreviarTexto(nomeOriginal, 5); // Ajuste o limite como quiser
+            });
+
+            // Extrai os valores
+            const valores = respostasArray.map(r => parseFloat(r.respostas));
+
+            // Renderiza o gráfico
+            const ctx = document.getElementById('graficoRespostas').getContext('2d');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels, // aqui estão os nomes abreviados
+                    datasets: [{
+                        label: 'competência',
+                        data: valores,
+                        backgroundColor: '#1a237e',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 30,
+                            bottom: 30,
+                            left: 10,
+                            right: 10
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Nota por competência:',
+                            position: 'top',
+                            align: 'center',
+                            color: '#7a51cc',
+                            font: {
+                                size: 20,
+                                weight: 'bold',
+                                family: 'Arial',
+                            },
+                            padding: {
+                                bottom: 20,
+                            },
+                        },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'start',
+                            color: '#fff',
+                            font: {
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'bottom', // move para baixo
+                            align: 'center',    // centraliza horizontalmente
+                            labels: {
+                                font: {
+                                    size: 14
+                                },
+                                color: '#333'
+                            }
+                        },
+
+                        formatter: function (value) {
+                            return value.toFixed(2);
+
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function (context) {
+                                    const index = context[0].dataIndex;
+                                    const id = respostasArray[index].id_competencia;
+                                    return mapaCompetencias[id] || `Competência ${id}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                maxRotation: 0,
+                                minRotation: 0
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            max: 5
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+
+
+        //Essa função serve para abreviar o nome da competência no gráfico, para ficar visualmente legível
+        function abreviarTexto(texto, limite = 10) {
+            if (texto.length > limite) {
+                return texto.substring(0, limite) + '...';
+            }
+            return texto;
+        }
+
+        //Chamando as informações da API sobre o avaliadoSelecionado (informações gerais do avaliado) ***************
+        function consultarAvaliadoSelecionado() {
+            const cpf = localStorage.getItem("avaliadoSelecionado");
+
+            if (!cpf) {
+                console.warn("Nenhum CPF encontrado no localStorage.");
+                return;
+            }
+
+            fetch(`http://localhost:3001/avaliado/${cpf}`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! Status: ${res.status}`);
+                    }
+                    return res.json(); // só tenta converter se a resposta for OK
+                })
+                .then(data => {
+                    
+
+
+                    if (data) {
+                        preencherDashboard(data);
+                    } else {
+                        console.log("Não foi possível preencher as informações");
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro ao consultar a API:", error);
+                });
+        }
+
+        function consultarRespostas() {
+            const cpf_avaliado = localStorage.getItem("avaliadoSelecionado");
+            const id_avaliacao = localStorage.getItem("avaliacaoSelecionada");
+
+            if (!cpf_avaliado || !id_avaliacao) {
+                console.warn("Não será possível consultar respostas, pois não tem id nem cpf armazenado no Local");
+                return;
+            }
+
+            fetch(`http://localhost:3001/respostas_avaliacao/${id_avaliacao}/${cpf_avaliado}`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! Status: ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then(respostasArray => {
+                    
+                    carregarCompetencia(respostasArray);
+
+                    // Armazenamento local e cálculo
+                    const respostasParaLocalStorage = {};
+                    respostasArray.forEach(item => {
+                        const idCompetencia = item.id_competencia;
+                        const valorResposta = parseFloat(item.respostas);
+                        const valorObservacoes = item.observacoes || '';
+
+                        respostasParaLocalStorage[idCompetencia] = {
+                            valor: valorResposta,
+                            observacao: valorObservacoes
+                        };
+                    });
+
+                    localStorage.setItem('respostas_avaliacao', JSON.stringify(respostasParaLocalStorage));
+                    calcularMedia(respostasParaLocalStorage);
+                })
+                .catch(error => {
+                    calcularMedia(error);
+                    carregarCompetencia(error);
+                });
+        }
+
+
+        //Preenche o dash com as informações solicitadas na API
+        function preencherDashboard(infoAvaliado) {
+            
+            const nascimento = new Date(infoAvaliado.dataNascimento);
+            const hoje = new Date();
+
+            let idade = hoje.getFullYear() - nascimento.getFullYear();
+            const mesAtual = hoje.getMonth();
+            const diaAtual = hoje.getDate();
+
+            const mesNascimento = nascimento.getMonth();
+            const diaNascimento = nascimento.getDate();
+
+            // Ajusta a idade se ainda não fez aniversário neste ano
+            if (mesAtual < mesNascimento || (mesAtual === mesNascimento && diaAtual < diaNascimento)) {
+                idade--;
+            }
+
+            document.getElementById("data-nascimento").textContent = `Idade: ${idade} anos`;
+
+            document.getElementById("nome-avaliacao").textContent = "Mais detalhes: " + infoAvaliado.nome;
+            document.getElementById("gestor").textContent = infoAvaliado.nome_gestor;
+            document.getElementById("empresa-avaliado").textContent = infoAvaliado.empresa;
+            document.getElementById("data-nascimento").textContent = idade;
+            document.getElementById("genero").textContent = infoAvaliado.genero;
+        }
+
+        function preencherListaAvaliados(infoAvaliados) {
+            const tabela = document.getElementById("avaliados-tabela");
+
+            infoAvaliados.forEach(avaliados => { // Agora o nome do parâmetro está correto
+                const row = tabela.insertRow();
+
+                row.classList.add('linha-avaliado');
+
+                row.dataset.id = avaliados.cpf;
+                row.id = `${avaliados.cpf}`;
+
+
+                row.innerHTML = `
+                <td>${avaliados.cpf}</td>                
+                <td>${avaliados.nome}</td>         
+                
+                
+            `;
+            })
+            selecionarListaAvaliados();
+        }
+
+        //Função calcular média recebe os parâmetros da função consultarRespostas. Se tudo estiver okay ele mostra as respostas no dash. Mas se tiver dado erro, ele vai mostrar que o avaliado não resopndeu ainda
+        function calcularMedia(objRespostas) {
+            const valores = Object.values(objRespostas); // pega os valores do objeto
+            if (valores.length === 0) { //Primeiro verificamos se tem valores dentro do objeto. Se não tiver, já descartamos uma resposta aqui mesmo
+                document.getElementById('notaMedia').textContent = 'N/D';
+                return 0;
+            } else { // Se tiver valores dentro do objeto, mostramos a média no dashboard
+                const soma = valores.reduce((acc, curr) => acc + parseFloat(curr.valor), 0);
+                const media = soma / valores.length;
+                const mediaFormatada = media.toFixed(2); //usado para limitar a média a 2 casas decimais
+                document.getElementById('notaMedia').textContent = mediaFormatada;
+                return media;
+            }
+        }
+
+        function carregarCompetencia(respostasArray) {
+
+            if (respostasArray == "Error: HTTP error! Status: 404") {
+                console.log('sem respostas');
+                document.getElementById('dataResposta').textContent = 'Não respondeu';
+                document.getElementById('btnRespostas').setAttribute("disabled", "disabled");
+                return 0;
+            } else {
+                fetch("http://localhost:3001/competencias")
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Erro na resposta do servidor", error);
+                        }
+                        return response.json();
+                    })
+                    .then(competenciasArray => {
+                        criarGrafico(respostasArray, competenciasArray);
+                    })
+                    .catch(error => {
+                        console.error("Erro ao carregar competências:", error);
+                        criarGrafico(error, error);
+                    });
+            }
+        }
+
+
+
+        function selecionarListaAvaliados() {
+            const linhas = document.querySelectorAll('.linha-avaliado');
+            linhas.forEach(linha => {
+                linha.addEventListener('click', () => {
+
+                    if (linhas) {
+
+                        linhas.forEach(l => l.classList.remove('table-primary'));
+                        linha.classList.add('table-primary');
+
+                        // Salvar o CPF da inner row no localStorage
+                        localStorage.setItem("avaliadoSelecionado", linha.dataset.id);
+
+                        console.log("CPF salvo no localStorage:", linha.dataset.id);
+                    }
+                });
+            });
+        }
+
+        //Ao clicar voltar, retira do local storage o avaliado selecionado e volta para o dashboard;
+        document.querySelector('.btn-voltar').addEventListener('click', () => {
+            localStorage.removeItem('avaliadoSelecionado');
+            localStorage.removeItem('respostas_avaliacao');
+            window.location.href = "paginas/minhasAvaliacoes/dashboard.html";
+        });
+
+        document.querySelector('.btn-detalhes').addEventListener('click', () => {
+            const disabled = document.getElementById('btnRespostas').getAttribute('disabled');
+            if (disabled === null) {
+                window.location.href = "paginas/minhasAvaliacoes/respostas.html";
+            } else {
+                return 0;
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>

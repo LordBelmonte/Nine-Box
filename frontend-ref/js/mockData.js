@@ -3,8 +3,7 @@
 // =============================================
 
 /**
- * Usuários mock do sistema (não são usuários de login)
- * Estes aparecem nas listagens, consultas e avaliações
+ * Usuários mock do sistema
  */
 export const MOCK_SYSTEM_USERS = [
   // ========== ADMINISTRADORES ==========
@@ -76,28 +75,6 @@ export const MOCK_SYSTEM_USERS = [
     foto: null,
     dataCadastro: "2024-02-10T10:00:00.000Z"
   },
-  {
-    id: "sys-gestor-005",
-    ra: "2021005",
-    nome: "Carlos Mendes",
-    email: "carlos.mendes@eniac.edu.br",
-    tipo: "gestor",
-    cargo: "Gerente Financeiro",
-    departamento: "Financeiro",
-    foto: null,
-    dataCadastro: "2024-02-10T10:00:00.000Z"
-  },
-  {
-    id: "sys-gestor-006",
-    ra: "2021006",
-    nome: "Juliana Costa",
-    email: "juliana.costa@eniac.edu.br",
-    tipo: "gestor",
-    cargo: "Coordenadora de Marketing",
-    departamento: "Marketing",
-    foto: null,
-    dataCadastro: "2024-02-15T10:00:00.000Z"
-  },
 
   // ========== COLABORADORES - TI ==========
   {
@@ -155,44 +132,11 @@ export const MOCK_SYSTEM_USERS = [
     foto: null,
     dataCadastro: "2024-03-10T10:00:00.000Z"
   },
-  {
-    id: "sys-colab-006",
-    ra: "2022006",
-    nome: "Eduarda Pereira",
-    email: "eduarda.pereira@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "QA Analyst",
-    departamento: "Tecnologia da Informação",
-    foto: null,
-    dataCadastro: "2024-03-10T10:00:00.000Z"
-  },
-  {
-    id: "sys-colab-021",
-    ra: "2022021",
-    nome: "William Castro",
-    email: "william.castro@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "Analista de Suporte",
-    departamento: "Tecnologia da Informação",
-    foto: null,
-    dataCadastro: "2024-04-01T10:00:00.000Z"
-  },
-  {
-    id: "sys-colab-022",
-    ra: "2022022",
-    nome: "Yasmin Silva",
-    email: "yasmin.silva@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "Técnica de Suporte",
-    departamento: "Tecnologia da Informação",
-    foto: null,
-    dataCadastro: "2024-04-01T10:00:00.000Z"
-  },
 
   // ========== COLABORADORES - RH ==========
   {
-    id: "sys-colab-007",
-    ra: "2022007",
+    id: "sys-colab-006",
+    ra: "2022006",
     nome: "Felipe Araújo",
     email: "felipe.araujo@eniac.edu.br",
     tipo: "colaborador",
@@ -202,8 +146,8 @@ export const MOCK_SYSTEM_USERS = [
     dataCadastro: "2024-03-15T10:00:00.000Z"
   },
   {
-    id: "sys-colab-008",
-    ra: "2022008",
+    id: "sys-colab-007",
+    ra: "2022007",
     nome: "Gabriela Nunes",
     email: "gabriela.nunes@eniac.edu.br",
     tipo: "colaborador",
@@ -212,22 +156,11 @@ export const MOCK_SYSTEM_USERS = [
     foto: null,
     dataCadastro: "2024-03-15T10:00:00.000Z"
   },
-  {
-    id: "sys-colab-009",
-    ra: "2022009",
-    nome: "Henrique Barros",
-    email: "henrique.barros@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "Analista de Desenvolvimento Humano",
-    departamento: "Recursos Humanos",
-    foto: null,
-    dataCadastro: "2024-03-20T10:00:00.000Z"
-  },
 
   // ========== COLABORADORES - VENDAS ==========
   {
-    id: "sys-colab-010",
-    ra: "2022010",
+    id: "sys-colab-008",
+    ra: "2022008",
     nome: "Isabela Cardoso",
     email: "isabela.cardoso@eniac.edu.br",
     tipo: "colaborador",
@@ -237,8 +170,8 @@ export const MOCK_SYSTEM_USERS = [
     dataCadastro: "2024-03-20T10:00:00.000Z"
   },
   {
-    id: "sys-colab-011",
-    ra: "2022011",
+    id: "sys-colab-009",
+    ra: "2022009",
     nome: "João Pedro Alves",
     email: "joao.alves@eniac.edu.br",
     tipo: "colaborador",
@@ -246,246 +179,192 @@ export const MOCK_SYSTEM_USERS = [
     departamento: "Vendas",
     foto: null,
     dataCadastro: "2024-03-25T10:00:00.000Z"
-  },
-  {
-    id: "sys-colab-012",
-    ra: "2022012",
-    nome: "Larissa Moreira",
-    email: "larissa.moreira@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "Analista de Vendas",
-    departamento: "Vendas",
-    foto: null,
-    dataCadastro: "2024-03-25T10:00:00.000Z"
-  },
-  {
-    id: "sys-colab-013",
-    ra: "2022013",
-    nome: "Marcos Vieira",
-    email: "marcos.vieira@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "Representante Comercial",
-    departamento: "Vendas",
-    foto: null,
-    dataCadastro: "2024-03-30T10:00:00.000Z"
-  },
-
-  // ========== COLABORADORES - FINANCEIRO ==========
-  {
-    id: "sys-colab-014",
-    ra: "2022014",
-    nome: "Natália Ribeiro",
-    email: "natalia.ribeiro@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "Analista Financeiro",
-    departamento: "Financeiro",
-    foto: null,
-    dataCadastro: "2024-04-01T10:00:00.000Z"
-  },
-  {
-    id: "sys-colab-015",
-    ra: "2022015",
-    nome: "Otávio Gomes",
-    email: "otavio.gomes@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "Assistente Contábil",
-    departamento: "Financeiro",
-    foto: null,
-    dataCadastro: "2024-04-01T10:00:00.000Z"
-  },
-  {
-    id: "sys-colab-016",
-    ra: "2022016",
-    nome: "Paula Freitas",
-    email: "paula.freitas@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "Analista de Contas a Pagar",
-    departamento: "Financeiro",
-    foto: null,
-    dataCadastro: "2024-04-05T10:00:00.000Z"
-  },
-
-  // ========== COLABORADORES - MARKETING ==========
-  {
-    id: "sys-colab-017",
-    ra: "2022017",
-    nome: "Rafael Teixeira",
-    email: "rafael.teixeira@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "Designer Gráfico",
-    departamento: "Marketing",
-    foto: null,
-    dataCadastro: "2024-04-05T10:00:00.000Z"
-  },
-  {
-    id: "sys-colab-018",
-    ra: "2022018",
-    nome: "Sabrina Dias",
-    email: "sabrina.dias@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "Analista de Marketing Digital",
-    departamento: "Marketing",
-    foto: null,
-    dataCadastro: "2024-04-10T10:00:00.000Z"
-  },
-  {
-    id: "sys-colab-019",
-    ra: "2022019",
-    nome: "Thiago Cunha",
-    email: "thiago.cunha@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "Social Media",
-    departamento: "Marketing",
-    foto: null,
-    dataCadastro: "2024-04-10T10:00:00.000Z"
-  },
-  {
-    id: "sys-colab-020",
-    ra: "2022020",
-    nome: "Vanessa Lopes",
-    email: "vanessa.lopes@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "Redatora de Conteúdo",
-    departamento: "Marketing",
-    foto: null,
-    dataCadastro: "2024-04-15T10:00:00.000Z"
-  },
-
-  // ========== ESTAGIÁRIOS ==========
-  {
-    id: "sys-colab-023",
-    ra: "2023001",
-    nome: "André Barbosa",
-    email: "andre.barbosa@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "Estagiário de TI",
-    departamento: "Tecnologia da Informação",
-    foto: null,
-    dataCadastro: "2024-05-01T10:00:00.000Z"
-  },
-  {
-    id: "sys-colab-024",
-    ra: "2023002",
-    nome: "Beatriz Campos",
-    email: "beatriz.campos@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "Estagiária de Marketing",
-    departamento: "Marketing",
-    foto: null,
-    dataCadastro: "2024-05-01T10:00:00.000Z"
-  },
-  {
-    id: "sys-colab-025",
-    ra: "2023003",
-    nome: "Caio Monteiro",
-    email: "caio.monteiro@eniac.edu.br",
-    tipo: "colaborador",
-    cargo: "Estagiário de Vendas",
-    departamento: "Vendas",
-    foto: null,
-    dataCadastro: "2024-05-01T10:00:00.000Z"
   }
 ];
 
 /**
- * Avaliações mock de exemplo
+ * Grupos: quais colaboradores cada gestor é responsável
+ */
+export const MOCK_GRUPOS = [
+  {
+    gestorId: "sys-gestor-001",
+    colaboradorIds: ["sys-colab-001", "sys-colab-002", "sys-colab-003"]
+  },
+  {
+    gestorId: "sys-gestor-002",
+    colaboradorIds: ["sys-colab-006", "sys-colab-007"]
+  },
+  {
+    gestorId: "sys-gestor-003",
+    colaboradorIds: ["sys-colab-004", "sys-colab-005"]
+  },
+  {
+    gestorId: "sys-gestor-004",
+    colaboradorIds: ["sys-colab-008", "sys-colab-009"]
+  }
+];
+
+/**
+ * Campanhas de avaliação criadas pelo admin
+ * criterios: Array de { nome, descricao, escala }
+ */
+export const MOCK_CAMPAIGNS = [
+  {
+    id: "camp-001",
+    nome: "Avaliação Semestral TI - 2026/1",
+    descricao: "Avaliação de desempenho semestral dos colaboradores do departamento de TI",
+    dataInicio: "2026-05-01T00:00:00.000Z",
+    dataFim: "2026-06-30T00:00:00.000Z",
+    status: "ativa",
+    tipoAlvo: "colaborador",
+    criterios: [
+      { nome: "Qualidade técnica", descricao: "Qualidade das entregas técnicas", escala: 5 },
+      { nome: "Cumprimento de prazos", descricao: "Entrega dentro dos prazos acordados", escala: 5 },
+      { nome: "Comunicação", descricao: "Clareza e frequência na comunicação", escala: 5 },
+      { nome: "Trabalho em equipe", descricao: "Colaboração com o time", escala: 5 },
+      { nome: "Proatividade", descricao: "Iniciativa e antecipação de problemas", escala: 5 }
+    ],
+    gestores: [
+      { gestorId: "sys-gestor-001", gestor: { id: "sys-gestor-001", nome: "João Silva" } }
+    ],
+    _count: { avaliacoes: 2 },
+    createdAt: "2026-04-20T10:00:00.000Z"
+  },
+  {
+    id: "camp-002",
+    nome: "Avaliação de Desempenho RH - 2026/1",
+    descricao: "Avaliação dos colaboradores do departamento de RH",
+    dataInicio: "2026-05-15T00:00:00.000Z",
+    dataFim: "2026-07-15T00:00:00.000Z",
+    status: "ativa",
+    tipoAlvo: "colaborador",
+    criterios: [
+      { nome: "Atendimento ao cliente interno", descricao: "Qualidade no atendimento", escala: 5 },
+      { nome: "Organização", descricao: "Organização e gestão de documentos", escala: 5 },
+      { nome: "Conhecimento técnico", descricao: "Domínio das ferramentas e processos de RH", escala: 5 },
+      { nome: "Relacionamento interpessoal", descricao: "Qualidade das relações com colegas", escala: 5 }
+    ],
+    gestores: [
+      { gestorId: "sys-gestor-002", gestor: { id: "sys-gestor-002", nome: "Maria Santos" } }
+    ],
+    _count: { avaliacoes: 1 },
+    createdAt: "2026-04-25T10:00:00.000Z"
+  },
+  {
+    id: "camp-003",
+    nome: "Avaliação Anual 2025",
+    descricao: "Avaliação anual de todos os colaboradores",
+    dataInicio: "2025-11-01T00:00:00.000Z",
+    dataFim: "2025-12-31T00:00:00.000Z",
+    status: "finalizada",
+    tipoAlvo: "colaborador",
+    criterios: [
+      { nome: "Desempenho geral", descricao: "Avaliação geral do desempenho", escala: 10 },
+      { nome: "Metas atingidas", descricao: "Percentual de metas atingidas", escala: 10 },
+      { nome: "Comportamento", descricao: "Postura e comportamento no trabalho", escala: 10 }
+    ],
+    gestores: [
+      { gestorId: "sys-gestor-001", gestor: { id: "sys-gestor-001", nome: "João Silva" } },
+      { gestorId: "sys-gestor-002", gestor: { id: "sys-gestor-002", nome: "Maria Santos" } }
+    ],
+    _count: { avaliacoes: 5 },
+    createdAt: "2025-10-15T10:00:00.000Z"
+  },
+  {
+    id: "camp-004",
+    nome: "Avaliação Liderança Comercial - 2026/2",
+    descricao: "Avaliação de competências de liderança dos gestores comerciais",
+    dataInicio: "2026-07-01T00:00:00.000Z",
+    dataFim: "2026-08-31T00:00:00.000Z",
+    status: "planejamento",
+    tipoAlvo: "gestor",
+    criterios: [
+      { nome: "Gestão de equipe", descricao: "Capacidade de gerir e motivar a equipe", escala: 5 },
+      { nome: "Resultados", descricao: "Atingimento de metas da equipe", escala: 5 },
+      { nome: "Desenvolvimento de pessoas", descricao: "Investimento no crescimento do time", escala: 5 }
+    ],
+    gestores: [],
+    _count: { avaliacoes: 0 },
+    createdAt: "2026-05-10T10:00:00.000Z"
+  }
+];
+
+/**
+ * Avaliações mock — agora vinculadas a campanhas com critérios dinâmicos
  */
 export const MOCK_EVALUATIONS = [
   {
     id: "eval-001",
+    campaignId: "camp-001",
+    campaign: { id: "camp-001", nome: "Avaliação Semestral TI - 2026/1" },
     avaliadorId: "sys-gestor-001",
     avaliadoId: "sys-colab-001",
-    avaliado: { id: "sys-colab-001", nome: "Ana Costa", tipo: "colaborador" },
-    tipoAvaliacao: "gestor_para_colaborador",
-    criterios: { pontualidade: 5, comunicacao: 4, tecnico: 5, proatividade: 4, equipe: 5 },
-    media: 4.6,
-    comentario: "Excelente desenvolvedora, sempre entrega no prazo e com qualidade.",
-    anonima: true,
-    data: "2024-04-15T14:30:00.000Z"
+    avaliado: { id: "sys-colab-001", nome: "Ana Costa", tipo: "colaborador", cargo: "Desenvolvedora Full Stack" },
+    criterios: {
+      "Qualidade técnica": 5,
+      "Cumprimento de prazos": 4,
+      "Comunicação": 4,
+      "Trabalho em equipe": 5,
+      "Proatividade": 4
+    },
+    media: 4.4,
+    comentario: "Excelente profissional, entrega com qualidade e dentro dos prazos.",
+    anonima: false,
+    data: "2026-05-20T14:30:00.000Z"
   },
   {
     id: "eval-002",
-    avaliadorId: "sys-colab-001",
-    avaliadoId: "sys-gestor-001",
-    avaliado: { id: "sys-gestor-001", nome: "João Silva", tipo: "gestor" },
-    tipoAvaliacao: "colaborador_para_gestor",
-    criterios: { pontualidade: 5, comunicacao: 5, tecnico: 4, proatividade: 5, equipe: 5 },
-    media: 4.8,
-    comentario: "Ótimo gestor, sempre disponível e dá feedbacks construtivos.",
-    anonima: true,
-    data: "2024-04-16T10:00:00.000Z"
+    campaignId: "camp-001",
+    campaign: { id: "camp-001", nome: "Avaliação Semestral TI - 2026/1" },
+    avaliadorId: "sys-gestor-001",
+    avaliadoId: "sys-colab-002",
+    avaliado: { id: "sys-colab-002", nome: "Carlos Oliveira", tipo: "colaborador", cargo: "Analista de Sistemas" },
+    criterios: {
+      "Qualidade técnica": 4,
+      "Cumprimento de prazos": 3,
+      "Comunicação": 4,
+      "Trabalho em equipe": 4,
+      "Proatividade": 3
+    },
+    media: 3.6,
+    comentario: "Bom desempenho técnico, precisa melhorar gestão de prazos.",
+    anonima: false,
+    data: "2026-05-21T10:00:00.000Z"
   },
   {
     id: "eval-003",
-    avaliadorId: "sys-gestor-001",
-    avaliadoId: "sys-colab-002",
-    avaliado: { id: "sys-colab-002", nome: "Carlos Oliveira", tipo: "colaborador" },
-    tipoAvaliacao: "gestor_para_colaborador",
-    criterios: { pontualidade: 4, comunicacao: 4, tecnico: 5, proatividade: 3, equipe: 4 },
-    media: 4.0,
-    comentario: "Bom desempenho técnico, pode melhorar na proatividade.",
-    anonima: true,
-    data: "2024-04-17T11:00:00.000Z"
+    campaignId: "camp-002",
+    campaign: { id: "camp-002", nome: "Avaliação de Desempenho RH - 2026/1" },
+    avaliadorId: "sys-gestor-002",
+    avaliadoId: "sys-colab-006",
+    avaliado: { id: "sys-colab-006", nome: "Felipe Araújo", tipo: "colaborador", cargo: "Analista de RH" },
+    criterios: {
+      "Atendimento ao cliente interno": 5,
+      "Organização": 5,
+      "Conhecimento técnico": 4,
+      "Relacionamento interpessoal": 5
+    },
+    media: 4.75,
+    comentario: "Profissional exemplar, referência no departamento.",
+    anonima: false,
+    data: "2026-05-22T11:00:00.000Z"
   },
   {
     id: "eval-004",
-    avaliadorId: "sys-gestor-003",
-    avaliadoId: "sys-colab-003",
-    avaliado: { id: "sys-colab-003", nome: "Bruno Martins", tipo: "colaborador" },
-    tipoAvaliacao: "gestor_para_colaborador",
-    criterios: { pontualidade: 5, comunicacao: 3, tecnico: 5, proatividade: 4, equipe: 3 },
-    media: 4.0,
-    comentario: "Excelente tecnicamente, mas precisa melhorar comunicação com o time.",
-    anonima: true,
-    data: "2024-04-18T09:00:00.000Z"
-  },
-  {
-    id: "eval-005",
-    avaliadorId: "sys-colab-004",
-    avaliadoId: "sys-gestor-003",
-    avaliado: { id: "sys-gestor-003", nome: "Roberto Ferreira", tipo: "gestor" },
-    tipoAvaliacao: "colaborador_para_gestor",
-    criterios: { pontualidade: 4, comunicacao: 5, tecnico: 5, proatividade: 5, equipe: 4 },
-    media: 4.6,
-    comentario: "Coordenador muito técnico e sempre ajuda o time.",
-    anonima: true,
-    data: "2024-04-19T15:00:00.000Z"
-  },
-  {
-    id: "eval-006",
-    avaliadorId: "sys-gestor-004",
-    avaliadoId: "sys-colab-010",
-    avaliado: { id: "sys-colab-010", nome: "Isabela Cardoso", tipo: "colaborador" },
-    tipoAvaliacao: "gestor_para_colaborador",
-    criterios: { pontualidade: 5, comunicacao: 5, tecnico: 4, proatividade: 5, equipe: 5 },
-    media: 4.8,
-    comentario: "Vendedora excepcional, sempre bate as metas.",
-    anonima: true,
-    data: "2024-04-20T10:30:00.000Z"
-  },
-  {
-    id: "eval-007",
-    avaliadorId: "sys-colab-010",
-    avaliadoId: "sys-gestor-004",
-    avaliado: { id: "sys-gestor-004", nome: "Fernanda Lima", tipo: "gestor" },
-    tipoAvaliacao: "colaborador_para_gestor",
-    criterios: { pontualidade: 5, comunicacao: 5, tecnico: 4, proatividade: 5, equipe: 5 },
-    media: 4.8,
-    comentario: "Gerente inspiradora, motiva muito o time de vendas.",
-    anonima: true,
-    data: "2024-04-21T14:00:00.000Z"
-  },
-  {
-    id: "eval-008",
-    avaliadorId: "sys-gestor-002",
-    avaliadoId: "sys-colab-007",
-    avaliado: { id: "sys-colab-007", nome: "Felipe Araújo", tipo: "colaborador" },
-    tipoAvaliacao: "gestor_para_colaborador",
-    criterios: { pontualidade: 5, comunicacao: 5, tecnico: 4, proatividade: 4, equipe: 5 },
-    media: 4.6,
-    comentario: "Analista de RH muito competente e organizado.",
-    anonima: true,
-    data: "2024-04-22T11:00:00.000Z"
+    campaignId: "camp-003",
+    campaign: { id: "camp-003", nome: "Avaliação Anual 2025" },
+    avaliadorId: "sys-gestor-001",
+    avaliadoId: "sys-colab-001",
+    avaliado: { id: "sys-colab-001", nome: "Ana Costa", tipo: "colaborador", cargo: "Desenvolvedora Full Stack" },
+    criterios: {
+      "Desempenho geral": 9,
+      "Metas atingidas": 8,
+      "Comportamento": 9
+    },
+    media: 8.67,
+    comentario: "Ótimo ano, superou expectativas.",
+    anonima: false,
+    data: "2025-12-10T10:00:00.000Z"
   }
 ];
 
@@ -497,71 +376,46 @@ export const MOCK_COMPETENCIES = [
     id: "comp-001",
     nome: "Liderança",
     tipo: "lideranca",
+    competenciaDe: "gestor",
     descricao: "Capacidade de liderar equipes e inspirar pessoas",
-    dataCriacao: "2024-01-10T10:00:00.000Z"
+    criterios: ["Delegar tarefas", "Motivar equipe", "Tomar decisões", "Dar feedback"],
+    createdAt: "2024-01-10T10:00:00.000Z"
   },
   {
     id: "comp-002",
-    nome: "Comunicação Efetiva",
+    nome: "Comunicação",
     tipo: "comportamento",
-    descricao: "Habilidade de se comunicar de forma clara e objetiva",
-    dataCriacao: "2024-01-10T10:00:00.000Z"
+    competenciaDe: "todos",
+    descricao: "Clareza e efetividade na comunicação",
+    criterios: ["Clareza oral", "Clareza escrita", "Escuta ativa"],
+    createdAt: "2024-01-10T10:00:00.000Z"
   },
   {
     id: "comp-003",
-    nome: "Resolução de Problemas",
-    tipo: "tecnica",
-    descricao: "Capacidade de identificar e resolver problemas complexos",
-    dataCriacao: "2024-01-10T10:00:00.000Z"
+    nome: "Trabalho em Equipe",
+    tipo: "comportamento",
+    competenciaDe: "colaborador",
+    descricao: "Colaboração e sinergia com colegas",
+    criterios: ["Colaboração", "Respeito", "Comprometimento"],
+    createdAt: "2024-01-10T10:00:00.000Z"
   },
   {
     id: "comp-004",
-    nome: "Trabalho em Equipe",
-    tipo: "comportamento",
-    descricao: "Colaboração efetiva com colegas e equipes",
-    dataCriacao: "2024-01-10T10:00:00.000Z"
+    nome: "Resolução de Problemas",
+    tipo: "tecnica",
+    competenciaDe: "todos",
+    descricao: "Capacidade analítica e criatividade para resolver problemas",
+    criterios: ["Análise crítica", "Criatividade", "Agilidade"],
+    createdAt: "2024-01-10T10:00:00.000Z"
   },
   {
     id: "comp-005",
-    nome: "Gestão de Tempo",
-    tipo: "desempenho",
-    descricao: "Organização e priorização de tarefas",
-    dataCriacao: "2024-01-10T10:00:00.000Z"
-  },
-  {
-    id: "comp-006",
-    nome: "Pensamento Estratégico",
-    tipo: "lideranca",
-    descricao: "Visão de longo prazo e planejamento estratégico",
-    dataCriacao: "2024-01-10T10:00:00.000Z"
-  },
-  {
-    id: "comp-007",
-    nome: "Desenvolvimento Técnico",
-    tipo: "tecnica",
-    descricao: "Conhecimento técnico e atualização constante",
-    dataCriacao: "2024-01-10T10:00:00.000Z"
-  },
-  {
-    id: "comp-008",
-    nome: "Adaptabilidade",
+    nome: "Proatividade",
     tipo: "comportamento",
-    descricao: "Flexibilidade para se adaptar a mudanças",
-    dataCriacao: "2024-01-10T10:00:00.000Z"
-  },
-  {
-    id: "comp-009",
-    nome: "Orientação para Resultados",
-    tipo: "desempenho",
-    descricao: "Foco em atingir metas e objetivos",
-    dataCriacao: "2024-01-10T10:00:00.000Z"
-  },
-  {
-    id: "comp-010",
-    nome: "Inovação",
-    tipo: "tecnica",
-    descricao: "Criatividade e busca por soluções inovadoras",
-    dataCriacao: "2024-01-10T10:00:00.000Z"
+    competenciaDe: "todos",
+    descricao: "Iniciativa e antecipação de demandas",
+    criterios: ["Iniciativa", "Antecipação", "Autonomia"],
+    createdAt: "2024-01-10T10:00:00.000Z"
   }
 ];
 
@@ -569,165 +423,74 @@ export const MOCK_COMPETENCIES = [
  * Nine Box mock de exemplo
  */
 export const MOCK_NINEBOXES = [
-  // Superstars (3-3)
   {
     id: "nb-001",
     pessoaId: "sys-colab-001",
     pessoa: { id: "sys-colab-001", nome: "Ana Costa", tipo: "colaborador", cargo: "Desenvolvedora Full Stack" },
     performance: 3,
     potential: 3,
+    categoria: "Superstar",
     comentario: "Excelente performance e alto potencial de crescimento",
-    data: "2024-04-15T10:00:00.000Z"
+    data: "2026-05-15T10:00:00.000Z"
   },
   {
     id: "nb-002",
-    pessoaId: "sys-colab-010",
-    pessoa: { id: "sys-colab-010", nome: "Isabela Cardoso", tipo: "colaborador", cargo: "Executiva de Vendas" },
+    pessoaId: "sys-colab-008",
+    pessoa: { id: "sys-colab-008", nome: "Isabela Cardoso", tipo: "colaborador", cargo: "Executiva de Vendas" },
     performance: 3,
     potential: 3,
+    categoria: "Superstar",
     comentario: "Sempre supera metas e tem grande potencial de liderança",
-    data: "2024-04-16T10:00:00.000Z"
+    data: "2026-05-16T10:00:00.000Z"
   },
-  
-  // Estrelas (2-3)
   {
     id: "nb-003",
     pessoaId: "sys-colab-004",
     pessoa: { id: "sys-colab-004", nome: "Camila Rodrigues", tipo: "colaborador", cargo: "Desenvolvedora Frontend" },
     performance: 2,
     potential: 3,
+    categoria: "Estrela",
     comentario: "Bom desempenho com excelente potencial",
-    data: "2024-04-17T10:00:00.000Z"
+    data: "2026-05-17T10:00:00.000Z"
   },
   {
     id: "nb-004",
-    pessoaId: "sys-colab-018",
-    pessoa: { id: "sys-colab-018", nome: "Sabrina Dias", tipo: "colaborador", cargo: "Analista de Marketing Digital" },
-    performance: 2,
-    potential: 3,
-    comentario: "Criativa e com grande potencial de crescimento",
-    data: "2024-04-18T10:00:00.000Z"
-  },
-  
-  // Especialistas (3-2)
-  {
-    id: "nb-005",
     pessoaId: "sys-colab-003",
     pessoa: { id: "sys-colab-003", nome: "Bruno Martins", tipo: "colaborador", cargo: "Desenvolvedor Backend" },
     performance: 3,
     potential: 2,
+    categoria: "Especialista",
     comentario: "Excelente tecnicamente, especialista na área",
-    data: "2024-04-19T10:00:00.000Z"
+    data: "2026-05-18T10:00:00.000Z"
   },
   {
-    id: "nb-006",
-    pessoaId: "sys-colab-014",
-    pessoa: { id: "sys-colab-014", nome: "Natália Ribeiro", tipo: "colaborador", cargo: "Analista Financeiro" },
-    performance: 3,
-    potential: 2,
-    comentario: "Domínio completo das atividades financeiras",
-    data: "2024-04-20T10:00:00.000Z"
-  },
-  
-  // Núcleo (2-2)
-  {
-    id: "nb-007",
+    id: "nb-005",
     pessoaId: "sys-colab-002",
     pessoa: { id: "sys-colab-002", nome: "Carlos Oliveira", tipo: "colaborador", cargo: "Analista de Sistemas" },
     performance: 2,
     potential: 2,
+    categoria: "Núcleo",
     comentario: "Desempenho sólido e consistente",
-    data: "2024-04-21T10:00:00.000Z"
+    data: "2026-05-19T10:00:00.000Z"
   },
   {
-    id: "nb-008",
-    pessoaId: "sys-colab-007",
-    pessoa: { id: "sys-colab-007", nome: "Felipe Araújo", tipo: "colaborador", cargo: "Analista de RH" },
+    id: "nb-006",
+    pessoaId: "sys-colab-006",
+    pessoa: { id: "sys-colab-006", nome: "Felipe Araújo", tipo: "colaborador", cargo: "Analista de RH" },
     performance: 2,
     potential: 2,
+    categoria: "Núcleo",
     comentario: "Bom desempenho nas atividades de RH",
-    data: "2024-04-22T10:00:00.000Z"
+    data: "2026-05-20T10:00:00.000Z"
   },
   {
-    id: "nb-009",
-    pessoaId: "sys-colab-011",
-    pessoa: { id: "sys-colab-011", nome: "João Pedro Alves", tipo: "colaborador", cargo: "Consultor Comercial" },
-    performance: 2,
-    potential: 2,
-    comentario: "Atinge as metas consistentemente",
-    data: "2024-04-23T10:00:00.000Z"
-  },
-  
-  // Enigmas (1-3)
-  {
-    id: "nb-010",
-    pessoaId: "sys-colab-023",
-    pessoa: { id: "sys-colab-023", nome: "André Barbosa", tipo: "colaborador", cargo: "Estagiário de TI" },
-    performance: 1,
-    potential: 3,
-    comentario: "Ainda em desenvolvimento mas com grande potencial",
-    data: "2024-05-01T10:00:00.000Z"
-  },
-  {
-    id: "nb-011",
-    pessoaId: "sys-colab-024",
-    pessoa: { id: "sys-colab-024", nome: "Beatriz Campos", tipo: "colaborador", cargo: "Estagiária de Marketing" },
-    performance: 1,
-    potential: 3,
-    comentario: "Estagiária promissora com muito potencial",
-    data: "2024-05-02T10:00:00.000Z"
-  },
-  
-  // Dilemas (1-2)
-  {
-    id: "nb-012",
-    pessoaId: "sys-colab-025",
-    pessoa: { id: "sys-colab-025", nome: "Caio Monteiro", tipo: "colaborador", cargo: "Estagiário de Vendas" },
+    id: "nb-007",
+    pessoaId: "sys-colab-005",
+    pessoa: { id: "sys-colab-005", nome: "Diego Souza", tipo: "colaborador", cargo: "DevOps Engineer" },
     performance: 1,
     potential: 2,
-    comentario: "Precisa melhorar o desempenho",
-    data: "2024-05-03T10:00:00.000Z"
-  },
-  
-  // Trabalhadores (2-1)
-  {
-    id: "nb-013",
-    pessoaId: "sys-colab-015",
-    pessoa: { id: "sys-colab-015", nome: "Otávio Gomes", tipo: "colaborador", cargo: "Assistente Contábil" },
-    performance: 2,
-    potential: 1,
-    comentario: "Bom desempenho operacional",
-    data: "2024-04-24T10:00:00.000Z"
-  },
-  {
-    id: "nb-014",
-    pessoaId: "sys-colab-021",
-    pessoa: { id: "sys-colab-021", nome: "William Castro", tipo: "colaborador", cargo: "Analista de Suporte" },
-    performance: 2,
-    potential: 1,
-    comentario: "Executa bem as tarefas do dia a dia",
-    data: "2024-04-25T10:00:00.000Z"
-  },
-  
-  // Âncoras (3-1)
-  {
-    id: "nb-015",
-    pessoaId: "sys-colab-016",
-    pessoa: { id: "sys-colab-016", nome: "Paula Freitas", tipo: "colaborador", cargo: "Analista de Contas a Pagar" },
-    performance: 3,
-    potential: 1,
-    comentario: "Excelente no que faz, especialista operacional",
-    data: "2024-04-26T10:00:00.000Z"
-  },
-  
-  // Questões (1-1)
-  {
-    id: "nb-016",
-    pessoaId: "sys-colab-022",
-    pessoa: { id: "sys-colab-022", nome: "Yasmin Silva", tipo: "colaborador", cargo: "Técnica de Suporte" },
-    performance: 1,
-    potential: 1,
-    comentario: "Necessita desenvolvimento urgente",
-    data: "2024-04-27T10:00:00.000Z"
+    categoria: "Dilema",
+    comentario: "Potencial presente, performance a desenvolver",
+    data: "2026-05-21T10:00:00.000Z"
   }
 ];

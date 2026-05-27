@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campanhas de Avaliacao</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/competencias.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script>(function(){const dm=localStorage.getItem('darkMode');if(dm==='1'||(dm===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark-mode');if(document.body)document.body.classList.add('dark-mode');}})();</script>
+  <style>
+    .camp-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600}
+    .camp-badge.planejamento{background:#fef3c7;color:#92400e}
+    .camp-badge.ativa{background:#d1fae5;color:#065f46}
+    .camp-badge.finalizada{background:#f1f5f9;color:#64748b}
+    .camp-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:20px 24px;display:flex;flex-direction:column;gap:10px;transition:box-shadow .2s}
+    .camp-card:hover{box-shadow:var(--shadow-md)}
+    .camp-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .camp-card-nome{font-weight:600;font-size:15px;color:var(--text)}
+    .camp-card-desc{font-size:13px;color:var(--text-muted)}
+    .camp-card-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-muted)}
+    .camp-card-meta span{display:flex;align-items:center;gap:5px}
+    .camp-card-acoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+    .camp-criterio-tag{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:11px;color:var(--text-muted)}
+    .camp-criterios-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+    .form-section{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+    .form-section-title{font-weight:600;font-size:14px;color:var(--primary);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .competencia-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1.5px solid var(--border);border-radius:100px;padding:6px 14px;font-size:12px;cursor:pointer;transition:all .15s;user-select:none}
+    .competencia-chip.selected{background:#ede9fe;border-color:#7c3aed;color:#5b21b6;font-weight:600}
+    .competencia-chip:hover:not(.selected){border-color:var(--primary)}
+    .gestor-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1.5px solid var(--border);border-radius:100px;padding:6px 14px;font-size:12px;cursor:pointer;transition:all .15s;user-select:none}
+    .gestor-chip.selected{background:#ede9fe;border-color:#7c3aed;color:#5b21b6;font-weight:600}
+    .gestor-chip:hover:not(.selected){border-color:var(--primary)}
+    .filtros-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+    .filtro-btn{padding:6px 16px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+    .filtro-btn.active{background:var(--primary);color:white;border-color:var(--primary)}
+    .btn-acao{padding:5px 12px;font-size:11px;border-radius:6px;cursor:pointer;font-weight:600;border:1.5px solid;transition:all .15s}
+    .btn-acao.editar{background:#fef3c7;color:#92400e;border-color:#fde68a}
+    .btn-acao.ativar{background:#d1fae5;color:#065f46;border-color:#6ee7b7}
+    .btn-acao.finalizar{background:#f1f5f9;color:#475569;border-color:#cbd5e1}
+    .btn-acao.excluir{background:transparent;color:#ef4444;border-color:#fecaca}
+  </style>
+</head>
+<body>
+
+<header>
+  <h2 id="page-title">Campanhas de Avaliacao</h2>
+  <button id="dark-mode-btn" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i></button>
+  <div class="user-menu" id="user-menu">
+    <div class="user" id="user-btn" onclick="toggleUserMenu()"><i class="fa-solid fa-user"></i></div>
+    <div class="user-dropdown" id="user-dropdown">
+      <div class="user-dropdown-info">
+        <div class="user-dropdown-avatar" id="user-dropdown-avatar"><i class="fa-solid fa-user"></i></div>
+        <div>
+          <div class="user-dropdown-nome" id="user-dropdown-nome">Carregando...</div>
+          <div class="user-dropdown-tipo" id="user-dropdown-tipo"></div>
+        </div>
+      </div>
+      <div class="user-dropdown-divider"></div>
+      <a href="../perfil.html" class="user-dropdown-item"><i class="fa-solid fa-user-pen"></i> Meu Perfil</a>
+      <button class="user-dropdown-item user-dropdown-sair" id="btn-sair-header" onclick="sairDaConta()" style="display:none">
+        <i class="fa-solid fa-right-from-bracket"></i> Sair
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="navbar">
+  <ul class="navbar-nav">
+    <li class="navbar-item"><a href="../index.html" class="navbar-link"><i class="fa-solid fa-home"></i><span>Inicio</span></a></li>
+    <li class="navbar-item" data-role="admin"><a href="cadastrar.html" class="navbar-link"><i class="fa-solid fa-user-plus"></i><span>Cadastrar</span></a></li>
+    <li class="navbar-item" data-role="gestorOrAdmin"><a href="consultar.html" class="navbar-link"><i class="fa-solid fa-magnifying-glass"></i><span>Consultar</span></a></li>
+    <li class="navbar-item navbar-item-dropdown">
+      <a href="#" class="navbar-link navbar-link-dropdown active" onclick="toggleSubmenu(event, this)">
+        <i class="fa-solid fa-star"></i><span>Avaliacoes</span><i class="fa-solid fa-chevron-down navbar-chevron"></i>
+      </a>
+      <ul class="navbar-submenu">
+        <li data-role="admin"><a href="campanhas.html" class="navbar-submenu-link active"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
+        <li><a href="avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-star"></i> Avaliacoes</a></li>
+        <li data-role="gestorOrAdmin"><a href="nine-box.html" class="navbar-submenu-link"><i class="fa-solid fa-th"></i> Nine Box</a></li>
+        <li><a href="competencias.html" class="navbar-submenu-link"><i class="fa-solid fa-clipboard-check"></i> Competencias</a></li>
+      </ul>
+    </li>
+    <li class="navbar-item" data-role="gestorOrAdmin"><a href="grupos.html" class="navbar-link"><i class="fa-solid fa-users"></i><span>Grupos</span></a></li>
+    <li class="navbar-item"><a href="relatorios.html" class="navbar-link"><i class="fa-solid fa-chart-bar"></i><span>Relatorios</span></a></li>
+    <li class="navbar-item"><a href="../perfil.html" class="navbar-link"><i class="fa-solid fa-user"></i><span>Perfil</span></a></li>
+  </ul>
+</nav>
+
+<main class="comp-main">
+
+  <!-- TELA LISTA -->
+  <div id="tela-lista" class="comp-tela">
+    <div class="comp-lista-header">
+      <div>
+        <h3>Campanhas de Avaliacao</h3>
+        <p>Crie e gerencie campanhas usando competencias do sistema</p>
+      </div>
+      <button class="comp-btn-novo" onclick="abrirFormulario()">
+        <i class="fa-solid fa-plus"></i> Nova Campanha
+      </button>
+    </div>
+
+    <div class="filtros-bar">
+      <button class="filtro-btn active" data-status="" onclick="filtrar(this,'')">Todas</button>
+      <button class="filtro-btn" data-status="planejamento" onclick="filtrar(this,'planejamento')"><i class="fa-solid fa-pencil"></i> Planejamento</button>
+      <button class="filtro-btn" data-status="ativa" onclick="filtrar(this,'ativa')"><i class="fa-solid fa-circle-play"></i> Ativas</button>
+      <button class="filtro-btn" data-status="finalizada" onclick="filtrar(this,'finalizada')"><i class="fa-solid fa-flag-checkered"></i> Finalizadas</button>
+    </div>
+
+    <div id="campanhas-container" style="display:flex;flex-direction:column;gap:12px">
+      <p class="comp-empty">Carregando campanhas...</p>
+    </div>
+  </div>
+
+  <!-- TELA FORMULARIO -->
+  <div id="tela-form" class="comp-tela" style="display:none">
+    <div class="comp-lista-header" style="margin-bottom:24px">
+      <div>
+        <h3 id="form-titulo">Nova Campanha</h3>
+        <p id="form-subtitulo">Selecione as competencias e responsaveis pela avaliacao</p>
+      </div>
+      <button onclick="voltarParaLista()" style="padding:8px 16px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;color:var(--text);font-weight:600;display:flex;align-items:center;gap:6px">
+        <i class="fa-solid fa-arrow-left"></i> Voltar
+      </button>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title"><i class="fa-solid fa-info-circle"></i> Dados da Campanha</div>
+      <div class="comp-form-grid">
+        <div class="comp-field" style="grid-column:1/-1">
+          <label>Nome da campanha *</label>
+          <input type="text" id="f-nome" placeholder="Ex: Avaliacao Semestral TI - 2026/1" maxlength="150">
+        </div>
+        <div class="comp-field" style="grid-column:1/-1">
+          <label>Descricao <span style="font-weight:400;color:var(--text-muted)">(opcional)</span></label>
+          <textarea id="f-descricao" rows="2" placeholder="Descreva o objetivo desta campanha..." style="resize:vertical;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;background:var(--surface);color:var(--text);width:100%;box-sizing:border-box"></textarea>
+        </div>
+        <div class="comp-field">
+          <label>Data de inicio *</label>
+          <input type="date" id="f-inicio">
+        </div>
+        <div class="comp-field">
+          <label>Data de fim *</label>
+          <input type="date" id="f-fim">
+        </div>
+        <div class="comp-field">
+          <label>Quem sera avaliado *</label>
+          <select id="f-alvo" onchange="atualizarTextoGestores()" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;background:var(--surface);color:var(--text);width:100%">
+            <option value="colaborador">Colaboradores</option>
+            <option value="gestor">Gestores</option>
+            <option value="todos">Todos</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title"><i class="fa-solid fa-clipboard-check"></i> Competencias de Avaliacao</div>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">
+        Selecione as competencias que serao usadas nesta campanha.
+      </p>
+      <div id="competencias-chips" style="display:flex;flex-wrap:wrap;gap:8px">
+        <p style="font-size:13px;color:var(--text-muted)">Carregando competencias...</p>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title"><i class="fa-solid fa-user-tie"></i> <span id="gestores-titulo">Gestores Responsaveis</span></div>
+      <p id="gestores-descricao" style="font-size:12px;color:var(--text-muted);margin-bottom:14px">
+        Selecione quais gestores poderao realizar avaliacoes nesta campanha.
+      </p>
+      <div id="gestores-chips" style="display:flex;flex-wrap:wrap;gap:8px">
+        <p style="font-size:13px;color:var(--text-muted)">Carregando gestores...</p>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+      <button onclick="voltarParaLista()" style="padding:11px 24px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;cursor:pointer;color:var(--text);font-weight:600">Cancelar</button>
+      <button id="btn-salvar" onclick="salvarCampanha()" style="padding:11px 28px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px">
+        <i class="fa-solid fa-save"></i> <span id="btn-salvar-txt">Criar Campanha</span>
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<script type="module">
+  import { requireAuth, getUser, isAdmin } from '../js/auth.js';
+  import { campaignsApi, usersApi, competenciesApi } from '../js/api.js';
+  import { showToast } from '../js/components/toast.js';
+  import '../js/navbar.js';
+
+  requireAuth();
+  if (!isAdmin()) { window.location.href = 'avaliacoes.html'; }
+
+  // Estado
+  let campanhas = [];
+  let gestores  = [];
+  let competencias = [];
+  let gestoresSelecionados = new Set();
+  let competenciasSelecionadas = new Set();
+  let editandoId = null;
+  let filtroAtual = '';
+
+  // ─── LISTA ────────────────────────────────────────────────────────────────────
+
+  async function carregarCampanhas() {
+    const container = document.getElementById('campanhas-container');
+    try {
+      const res = await campaignsApi.list({ limit: 100 });
+      campanhas = res.data?.campaigns || res.data || [];
+      renderLista();
+    } catch {
+      container.innerHTML = '<p class="comp-empty">Erro ao carregar campanhas.</p>';
+    }
+  }
+
+  function renderLista() {
+    const container = document.getElementById('campanhas-container');
+    let lista = filtroAtual ? campanhas.filter(c => c.status === filtroAtual) : campanhas;
+    if (!lista.length) {
+      container.innerHTML = '<p class="comp-empty">Nenhuma campanha encontrada.</p>';
+      return;
+    }
+    container.innerHTML = lista.map(c => {
+      const ini = new Date(c.dataInicio).toLocaleDateString('pt-BR');
+      const fim = new Date(c.dataFim).toLocaleDateString('pt-BR');
+      const qtdAv = c._count?.avaliacoes ?? 0;
+      const gestNomes = (c.gestores || []).map(g => g.gestor?.nome || '').filter(Boolean).join(', ') || 'Nenhum';
+      const compTags = (c.competencias || []).map(comp =>
+        '<span class="camp-criterio-tag"><i class="fa-solid fa-circle-dot" style="font-size:8px"></i>' + comp.competency?.nome + '</span>'
+      ).join('');
+
+      const btnAtivar   = c.status === 'planejamento' ? '<button class="btn-acao ativar" onclick="mudarStatus(\'' + c.id + '\',\'ativa\')"><i class="fa-solid fa-circle-play"></i> Ativar</button>' : '';
+      const btnFinalizar = c.status === 'ativa' ? '<button class="btn-acao finalizar" onclick="mudarStatus(\'' + c.id + '\',\'finalizada\')"><i class="fa-solid fa-flag-checkered"></i> Finalizar</button>' : '';
+      const btnEditar   = c.status !== 'finalizada' ? '<button class="btn-acao editar" onclick="editarCampanha(\'' + c.id + '\')"><i class="fa-solid fa-pen"></i> Editar</button>' : '';
+      const btnExcluir  = c.status !== 'ativa' ? '<button class="btn-acao excluir" onclick="excluirCampanha(\'' + c.id + '\',\'' + c.nome.replace(/'/g,"\\'") + '\')"><i class="fa-solid fa-trash"></i> Excluir</button>' : '';
+
+      return '<div class="camp-card">' +
+        '<div class="camp-card-header">' +
+          '<div>' +
+            '<div class="camp-card-nome">' + c.nome + '</div>' +
+            (c.descricao ? '<div class="camp-card-desc">' + c.descricao + '</div>' : '') +
+          '</div>' +
+          '<span class="camp-badge ' + c.status + '">' + labelStatus(c.status) + '</span>' +
+        '</div>' +
+        '<div class="camp-card-meta">' +
+          '<span><i class="fa-regular fa-calendar"></i> ' + ini + ' a ' + fim + '</span>' +
+          '<span><i class="fa-solid fa-users"></i> ' + labelAlvo(c.tipoAlvo) + '</span>' +
+          '<span><i class="fa-solid fa-user-tie"></i> ' + gestNomes + '</span>' +
+          '<span><i class="fa-solid fa-check-circle" style="color:#10b981"></i> ' + qtdAv + ' avaliacao(oes)</span>' +
+        '</div>' +
+        (compTags ? '<div class="camp-criterios-list">' + compTags + '</div>' : '') +
+        '<div class="camp-card-acoes">' + btnEditar + btnAtivar + btnFinalizar + btnExcluir + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function labelStatus(s) {
+    return { planejamento: 'Planejamento', ativa: 'Ativa', finalizada: 'Finalizada' }[s] || s;
+  }
+  function labelAlvo(a) {
+    return { colaborador: 'Colaboradores', gestor: 'Gestores', todos: 'Todos' }[a] || a;
+  }
+
+  window.filtrar = function(btn, status) {
+    filtroAtual = status;
+    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderLista();
+  };
+
+  // ─── MUDAR STATUS ─────────────────────────────────────────────────────────────
+
+  window.mudarStatus = async function(id, novoStatus) {
+    const label = novoStatus === 'ativa' ? 'ativar' : 'finalizar';
+    if (!confirm('Deseja ' + label + ' esta campanha?')) return;
+    try {
+      await campaignsApi.updateStatus(id, novoStatus);
+      showToast('Campanha ' + (novoStatus === 'ativa' ? 'ativada' : 'finalizada') + ' com sucesso!', 'success');
+      await carregarCampanhas();
+    } catch (e) { showToast(e.message || 'Erro ao alterar status.', 'error'); }
+  };
+
+  // ─── EXCLUIR ──────────────────────────────────────────────────────────────────
+
+  window.excluirCampanha = async function(id, nome) {
+    if (!confirm('Excluir a campanha "' + nome + '"? Esta acao nao pode ser desfeita.')) return;
+    try {
+      await campaignsApi.delete(id);
+      showToast('Campanha excluida.', 'success');
+      await carregarCampanhas();
+    } catch (e) { showToast(e.message || 'Erro ao excluir.', 'error'); }
+  };
+
+  // ─── FORMULARIO ───────────────────────────────────────────────────────────────
+
+  window.abrirFormulario = async function(campanha) {
+    editandoId = campanha?.id || null;
+    competenciasSelecionadas = new Set(campanha ? (campanha.competencias || []).map(c => c.competencyId) : []);
+    gestoresSelecionados = new Set(campanha ? (campanha.gestores || []).map(g => g.gestorId) : []);
+
+    document.getElementById('form-titulo').textContent = campanha ? 'Editar Campanha' : 'Nova Campanha';
+    document.getElementById('form-subtitulo').textContent = campanha ? campanha.nome : 'Selecione as competencias e responsaveis';
+    document.getElementById('btn-salvar-txt').textContent = campanha ? 'Salvar Alteracoes' : 'Criar Campanha';
+
+    document.getElementById('f-nome').value = campanha?.nome || '';
+    document.getElementById('f-descricao').value = campanha?.descricao || '';
+    document.getElementById('f-inicio').value = campanha ? campanha.dataInicio.split('T')[0] : '';
+    document.getElementById('f-fim').value = campanha ? campanha.dataFim.split('T')[0] : '';
+    document.getElementById('f-alvo').value = campanha?.tipoAlvo || 'colaborador';
+
+    await carregarCompetenciasChips();
+    await carregarGestoresChips();
+    atualizarTextoGestores();
+
+    document.getElementById('tela-lista').style.display = 'none';
+    document.getElementById('tela-form').style.display = 'block';
+  };
+
+  window.voltarParaLista = function() {
+    document.getElementById('tela-form').style.display = 'none';
+    document.getElementById('tela-lista').style.display = 'block';
+    editandoId = null; competenciasSelecionadas = new Set(); gestoresSelecionados = new Set();
+  };
+
+  window.atualizarTextoGestores = function() {
+    const alvo = document.getElementById('f-alvo').value;
+    const titulo = document.getElementById('gestores-titulo');
+    const descricao = document.getElementById('gestores-descricao');
+
+    if (alvo === 'colaborador') {
+      titulo.textContent = 'Gestores Responsáveis';
+      descricao.textContent = 'Selecione quais gestores poderão realizar avaliações nesta campanha. As avaliações serão enviadas aos subordinados dos gestores selecionados.';
+    } else if (alvo === 'gestor') {
+      titulo.textContent = 'Gestores a serem Avaliados';
+      descricao.textContent = 'Selecione quais gestores serão avaliados nesta campanha. Os colaboradores subordinados poderão avaliar seus respectivos gestores.';
+    } else if (alvo === 'todos') {
+      titulo.textContent = 'Gestores Participantes';
+      descricao.textContent = 'Selecione quais gestores participarão da campanha. Eles poderão avaliar seus subordinados e também serão avaliados por eles.';
+    }
+  };
+
+  // ─── COMPETENCIAS CHIPS ─────────────────────────────────────────────────────────
+
+  async function carregarCompetenciasChips() {
+    const container = document.getElementById('competencias-chips');
+    try {
+      if (!competencias.length) {
+        const res = await competenciesApi.list({ limit: 100 });
+        competencias = res.data?.competencies || [];
+      }
+      if (!competencias.length) {
+        container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Nenhuma competencia cadastrada. <a href="competencias.html" style="color:var(--primary)">Criar competencias</a></p>';
+        return;
+      }
+      renderCompetenciasChips();
+    } catch { container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Erro ao carregar competencias.</p>'; }
+  }
+
+  function renderCompetenciasChips() {
+    const container = document.getElementById('competencias-chips');
+    container.innerHTML = competencias.map(c =>
+      '<div class="competencia-chip' + (competenciasSelecionadas.has(c.id) ? ' selected' : '') + '" onclick="toggleCompetencia(\'' + c.id + '\')" id="comp-chip-' + c.id + '">' +
+        '<i class="fa-solid fa-clipboard-check" style="font-size:11px"></i>' +
+        c.nome +
+        (c.tipo ? '<span style="font-size:10px;opacity:.7">(' + c.tipo + ')</span>' : '') +
+      '</div>'
+    ).join('');
+  }
+
+  window.toggleCompetencia = function(id) {
+    if (competenciasSelecionadas.has(id)) competenciasSelecionadas.delete(id);
+    else competenciasSelecionadas.add(id);
+    renderCompetenciasChips();
+  };
+
+  // ─── GESTORES CHIPS ───────────────────────────────────────────────────────────
+
+  async function carregarGestoresChips() {
+    const container = document.getElementById('gestores-chips');
+    try {
+      if (!gestores.length) {
+        const res = await usersApi.list({ tipo: 'gestor', limit: 100 });
+        gestores = res.data?.users || [];
+      }
+      if (!gestores.length) {
+        container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Nenhum gestor cadastrado.</p>';
+        return;
+      }
+      renderGestoresChips();
+    } catch { container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Erro ao carregar gestores.</p>'; }
+  }
+
+  function renderGestoresChips() {
+    const container = document.getElementById('gestores-chips');
+    container.innerHTML = gestores.map(g =>
+      '<div class="gestor-chip' + (gestoresSelecionados.has(g.id) ? ' selected' : '') + '" onclick="toggleGestor(\'' + g.id + '\')" id="chip-' + g.id + '">' +
+        '<i class="fa-solid fa-user-tie" style="font-size:11px"></i>' +
+        g.nome +
+        (g.departamento ? '<span style="font-size:10px;opacity:.7">(' + g.departamento + ')</span>' : '') +
+      '</div>'
+    ).join('');
+  }
+
+  window.toggleGestor = function(id) {
+    if (gestoresSelecionados.has(id)) gestoresSelecionados.delete(id);
+    else gestoresSelecionados.add(id);
+    renderGestoresChips();
+  };
+
+  // ─── SALVAR ───────────────────────────────────────────────────────────────────
+
+  window.salvarCampanha = async function() {
+    const nome     = document.getElementById('f-nome').value.trim();
+    const descricao = document.getElementById('f-descricao').value.trim();
+    const inicio   = document.getElementById('f-inicio').value;
+    const fim      = document.getElementById('f-fim').value;
+    const tipoAlvo = document.getElementById('f-alvo').value;
+
+    if (!nome)   { showToast('Informe o nome da campanha.', 'error'); return; }
+    if (!inicio) { showToast('Informe a data de inicio.', 'error'); return; }
+    if (!fim)    { showToast('Informe a data de fim.', 'error'); return; }
+    if (new Date(fim) <= new Date(inicio)) { showToast('Data de fim deve ser posterior ao inicio.', 'error'); return; }
+
+    // Valida competencias
+    if (!competenciasSelecionadas.size) { showToast('Selecione pelo menos 1 competencia de avaliacao.', 'error'); return; }
+
+    const payload = {
+      nome,
+      descricao: descricao || null,
+      dataInicio: inicio,
+      dataFim: fim,
+      tipoAlvo,
+      competencyIds: Array.from(competenciasSelecionadas),
+      gestorIds: Array.from(gestoresSelecionados)
+    };
+
+    const btn = document.getElementById('btn-salvar');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+
+    try {
+      if (editandoId) {
+        await campaignsApi.update(editandoId, payload);
+        showToast('Campanha atualizada com sucesso!', 'success');
+      } else {
+        await campaignsApi.create(payload);
+        showToast('Campanha criada com sucesso!', 'success');
+      }
+      voltarParaLista();
+      await carregarCampanhas();
+    } catch (e) {
+      showToast(e.message || 'Erro ao salvar campanha.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-save"></i> <span id="btn-salvar-txt">' + (editandoId ? 'Salvar Alteracoes' : 'Criar Campanha') + '</span>';
+    }
+  };
+
+  // ─── EDITAR ───────────────────────────────────────────────────────────────────
+
+  window.editarCampanha = async function(id) {
+    try {
+      const res = await campaignsApi.getById(id);
+      await abrirFormulario(res.data);
+    } catch (e) { showToast(e.message || 'Erro ao carregar campanha.', 'error'); }
+  };
+
+  // ─── INIT ─────────────────────────────────────────────────────────────────────
+  carregarCampanhas();
+</script>
+</body>
+</html>

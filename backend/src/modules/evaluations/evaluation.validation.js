@@ -1,43 +1,25 @@
 import Joi from 'joi';
 
+// Critérios são dinâmicos (definidos pela campanha), então aceitamos qualquer objeto
+// com chaves string e valores numéricos. A validação de escala é feita no service.
 const createEvaluationSchema = Joi.object({
+  campaignId: Joi.string().uuid().required(),
   avaliadoId: Joi.string().uuid().required(),
-  criterios: Joi.object({
-    pontualidade: Joi.number().min(1).max(5).required(),
-    comunicacao: Joi.number().min(1).max(5).required(),
-    tecnico: Joi.number().min(1).max(5).required(),
-    proatividade: Joi.number().min(1).max(5).required(),
-    equipe: Joi.number().min(1).max(5).required()
-  }).required(),
+  // criterios: { [nomeCriterio]: nota (number) }
+  criterios: Joi.object().pattern(
+    Joi.string(),
+    Joi.number().min(1).max(10)
+  ).min(1).required(),
   comentario: Joi.string().optional().allow('', null),
-  anonima: Joi.boolean().optional().default(true) // Anônima por padrão
-});
-
-const createCommentEvaluationSchema = Joi.object({
-  avaliadoId: Joi.string().uuid().required(),
-  comentario: Joi.string().min(20).required()
-    .messages({
-      'string.min': 'Comentário deve ter no mínimo 20 caracteres'
-    }),
-  anonima: Joi.boolean().optional().default(true) // Anônima por padrão
+  anonima: Joi.boolean().optional().default(true)
 });
 
 const updateEvaluationSchema = Joi.object({
-  criterios: Joi.object().optional(),
-  media: Joi.number().min(0).max(5).optional(),
+  criterios: Joi.object().pattern(
+    Joi.string(),
+    Joi.number().min(1).max(10)
+  ).optional(),
   comentario: Joi.string().optional().allow('', null)
-});
+}).min(1);
 
-const queryEvaluationSchema = Joi.object({
-  page: Joi.number().integer().min(1).optional(),
-  limit: Joi.number().integer().min(1).max(100).optional(),
-  tipoAvaliacao: Joi.string().valid('gestor_para_colaborador', 'colaborador_para_gestor', 'avaliacao_360').optional(),
-  avaliadoId: Joi.string().uuid().optional()
-});
-
-export {
-  createEvaluationSchema,
-  createCommentEvaluationSchema,
-  updateEvaluationSchema,
-  queryEvaluationSchema
-};
+export { createEvaluationSchema, updateEvaluationSchema };

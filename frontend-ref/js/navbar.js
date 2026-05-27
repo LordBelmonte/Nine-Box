@@ -44,6 +44,15 @@ function aplicarPermissoesNav() {
   const user = getUser();
   if (!user) return;
 
+  // Colaboradores não veem o navbar
+  if (isColaborador()) {
+    const navbar = document.querySelector('.navbar');
+    if (navbar) {
+      navbar.style.display = 'none';
+    }
+    return;
+  }
+
   // Elementos visíveis apenas para administradores
   document.querySelectorAll('[data-role="admin"]').forEach(el => {
     el.style.display = isAdmin() ? '' : 'none';
@@ -52,6 +61,11 @@ function aplicarPermissoesNav() {
   // Elementos visíveis para gestores e administradores
   document.querySelectorAll('[data-role="gestorOrAdmin"]').forEach(el => {
     el.style.display = isGestorOrAdmin() ? '' : 'none';
+  });
+
+  // Elementos visíveis apenas para colaboradores
+  document.querySelectorAll('[data-role="colaborador"]').forEach(el => {
+    el.style.display = isColaborador() ? '' : 'none';
   });
 }
 

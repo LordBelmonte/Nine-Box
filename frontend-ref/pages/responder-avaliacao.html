@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responder Avaliação</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<header>
+  <h2 id="page-title">Responder Avaliação</h2>
+  <button id="dark-mode-btn" onclick="toggleDarkMode()" title="Modo escuro">
+    <i class="fa-solid fa-moon"></i>
+  </button>
+  <div class="user-menu" id="user-menu">
+    <div class="user" id="user-btn" onclick="toggleUserMenu()" title="Minha conta">
+      <i class="fa-solid fa-user" aria-hidden="true"></i>
+    </div>
+    <div class="user-dropdown" id="user-dropdown">
+      <div class="user-dropdown-info" id="user-dropdown-info">
+        <div class="user-dropdown-avatar" id="user-dropdown-avatar">
+          <i class="fa-solid fa-user"></i>
+        </div>
+        <div>
+          <div class="user-dropdown-nome" id="user-dropdown-nome">Carregando...</div>
+          <div class="user-dropdown-tipo" id="user-dropdown-tipo"></div>
+        </div>
+      </div>
+      <div class="user-dropdown-divider"></div>
+      <a href="../perfil.html" class="user-dropdown-item">
+        <i class="fa-solid fa-user-pen"></i> Meu Perfil
+      </a>
+      <button class="user-dropdown-item user-dropdown-sair" id="btn-sair-header" onclick="sairDaConta()" style="display:none">
+        <i class="fa-solid fa-right-from-bracket"></i> Sair da conta
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="navbar">
+  <ul class="navbar-nav">
+    <li class="navbar-item"><a href="../index.html" class="navbar-link"><i class="fa-solid fa-home"></i><span>Inicio</span></a></li>
+    <li class="navbar-item" data-role="admin"><a href="cadastrar.html" class="navbar-link"><i class="fa-solid fa-user-plus"></i><span>Cadastrar</span></a></li>
+    <li class="navbar-item" data-role="gestorOrAdmin"><a href="consultar.html" class="navbar-link"><i class="fa-solid fa-magnifying-glass"></i><span>Consultar</span></a></li>
+    <li class="navbar-item navbar-item-dropdown">
+      <a href="#" class="navbar-link navbar-link-dropdown" onclick="toggleSubmenu(event, this)">
+        <i class="fa-solid fa-star"></i><span>Avaliacoes</span><i class="fa-solid fa-chevron-down navbar-chevron"></i>
+      </a>
+      <ul class="navbar-submenu">
+        <li data-role="admin"><a href="campanhas.html" class="navbar-submenu-link"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
+        <li><a href="avaliacoes.html" class="navbar-submenu-link active"><i class="fa-solid fa-star"></i> Avaliacoes</a></li>
+        <li data-role="gestorOrAdmin"><a href="nine-box.html" class="navbar-submenu-link"><i class="fa-solid fa-th"></i> Nine Box</a></li>
+        <li><a href="competencias.html" class="navbar-submenu-link"><i class="fa-solid fa-clipboard-check"></i> Competencias</a></li>
+      </ul>
+    </li>
+    <li class="navbar-item" data-role="gestorOrAdmin"><a href="grupos.html" class="navbar-link"><i class="fa-solid fa-users"></i><span>Grupos</span></a></li>
+    <li class="navbar-item"><a href="relatorios.html" class="navbar-link"><i class="fa-solid fa-chart-bar"></i><span>Relatorios</span></a></li>
+    <li class="navbar-item"><a href="../perfil.html" class="navbar-link"><i class="fa-solid fa-user"></i><span>Perfil</span></a></li>
+  </ul>
+</nav>
+
+<style>
+  .avaliacao-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 20px;
+  }
+
+  .avaliacao-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .avaliacao-header h2 {
+    color: var(--primary);
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .avaliacao-header p {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--border);
+    border-radius: 4px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), #6366f1);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .progress-text {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .competencia-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid var(--border);
+  }
+
+  .competencia-titulo {
+    color: var(--primary);
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .competencia-descricao {
+    text-align: center;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 20px;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  .categoria-group {
+    margin-bottom: 16px;
+  }
+
+  .categorias-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .categoria-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+
+  .categoria-header.ideal {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+
+  .categoria-header.bom {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+
+  .categoria-header.mediano {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+
+  .categoria-header.melhorar {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+
+  .categoria-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+  }
+
+  .categoria-icon.ideal {
+    background: linear-gradient(135deg, #10b981, #059669);
+  }
+
+  .categoria-icon.bom {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+  }
+
+  .categoria-icon.mediano {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+  }
+
+  .categoria-icon.melhorar {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+  }
+
+  .categoria-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .categoria-description {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .radio-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .radio-group input[type="radio"] {
+    display: none;
+  }
+
+  .radio-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 10px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    flex: 1;
+  }
+
+  .radio-option:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .radio-option.selected {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, var(--primary), #6366f1);
+    color: white;
+  }
+
+  .radio-option-value {
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .radio-option-label {
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.8;
+  }
+
+  .radio-option.selected .radio-option-label {
+    opacity: 1;
+  }
+
+  .categoria-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 16px 0;
+  }
+
+  .observacoes-container {
+    margin-top: 20px;
+  }
+
+  .observacoes-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .observacoes-label i {
+    color: var(--primary);
+  }
+
+  .observacoes-container textarea {
+    width: 100%;
+    height: 60px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    resize: vertical;
+    background: var(--bg);
+    color: var(--text);
+    transition: all 0.2s ease;
+  }
+
+  .observacoes-container textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+
+  .observacoes-container textarea::placeholder {
+    color: var(--text-muted);
+  }
+
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .page-number {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    transition: all 0.2s ease;
+  }
+
+  .page-number:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-1px);
+  }
+
+  .page-number.active {
+    background: linear-gradient(135deg, var(--primary), #6366f1);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  .buttons-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+  }
+
+  .btn-voltar,
+  .btn-proximo {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-voltar {
+    background: white;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+  }
+
+  .btn-voltar:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-proximo {
+    background: linear-gradient(135deg, var(--primary), #6366f1);
+    color: white;
+  }
+
+  .btn-proximo:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+  }
+
+  .btn-proximo:disabled {
+    background: var(--text-muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .modal-overlay.show {
+    display: flex;
+  }
+
+  .modal {
+    background: var(--surface);
+    padding: 48px;
+    border-radius: 24px;
+    max-width: 520px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+  }
+
+  .modal h3 {
+    color: var(--primary);
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  .modal p {
+    color: var(--text-muted);
+    font-size: 17px;
+    margin-bottom: 36px;
+    line-height: 1.6;
+  }
+
+  .modal-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  .btn-modal {
+    padding: 16px 36px;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-modal-cancel {
+    background: var(--bg);
+    color: var(--text);
+    border: 2px solid var(--border);
+  }
+
+  .btn-modal-cancel:hover {
+    background: var(--border);
+  }
+
+  .btn-modal-confirm {
+    background: linear-gradient(135deg, var(--primary), #6366f1);
+    color: white;
+  }
+
+  .btn-modal-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 100px 20px;
+    color: var(--text-muted);
+  }
+
+  .empty-state i {
+    font-size: 72px;
+    margin-bottom: 28px;
+    color: var(--primary-light);
+  }
+
+  .empty-state h3 {
+    font-size: 26px;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+</style>
+
+<main class="wrapper">
+  <div class="avaliacao-container">
+    <div class="avaliacao-header">
+      <h2 id="campanha-nome">Carregando...</h2>
+      <p>Avaliação de competências 180°</p>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+    </div>
+    <div class="progress-text" id="progress-text">0 de 0 competências respondidas</div>
+
+    <div id="competencias-content">
+      <!-- Competências serão geradas dinamicamente -->
+    </div>
+
+    <div class="pagination-container" id="pagination-container">
+      <!-- Paginação será gerada dinamicamente -->
+    </div>
+
+    <div class="buttons-container">
+      <button class="btn-voltar" id="btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+      <button class="btn-proximo" id="btn-proximo">Próxima <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+  </div>
+</main>
+
+<!-- Modal de finalização -->
+<div class="modal-overlay" id="modal-finalizar">
+  <div class="modal">
+    <h3>Finalizar Avaliação</h3>
+    <p>Você está prestes a finalizar sua avaliação. Deseja continuar?</p>
+    <div class="modal-buttons">
+      <button class="btn-modal btn-modal-cancel" id="btn-cancelar-finalizar">Cancelar</button>
+      <button class="btn-modal btn-modal-confirm" id="btn-confirmar-finalizar">Sim, Finalizar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { requireAuth, getUser, isColaborador } from '../js/auth.js';
+  import { campaignsApi, evaluationsApi, competenciesApi } from '../js/api.js';
+  import '../js/navbar.js';
+
+  requireAuth();
+
+  const user = getUser();
+  const campaignId = localStorage.getItem('campaignId');
+  
+  // Se for colaborador, esconder header e navbar
+  if (isColaborador()) {
+    document.body.classList.add('colaborador-mode');
+    const header = document.querySelector('header');
+    const navbar = document.querySelector('.navbar');
+    if (header) header.style.display = 'none';
+    if (navbar) navbar.style.display = 'none';
+  }
+  
+  let competencies = [];
+  let currentPage = 0;
+  const itemsPerPage = 1;
+  let respostas = {};
+
+  async function loadCampaign() {
+    try {
+      const response = await campaignsApi.getById(campaignId);
+      const campaign = response.data;
+      console.log('Campanha carregada:', campaign);
+      console.log('Competências da campanha:', campaign.competencias);
+      document.getElementById('campanha-nome').textContent = campaign.nome;
+      
+      // Salvar a campanha para uso posterior
+      window.currentCampaign = campaign;
+      
+      // Carregar competências da campanha
+      if (campaign.competencias && campaign.competencias.length > 0) {
+        competencies = campaign.competencias.map(cc => cc.competency);
+        console.log('Competências mapeadas:', competencies);
+        renderCompetencias();
+      } else {
+        console.log('Nenhuma competência associada');
+        document.getElementById('competencias-content').innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-clipboard-list"></i>
+            <h3>Nenhuma competência associada</h3>
+            <p>Esta campanha não possui competências associadas.</p>
+          </div>
+        `;
+      }
+    } catch (error) {
+      console.error('Erro ao carregar campanha:', error);
+      document.getElementById('competencias-content').innerHTML = `
+        <div class="empty-state">
+          <i class="fa-solid fa-exclamation-circle"></i>
+          <h3>Erro ao carregar avaliação</h3>
+          <p>Não foi possível carregar a avaliação. Tente novamente mais tarde.</p>
+        </div>
+      `;
+    }
+  }
+
+  async function loadCompetencies() {
+    // Esta função não é mais necessária, pois as competências são carregadas diretamente da campanha
+  }
+
+  function saveResposta(idCompetencia, valor) {
+    const observacaoExistente = respostas[idCompetencia]?.observacao || '';
+    respostas[idCompetencia] = {
+      valor,
+      observacao: observacaoExistente
+    };
+    localStorage.setItem('respostas_avaliacao', JSON.stringify(respostas));
+  }
+
+  function saveObservacao(idCompetencia) {
+    const textarea = document.getElementById(`observacao_${idCompetencia}`);
+    const texto = textarea.value;
+    const valorExistente = respostas[idCompetencia]?.valor || '';
+    
+    respostas[idCompetencia] = {
+      valor: valorExistente,
+      observacao: texto
+    };
+    localStorage.setItem('respostas_avaliacao', JSON.stringify(respostas));
+  }
+
+  function renderCompetencias() {
+    const container = document.getElementById('competencias-content');
+    container.innerHTML = '';
+
+    const startIndex = currentPage * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, competencies.length);
+    const currentCompetencies = competencies.slice(startIndex, endIndex);
+
+    currentCompetencies.forEach((competencia) => {
+      const idCompetencia = competencia.id;
+      const observacao = respostas[idCompetencia]?.observacao || "";
+
+      const card = document.createElement('div');
+      card.className = 'competencia-card';
+
+      const radioChecked = (valor) => respostas[idCompetencia]?.valor == valor ? 'checked' : '';
+
+      const categorias = [
+        { 
+          titulo: competencia.ideal || 'Ideal', 
+          valores: [4.9, 4.5, 4.1], 
+          icon: 'fa-solid fa-star',
+          class: 'ideal',
+          descricao: 'Desempenho excepcional, supera todas as expectativas'
+        },
+        { 
+          titulo: competencia.bom || 'Bom', 
+          valores: [3.9, 3.5, 3.1], 
+          icon: 'fa-solid fa-thumbs-up',
+          class: 'bom',
+          descricao: 'Desempenho sólido e consistente'
+        },
+        { 
+          titulo: competencia.mediano || 'Mediano', 
+          valores: [2.9, 2.5, 2.1], 
+          icon: 'fa-solid fa-minus',
+          class: 'mediano',
+          descricao: 'Desempenho dentro do esperado'
+        },
+        { 
+          titulo: competencia.a_melhorar || 'A melhorar', 
+          valores: [1.9, 1.5, 1.1], 
+          icon: 'fa-solid fa-arrow-trend-down',
+          class: 'melhorar',
+          descricao: 'Precisa de desenvolvimento'
+        }
+      ];
+
+      card.innerHTML = `
+        <div class="competencia-titulo">${competencia.nome}</div>
+        <div class="competencia-descricao">${competencia.descricao || ''}</div>
+        
+        <div class="categorias-grid">
+          ${categorias.map(({ titulo, valores, icon, class: catClass, descricao }, index) => `
+            <div class="categoria-group">
+              <div class="categoria-header ${catClass}">
+                <div class="categoria-icon ${catClass}"><i class="${icon}"></i></div>
+                <div>
+                  <div class="categoria-title">${titulo}</div>
+                  <div class="categoria-description">${descricao}</div>
+                </div>
+              </div>
+              <div class="radio-group" id="radio-group-${idCompetencia}-${index}">
+                ${valores.map((valor, valIndex) => `
+                  <label class="radio-option ${radioChecked(valor) ? 'selected' : ''}" data-valor="${valor}">
+                    <input type="radio" name="competencia_${idCompetencia}" value="${valor}" ${radioChecked(valor)}>
+                    <span class="radio-option-value">${valor}</span>
+                    <span class="radio-option-label">${['Alto', 'Médio-Alto', 'Médio'][valIndex]}</span>
+                  </label>
+                `).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="observacoes-container">
+          <div class="observacoes-label"><i class="fa-solid fa-comment-dots"></i> Observações (opcional)</div>
+          <textarea id="observacao_${idCompetencia}" placeholder="Adicione suas observações aqui...">${observacao}</textarea>
+        </div>
+      `;
+
+      container.appendChild(card);
+
+      // Adicionar event listeners aos radio inputs
+      const radioInputs = card.querySelectorAll(`input[name="competencia_${idCompetencia}"]`);
+      radioInputs.forEach(input => {
+        input.addEventListener('change', (e) => {
+          const valor = parseFloat(e.target.value);
+          saveResposta(idCompetencia, valor);
+          
+          // Atualizar visualmente
+          const radioOptions = card.querySelectorAll('.radio-option');
+          radioOptions.forEach(option => {
+            option.classList.remove('selected');
+          });
+          e.target.closest('.radio-option').classList.add('selected');
+          updateProgress();
+        });
+      });
+
+      // Adicionar event listener ao textarea
+      const textarea = card.querySelector(`#observacao_${idCompetencia}`);
+      textarea.addEventListener('change', () => {
+        saveObservacao(idCompetencia);
+      });
+    });
+
+    renderPagination();
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const total = competencies.length;
+    const respondidas = Object.keys(respostas).filter(id => respostas[id]?.valor).length;
+    const porcentagem = total > 0 ? (respondidas / total) * 100 : 0;
+    
+    document.getElementById('progress-fill').style.width = `${porcentagem}%`;
+    document.getElementById('progress-text').textContent = `${respondidas} de ${total} competências respondidas`;
+  }
+
+  function renderPagination() {
+    const totalPages = Math.ceil(competencies.length / itemsPerPage);
+    const paginationContainer = document.getElementById('pagination-container');
+    paginationContainer.innerHTML = '';
+
+    for (let i = 0; i < totalPages; i++) {
+      const pageNumber = document.createElement('div');
+      pageNumber.className = `page-number ${i === currentPage ? 'active' : ''}`;
+      pageNumber.textContent = i + 1;
+      pageNumber.addEventListener('click', () => {
+        currentPage = i;
+        renderCompetencias();
+      });
+      paginationContainer.appendChild(pageNumber);
+    }
+  }
+
+  function verificaSeTodasRespondidas() {
+    console.log(respostas);
+    return competencies.every(comp => respostas[comp.id]?.valor);
+  }
+
+  // Botão próximo
+  document.getElementById('btn-proximo').addEventListener('click', () => {
+    const totalPages = Math.ceil(competencies.length / itemsPerPage);
+
+    if (currentPage < totalPages - 1) {
+      currentPage++;
+      renderCompetencias();
+    } else {
+      if (verificaSeTodasRespondidas()) {
+        document.getElementById('modal-finalizar').classList.add('show');
+      } else {
+        alert('Por favor, preencha todas as competências antes de finalizar.');
+      }
+    }
+  });
+
+  // Botão voltar
+  document.getElementById('btn-voltar').addEventListener('click', () => {
+    if (currentPage > 0) {
+      currentPage--;
+      renderCompetencias();
+    } else {
+      window.location.href = 'avaliacao-orientacoes.html';
+    }
+  });
+
+  // Modal cancelar
+  document.getElementById('btn-cancelar-finalizar').addEventListener('click', () => {
+    document.getElementById('modal-finalizar').classList.remove('show');
+  });
+
+  // Modal confirmar
+  document.getElementById('btn-confirmar-finalizar').addEventListener('click', async () => {
+    try {
+      // Converter respostas para formato esperado pelo backend
+      const criterios = {};
+      Object.keys(respostas).forEach(id => {
+        const competencia = competencies.find(c => c.id == id);
+        if (competencia) {
+          criterios[competencia.nome] = respostas[id]?.valor;
+        }
+      });
+
+      // Determinar avaliadoId baseado no tipo da campanha
+      const campaign = window.currentCampaign;
+      console.log('Campanha completa:', campaign);
+      console.log('tipoAlvo:', campaign.tipoAlvo);
+      console.log('gestores:', campaign.gestores);
+      
+      let avaliadoId;
+      
+      if (campaign.tipoAlvo === 'gestor') {
+        // Colaborador avaliando gestor - pegar o primeiro gestor associado à campanha
+        if (campaign.gestores && campaign.gestores.length > 0) {
+          avaliadoId = campaign.gestores[0].gestorId;
+        } else {
+          throw new Error('Nenhum gestor associado à campanha');
+        }
+      } else if (campaign.tipoAlvo === 'colaborador') {
+        // Gestor avaliando colaborador - usar o próprio usuário como avaliado (colaborador)
+        // Isso precisa ser ajustado baseado em como o sistema funciona
+        avaliadoId = user.userId;
+      } else {
+        // Fallback para o próprio usuário
+        avaliadoId = user.userId;
+      }
+
+      console.log('avaliadoId determinado:', avaliadoId);
+
+      const payload = {
+        campaignId,
+        avaliadoId,
+        criterios,
+        comentario: Object.values(respostas).map(r => r.observacao).filter(o => o).join('; ') || null,
+        anonima: true
+      };
+
+      console.log('Enviando payload:', payload);
+      await evaluationsApi.create(payload);
+
+      localStorage.removeItem('respostas_avaliacao');
+      localStorage.removeItem('campaignId');
+
+      window.location.href = 'avaliacao-agradecimentos.html';
+    } catch (error) {
+      console.error('Erro ao enviar avaliação:', error);
+      // Usar toast em vez de alert
+      if (typeof showToast === 'function') {
+        showToast('Erro ao enviar avaliação: ' + (error.message || 'Tente novamente.'), 'error');
+      } else {
+        console.error('Detalhes do erro:', error);
+      }
+    }
+  });
+
+  // Carregar respostas salvas
+  const savedRespostas = localStorage.getItem('respostas_avaliacao');
+  if (savedRespostas) {
+    respostas = JSON.parse(savedRespostas);
+  }
+
+  // Expor funções para uso global
+  window.saveResposta = saveResposta;
+  window.saveObservacao = saveObservacao;
+
+  // Carregar campanha ao iniciar
+  if (campaignId) {
+    loadCampaign();
+  } else {
+    window.location.href = 'avaliacoes.html';
+  }
+</script>
+
+</body>
+</html>

@@ -608,6 +608,6 @@ document.addEventListener('click', (e) => {
 // HELPERS
 // =============================================
 export function tipoLabel(tipo) {
-  const labels = { admin: 'Administrador', gestor: 'Gestor', colaborador: 'Colaborador' };
+  const labels = { admin: 'Gestor', gestor: 'Gestor', colaborador: 'Colaborador' };
   return labels[tipo] || tipo;
 }

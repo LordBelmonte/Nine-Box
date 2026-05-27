@@ -9,6 +9,65 @@
   padding: 40px 24px;
 }
 
+.avaliacoes-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.avaliacoes-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.avaliacoes-tabela th {
+  text-align: left;
+  padding: 12px;
+  background: var(--bg);
+  border-bottom: 2px solid var(--border);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.avaliacoes-tabela td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text);
+}
+
+.avaliacoes-tabela tr:hover {
+  background: var(--bg);
+}
+
+.avaliacoes-tabela tr.selected {
+  background: #eff6ff;
+  border-left: 3px solid var(--primary);
+}
+
+.btn-sair {
+  padding: 6px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.btn-sair:hover {
+  background: #f1f5f9;
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 /* ---- CARDS ---- */
 .av-form-card,
 .av-historico-card {

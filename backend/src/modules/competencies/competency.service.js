@@ -22,6 +22,20 @@ class CompetencyService {
       throw new AppError('A competência deve ter entre 1 e 10 critérios', 400);
     }
 
+    // Valida descrições textuais se fornecidas
+    if (data.ideal && typeof data.ideal !== 'string') {
+      throw new AppError('Descrição ideal deve ser texto', 400);
+    }
+    if (data.bom && typeof data.bom !== 'string') {
+      throw new AppError('Descrição bom deve ser texto', 400);
+    }
+    if (data.mediano && typeof data.mediano !== 'string') {
+      throw new AppError('Descrição mediano deve ser texto', 400);
+    }
+    if (data.a_melhorar && typeof data.a_melhorar !== 'string') {
+      throw new AppError('Descrição a_melhorar deve ser texto', 400);
+    }
+
     const competency = await this.competencyRepository.create(data);
     return competency;
   }
@@ -76,6 +90,20 @@ class CompetencyService {
     // Valida número de critérios se estiver atualizando
     if (data.criterios && (data.criterios.length < 1 || data.criterios.length > 10)) {
       throw new AppError('A competência deve ter entre 1 e 10 critérios', 400);
+    }
+
+    // Valida descrições textuais se fornecidas
+    if (data.ideal && typeof data.ideal !== 'string') {
+      throw new AppError('Descrição ideal deve ser texto', 400);
+    }
+    if (data.bom && typeof data.bom !== 'string') {
+      throw new AppError('Descrição bom deve ser texto', 400);
+    }
+    if (data.mediano && typeof data.mediano !== 'string') {
+      throw new AppError('Descrição mediano deve ser texto', 400);
+    }
+    if (data.a_melhorar && typeof data.a_melhorar !== 'string') {
+      throw new AppError('Descrição a_melhorar deve ser texto', 400);
     }
 
     return this.competencyRepository.update(id, data);

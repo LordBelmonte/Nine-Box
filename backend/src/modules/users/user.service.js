@@ -23,11 +23,19 @@ class UserService {
     // Hash da senha
     const hashedPassword = await bcrypt.hash(data.senha, 10);
 
+    // Extrai gestorId se fornecido (não vai para tabela User)
+    const { gestorId, ...userData } = data;
+
     // Cria usuário
     const user = await this.userRepository.create({
-      ...data,
+      ...userData,
       senha: hashedPassword
     });
+
+    // Se for colaborador e gestorId foi fornecido, cria associação
+    if (userData.tipo === 'colaborador' && gestorId) {
+      await this.userRepository.addGestorColaborador(gestorId, user.id);
+    }
 
     // Remove senha da resposta
     delete user.senha;

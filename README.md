@@ -6,49 +6,102 @@ Sistema de avaliação de desempenho com avaliações 180° e 360°, Nine Box e 
 
 Backend conectado ao PostgreSQL. Sistema funcionando com dados reais.
 
-## O que é
+## Como rodar após clonar do GitHub
 
-Projeto com:
-- Frontend: HTML, CSS e JavaScript
-- Backend: Node.js + Express + Prisma
-- Banco: PostgreSQL
-- Auth: JWT
-
-## Como rodar
-
-### Backend
+### 1. Clonar o repositório
 
 ```bash
-cd backend
-npm install
-npm run dev
+git clone <url-do-repositorio>
+cd nineboxfix
 ```
 
-Vai rodar em http://localhost:3000
-
-### Popular o banco
+### 2. Configurar Backend
 
 ```bash
 cd backend
+```
+
+#### 2.1 Instalar dependências
+
+```bash
+npm install
+```
+
+#### 2.2 Configurar variáveis de ambiente
+
+Copie o arquivo `.env.example` para `.env` e configure com suas credenciais:
+
+```bash
+cp .env.example .env
+```
+
+Edite o arquivo `.env` com suas configurações do PostgreSQL:
+
+```env
+PORT=3000
+DIRECT_URL="postgresql://usuario:senha@localhost:5432/nome_banco"
+DATABASE_URL="postgresql://usuario:senha@localhost:5432/nome_banco"
+JWT_SECRET="sua_chave_secreta_aqui"
+JWT_EXPIRES_IN=30d
+NODE_ENV=development
+FRONTEND_URL=http://localhost:5500
+```
+
+#### 2.3 Rodar migrations do Prisma
+
+```bash
+npm run prisma:generate
+npm run prisma:migrate
+```
+
+#### 2.4 Popular o banco com dados de teste
+
+```bash
 npm run prisma:seed
 ```
 
-### Frontend
+#### 2.5 Iniciar o backend
 
-Abrir no navegador: `frontend-ref/pages/login.html`
+```bash
+npm run dev
+```
 
-Usuários de teste:
-- Admin: `admin@eniac.edu.br` / `admin123`
-- Gestor: `joao.silva@eniac.edu.br` / `senha123`
-- Colaborador: `ana.costa@eniac.edu.br` / `senha123`
+O backend rodará em http://localhost:3000
+
+### 3. Configurar Frontend
+
+O frontend é estático e não precisa de instalação. Basta abrir no navegador:
+
+```bash
+# Opção 1: Abrir diretamente no navegador
+# Navegue para: frontend-ref/pages/login.html
+
+# Opção 2: Usar um servidor estático (recomendado)
+# Com Python 3:
+cd frontend-ref
+python -m http.server 5500
+
+# Com Node.js (http-server):
+npx http-server -p 5500
+```
+
+Acesse: http://localhost:5500/pages/login.html
+
+### 4. Usuários de teste
+
+- **Admin**: `admin@eniac.edu.br` / `admin123`
+- **Gestor TI**: `joao@eniac.edu.br` / `senha123`
+- **Gestor RH**: `maria@eniac.edu.br` / `senha123`
+- **Colaboradores**: `ana@eniac.edu.br`, `pedro@eniac.edu.br`, `carla@eniac.edu.br`, `lucas@eniac.edu.br`, `beatriz@eniac.edu.br` / `senha123`
 
 ## Estrutura
 
 ```
-myversion/
+nineboxfix/
 ├── backend/                    # API Node.js
 │   ├── src/modules/           # Módulos (users, evaluations, etc)
 │   ├── prisma/                # Schema e migrations
+│   ├── .env.example          # Exemplo de configuração
 │   └── README.md
 │
 ├── frontend-ref/              # Interface
@@ -78,27 +131,6 @@ myversion/
 - `GUIA_COMPETENCIES.md` - API de Competências
 - `GUIA_REPORTS.md` - API de Relatórios
 
-## Configuração
-
-### Backend (.env)
-
-```env
-PORT=3000
-DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
-JWT_SECRET="seu_secret"
-JWT_EXPIRES_IN=30d
-```
-
-### Frontend (config.js)
-
-```javascript
-const CONFIG = {
-  API_BASE_URL: 'http://localhost:3000/api',
-  TOKEN_KEY: 'portal_token',
-  USER_KEY: 'portal_user',
-};
-```
-
 ## Funcionalidades
 
 - Avaliação 180° (Gestor → Colaborador)
@@ -126,6 +158,11 @@ npm run prisma:seed
 **Token inválido**
 - Fazer logout e login de novo
 - Limpar localStorage (F12 → Application → Local Storage)
+
+**Erro de conexão com banco**
+- Verifique se o PostgreSQL está rodando
+- Verifique as credenciais no arquivo `.env`
+- Verifique se o banco de dados existe
 
 ## Tech Stack
 

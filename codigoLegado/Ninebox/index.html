@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Automação NineBox</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <link rel="stylesheet" href="CSS/estilo1.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+
+<body>
+
+  <div class="conteudo">
+
+    <nav class="navbar">
+      <div class="nav-container">
+        <h2>Automação Ninebox</h2>
+      </div>
+    </nav>
+
+
+    <div class="card-login">
+      <div class="login-container pt-4 pb-4 pe-5 ps-5">
+
+        <div class="user-image">
+          <img src="ImagensMenu/icon1.png" alt="Usuario">
+        </div>
+        <div class="login-header d-flex justify-content-center mb-2 mt-3 pt-0" style='color: #1a237e'>
+          <h3>Seja Bem-vindo(a)!</h3>
+        </div>
+
+
+        <form id="loginForm" onsubmit="login(event)">
+          <div class="text-center">
+            <label for="tipoAcesso" class="form-label mt-1">Escolha o tipo de acesso:</label>
+            <hr class="mt-2 mb-3">
+            <div id="tipoAcesso" class="d-flex justify-content-between align-items-center mb-4 ps-5 pe-5">
+
+              <div class="d-flex justify-content-center" style="flex: 1;">
+                <input class="form-check-input" type="radio" name="accessType" id="admin" value="admin" checked>
+                <label class="form-check-label mx-2" for="admin">Administrador</label>
+              </div>
+
+              <div class="d-flex justify-content-center" style="flex: 1;">
+                <input class="form-check-input" type="radio" name="accessType" id="user" value="usuario">
+                <label class="form-check-label mx-2" for="user">Usuário</label>
+              </div>
+
+            </div>
+          </div>
+
+
+
+          <div id="formularioTroca">
+
+          </div>
+
+          <div class="text-center">
+            <button type="submit" class="btn btn-login d-flex-justify-content-start pt-2 pb-2 ps-3 pe-3">Login</button>
+          </div>
+        </form>
+        <div id="recuperacao-container" style="display: none; margin-top: 20px;">
+          <label for="recuperacao-email">Digite seu e-mail:</label>
+          <input type="email" id="recuperacao-email" class="form-control" placeholder="exemplo@email.com">
+          <button class="btn btn-primary mt-2" onclick="recuperarSenha()"
+            style="background-color:#00008B; border: none;">Enviar código de recuperação</button>
+        </div>
+      </div>
+    </div>
+    <footer class="mt-4">
+      © Todos os direitos reservados
+    </footer>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+<script>
+
+  let usuarioSelecionado = "admin";
+
+  //Limpa o localStorage
+  addEventListener("DOMContentLoaded", (event) => {
+    //Limpo o local e session storage para evitar problemas com o funcionamento da aplicação
+    localStorage.clear();
+    sessionStorage.clear();
+    formAdmin();
+
+    //Verifica qual radio input está selecionado
+    var tipoAcesso = document.getElementById("tipoAcesso");
+    tipoAcesso.addEventListener("change", () => {
+      var acesso = tipoAcesso.querySelector('input[name="accessType"]:checked');
+      usuarioSelecionado = acesso.value;
+      console.log('Você selecionou: ', usuarioSelecionado);
+      if (usuarioSelecionado !== 'admin' && usuarioSelecionado !== 'usuario') {
+        console.log('nenhum usuario valido selecionado');
+      } else {
+        if (usuarioSelecionado == 'admin') {
+          console.log('admin selecionado com sucesso');
+          console.log('Aqui você chama uma função a parte que injeta o html no DOM para administrador')
+          formAdmin();
+        } else {
+          console.log('Aqui você chama uma função a parte que injeta o html no DOM para usuario');
+          formUser();
+          formataCPF();
+        }
+      };
+    });
+  });
+
+  function formUser() {
+    document.getElementById('formularioTroca').innerHTML = "";
+    const formularioTroca = `
+    <div class="mb-3">
+                <label for="tipoCargo" class="form-label">Tipo de avaliação:</label>
+                <select class="form-select" id="tipoCargo" name="tipoCargo" required>
+                  <option value="" selected disabled hidden>Selecione</option>
+                  <option value="colaborador">Colaborador</option>
+                  <option value="gestor">Gestor</option>
+                </select>
+              </div>
+    <div class="mb-3">
+          <label for="email" class="form-label">CPF</label>
+          <input type="text" class="form-control" id="cpf" name="cpf" placeholder="Digite o seu CPF"
+             title="Formato: 000.000.000-00" maxlength="14"  required>
+        </div>       
+  `;
+    document.getElementById('formularioTroca').insertAdjacentHTML('afterbegin', formularioTroca);
+  }
+
+  function formAdmin() {
+    document.getElementById('formularioTroca').innerHTML = "";
+    const formularioTroca = `
+    <div class="mb-3">
+          <label for="email" class="form-label">Email / CPF</label>
+          <input type="text" class="form-control" id="email" name="email" placeholder="Digite o seu e-mail ou CPF"
+            required>
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Senha</label>
+          <input type="password" class="form-control" id="password" name="password" placeholder="********" required>
+        </div>
+        
+
+        <div class="forgot-password mb-3 d-flex-justify-content-start">
+          <a href="#" onclick="mostrarRecuperacao()">Esqueci a senha</a>
+        </div>       
+  `;
+    document.getElementById('formularioTroca').insertAdjacentHTML('afterbegin', formularioTroca);
+  }
+
+  function login(event) {
+    event.preventDefault();
+    if (usuarioSelecionado !== 'admin' && usuarioSelecionado !== 'usuario') {
+      console.log('nenhum usuario valido selecionado');
+    } else if (usuarioSelecionado == 'admin') {
+      console.log('Tentativa de login de admin');
+      validaAdmin();
+    } else {
+      console.log('Tentativa de login de usuário');
+      validaUsuario();
+    }
+  }
+
+  function validaCpf(cpf) {
+    console.log("função validaCPF chamada");
+    return cpf.length == 14 ? true : false;
+  }
+
+
+
+  function validaAdmin() {
+    event.preventDefault();
+
+    var email = $('#email').val();
+    var password = $('#password').val();
+    var accessType = $('input[name="accessType"]:checked').val();
+
+    if (!email || !password || !accessType) {
+      alert("Preencha todos os campos: Email/CPF, Senha e Tipo de Acesso.");
+      return;
+    }
+
+    $.ajax({
+      url: 'http://localhost:3001/login',
+      type: 'POST',
+      data: JSON.stringify({
+        email: email,
+        password: password,
+        accessType: accessType
+      }),
+      contentType: 'application/json',
+      success: function (response) {
+        if (response.message === 'Login bem-sucedido') {
+          if (response.tipo === 'admin') {
+            //Adicionado o token para login de administrador
+            sessionStorage.setItem('token', response.token);
+            window.location.href = 'paginas/menu.html';
+          }
+        } else {
+          alert(response.message);
+        }
+      },
+      error: function (xhr) {
+        alert(xhr.responseJSON.message || "Erro ao processar o login.");
+      }
+    });
+  }
+
+  function validaUsuario() {
+    let tipoCargo = document.getElementById("tipoCargo").value;
+    let cpf = document.getElementById("cpf").value;
+
+
+
+    fetch('http://localhost:3001/loginUsuario', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cpf, tipoCargo })
+    })
+
+      .then(res => {
+        if (res.status === 500) {
+          alert(`Erro no servidor, erro: ${res.status}`);
+        } else if (res.status === 401) {
+          alert(`Usuário não autorizado, erro: ${res.status}`);
+        } else if (res.status === 200) {
+          return res.json();
+        }
+      })
+
+      .then(data => {
+        if (!data) {
+          console.log("caiu no erro");
+          return;
+        }
+
+        console.log(data);
+        if (tipoCargo === "colaborador") {
+          sessionStorage.setItem('token', data.token);
+          window.location.href = 'paginas/responderAvaliacao/avaliacao_lista.html';
+        } else {
+          sessionStorage.setItem('token', data.token);
+          window.location.href = 'paginas/responderAvaliacaoGestor/avaliacao_lista_gestor.html'
+        }
+
+      });
+  }
+
+
+  // Formata o CPF enquanto o usuário digita
+  function formataCPF() {
+    $('#cpf').on('input', function () {
+
+      var cpf = $(this).val().replace(/\D/g, '');
+
+      if (cpf.length > 11) {
+        cpf = cpf.substring(0, 11);
+      }
+
+      // Aplica a máscara: 000.000.000-00
+      if (cpf.length > 9) {
+        cpf = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+      } else if (cpf.length > 6) {
+        cpf = cpf.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
+      } else if (cpf.length > 3) {
+        cpf = cpf.replace(/(\d{3})(\d{1,3})/, "$1.$2");
+      }
+
+      $(this).val(cpf);
+    });
+  }
+
+
+  function mostrarRecuperacao() {
+    document.getElementById('recuperacao-container').style.display = 'block';
+  }
+
+  function recuperarSenha() {
+    var email = document.getElementById('recuperacao-email').value;
+
+    if (!email) {
+      alert('Digite seu e-mail!');
+      return;
+    }
+
+    fetch('http://localhost:3001/esqueci-senha', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+      headers: { 'Content-Type': 'application/json' }
+    })
+      .then(response => response.json())
+      .then(data => alert(data.message))
+      .catch(error => console.error('Erro ao recuperar senha:', error));
+  }
+</script>
+
+</html>

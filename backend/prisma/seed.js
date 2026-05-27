@@ -5,16 +5,20 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Iniciando seed do banco de dados...');
-  
+
   console.log('🗑️  Limpando banco...');
   await prisma.evaluation.deleteMany();
+  await prisma.campaignGestor.deleteMany();
+  await prisma.evaluationCampaign.deleteMany();
+  await prisma.gestorColaborador.deleteMany();
   await prisma.nineBox.deleteMany();
   await prisma.competency.deleteMany();
   await prisma.user.deleteMany();
 
+  // ─── Usuários ────────────────────────────────────────────────────────────────
+
   console.log('👥 Criando usuários...');
 
-  // Admin
   const admin = await prisma.user.create({
     data: {
       ra: '1234567',
@@ -27,7 +31,6 @@ async function main() {
     }
   });
 
-  // Gestores
   const gestor1 = await prisma.user.create({
     data: {
       ra: '2021001',
@@ -52,7 +55,6 @@ async function main() {
     }
   });
 
-  // Colaboradores
   const colaborador1 = await prisma.user.create({
     data: {
       ra: '2022001',
@@ -97,280 +99,307 @@ async function main() {
       senha: await bcrypt.hash('senha123', 10),
       tipo: 'colaborador',
       cargo: 'Designer',
-      departamento: 'Marketing'
+      departamento: 'RH'
     }
   });
 
   const colaborador5 = await prisma.user.create({
     data: {
       ra: '2022005',
-      nome: 'Juliana Rocha',
-      email: 'juliana@eniac.edu.br',
+      nome: 'Beatriz Lima',
+      email: 'beatriz@eniac.edu.br',
       senha: await bcrypt.hash('senha123', 10),
       tipo: 'colaborador',
-      cargo: 'Analista de Marketing',
-      departamento: 'Marketing'
+      cargo: 'Analista de Sistemas',
+      departamento: 'TI'
     }
   });
 
-  console.log('📝 Criando competências...');
+  console.log('✅ Usuários criados');
 
-  // Competências de Gestor
-  await prisma.competency.create({
+  // ─── Grupos gestor → colaboradores ───────────────────────────────────────────
+
+  console.log('👥 Criando grupos...');
+
+  // Grupo do gestor1 (TI): colaborador1, colaborador2, colaborador5
+  await prisma.gestorColaborador.createMany({
+    data: [
+      { gestorId: gestor1.id, colaboradorId: colaborador1.id },
+      { gestorId: gestor1.id, colaboradorId: colaborador2.id },
+      { gestorId: gestor1.id, colaboradorId: colaborador5.id }
+    ]
+  });
+
+  // Grupo do gestor2 (RH): colaborador3, colaborador4
+  await prisma.gestorColaborador.createMany({
+    data: [
+      { gestorId: gestor2.id, colaboradorId: colaborador3.id },
+      { gestorId: gestor2.id, colaboradorId: colaborador4.id }
+    ]
+  });
+
+  console.log('✅ Grupos criados');
+
+  // ─── Competências ─────────────────────────────────────────────────────────────
+
+  console.log('📚 Criando competências...');
+
+  await prisma.competency.createMany({
+    data: [
+      {
+        nome: 'Liderança',
+        descricao: 'Capacidade de liderar e motivar equipes',
+        tipo: 'lideranca',
+        competenciaDe: 'gestor',
+        criterios: ['Delegar tarefas', 'Motivar equipe', 'Tomar decisões', 'Dar feedback']
+      },
+      {
+        nome: 'Comunicação',
+        descricao: 'Clareza e efetividade na comunicação',
+        tipo: 'comportamento',
+        competenciaDe: 'todos',
+        criterios: ['Clareza oral', 'Clareza escrita', 'Escuta ativa']
+      },
+      {
+        nome: 'Trabalho em Equipe',
+        descricao: 'Colaboração e sinergia com colegas',
+        tipo: 'comportamento',
+        competenciaDe: 'colaborador',
+        criterios: ['Colaboração', 'Respeito', 'Comprometimento']
+      },
+      {
+        nome: 'Resolução de Problemas',
+        descricao: 'Capacidade analítica e criatividade para resolver problemas',
+        tipo: 'tecnica',
+        competenciaDe: 'todos',
+        criterios: ['Análise crítica', 'Criatividade', 'Agilidade']
+      },
+      {
+        nome: 'Proatividade',
+        descricao: 'Iniciativa e antecipação de demandas',
+        tipo: 'comportamento',
+        competenciaDe: 'todos',
+        criterios: ['Iniciativa', 'Antecipação', 'Autonomia']
+      }
+    ]
+  });
+
+  console.log('✅ Competências criadas');
+
+  // Buscar competências criadas
+  const competencias = await prisma.competency.findMany();
+  const lideranca = competencias.find(c => c.nome === 'Liderança');
+  const comunicacao = competencias.find(c => c.nome === 'Comunicação');
+  const trabalhoEquipe = competencias.find(c => c.nome === 'Trabalho em Equipe');
+  const resolucaoProblemas = competencias.find(c => c.nome === 'Resolução de Problemas');
+  const proatividade = competencias.find(c => c.nome === 'Proatividade');
+
+  // ─── Campanhas de avaliação ───────────────────────────────────────────────────
+
+  console.log('📋 Criando campanhas...');
+
+  // Campanha 1: Avaliação Semestral TI (ativa, gestor1 responsável)
+  const campanha1 = await prisma.evaluationCampaign.create({
     data: {
-      nome: 'Delegar tarefas',
-      descricao: 'Capacidade de distribuir tarefas adequadamente entre os membros da equipe',
-      tipo: 'lideranca',
-      competenciaDe: 'gestor',
-      criterios: [
-        'Identifica as habilidades de cada membro da equipe',
-        'Distribui tarefas de forma equilibrada',
-        'Acompanha o progresso das tarefas delegadas',
-        'Fornece suporte quando necessário'
-      ]
+      nome: 'Avaliação Semestral TI - 2026/1',
+      descricao: 'Avaliação de desempenho semestral dos colaboradores do departamento de TI',
+      dataInicio: new Date('2026-05-01'),
+      dataFim: new Date('2026-06-30'),
+      status: 'ativa',
+      tipoAlvo: 'gestor',
+      gestores: {
+        create: [{ gestorId: gestor1.id }]
+      }
     }
   });
 
-  await prisma.competency.create({
+  // Associar competências à campanha 1
+  await prisma.campaignCompetency.createMany({
+    data: [
+      { campaignId: campanha1.id, competencyId: lideranca.id },
+      { campaignId: campanha1.id, competencyId: comunicacao.id },
+      { campaignId: campanha1.id, competencyId: trabalhoEquipe.id },
+      { campaignId: campanha1.id, competencyId: proatividade.id }
+    ]
+  });
+
+  // Campanha 2: Avaliação RH (ativa, gestor2 responsável)
+  const campanha2 = await prisma.evaluationCampaign.create({
     data: {
-      nome: 'Comunicação efetiva',
-      descricao: 'Habilidade de se comunicar de forma clara e objetiva com a equipe',
-      tipo: 'comportamento',
-      competenciaDe: 'gestor',
-      criterios: [
-        'Comunica expectativas de forma clara',
-        'Escuta ativamente os membros da equipe',
-        'Fornece feedback construtivo',
-        'Mantém canais de comunicação abertos'
-      ]
+      nome: 'Avaliação de Desempenho RH - 2026/1',
+      descricao: 'Avaliação dos colaboradores do departamento de RH',
+      dataInicio: new Date('2026-05-15'),
+      dataFim: new Date('2026-07-15'),
+      status: 'ativa',
+      tipoAlvo: 'gestor',
+      gestores: {
+        create: [{ gestorId: gestor2.id }]
+      }
     }
   });
 
-  // Competências de Colaborador
-  await prisma.competency.create({
+  // Associar competências à campanha 2
+  await prisma.campaignCompetency.createMany({
+    data: [
+      { campaignId: campanha2.id, competencyId: comunicacao.id },
+      { campaignId: campanha2.id, competencyId: trabalhoEquipe.id },
+      { campaignId: campanha2.id, competencyId: resolucaoProblemas.id }
+    ]
+  });
+
+  // Campanha 3: Avaliação finalizada (histórico)
+  const campanha3 = await prisma.evaluationCampaign.create({
     data: {
-      nome: 'Trabalho em equipe',
-      descricao: 'Capacidade de colaborar efetivamente com outros membros da equipe',
-      tipo: 'comportamento',
-      competenciaDe: 'colaborador',
-      criterios: [
-        'Colabora ativamente com colegas',
-        'Compartilha conhecimento e recursos',
-        'Respeita opiniões diferentes',
-        'Contribui para um ambiente positivo'
-      ]
+      nome: 'Avaliação Anual 2025',
+      descricao: 'Avaliação anual de todos os colaboradores',
+      dataInicio: new Date('2025-11-01'),
+      dataFim: new Date('2025-12-31'),
+      status: 'finalizada',
+      tipoAlvo: 'colaborador',
+      gestores: {
+        create: [
+          { gestorId: gestor1.id },
+          { gestorId: gestor2.id }
+        ]
+      }
     }
   });
 
-  await prisma.competency.create({
-    data: {
-      nome: 'Resolução de problemas',
-      descricao: 'Habilidade de identificar e resolver problemas de forma eficiente',
-      tipo: 'tecnica',
-      competenciaDe: 'colaborador',
-      criterios: [
-        'Identifica problemas rapidamente',
-        'Analisa causas raiz',
-        'Propõe soluções viáveis',
-        'Implementa soluções efetivas'
-      ]
-    }
+  // Associar competências à campanha 3
+  await prisma.campaignCompetency.createMany({
+    data: [
+      { campaignId: campanha3.id, competencyId: lideranca.id },
+      { campaignId: campanha3.id, competencyId: comunicacao.id },
+      { campaignId: campanha3.id, competencyId: trabalhoEquipe.id }
+    ]
   });
 
-  // Competências para Todos
-  await prisma.competency.create({
-    data: {
-      nome: 'Pontualidade',
-      descricao: 'Compromisso com horários e prazos estabelecidos',
-      tipo: 'comportamento',
-      competenciaDe: 'todos',
-      criterios: [
-        'Chega no horário estabelecido',
-        'Cumpre prazos de entregas',
-        'Avisa com antecedência quando há imprevistos',
-        'Respeita o tempo dos outros'
-      ]
-    }
-  });
+  console.log('✅ Campanhas criadas');
 
-  await prisma.competency.create({
-    data: {
-      nome: 'Proatividade',
-      descricao: 'Iniciativa para identificar e resolver problemas sem necessidade de supervisão',
-      tipo: 'comportamento',
-      competenciaDe: 'todos',
-      criterios: [
-        'Toma iniciativa sem ser solicitado',
-        'Identifica oportunidades de melhoria',
-        'Busca soluções de forma independente',
-        'Antecipa necessidades da equipe'
-      ]
-    }
-  });
+  // ─── Avaliações ───────────────────────────────────────────────────────────────
 
-  console.log('⭐ Criando avaliações anônimas bidirecionais...');
+  console.log('📝 Criando avaliações...');
 
-  // Gestor avalia colaborador (180° - anônimo)
+  // Avaliações na campanha1 (TI) feitas pelo gestor1
   await prisma.evaluation.create({
     data: {
-      tipoAvaliacao: 'gestor_para_colaborador',
+      campaignId: campanha1.id,
       avaliadorId: gestor1.id,
       avaliadoId: colaborador1.id,
       criterios: {
-        pontualidade: 5,
-        comunicacao: 5,
-        tecnico: 4,
-        proatividade: 5,
-        equipe: 5
+        'Qualidade técnica': 5,
+        'Cumprimento de prazos': 4,
+        'Comunicação': 4,
+        'Trabalho em equipe': 5,
+        'Proatividade': 4
       },
-      media: 4.8,
-      comentario: 'Colaboradora muito dedicada e pontual.',
-      anonima: true
-    }
-  });
-
-  await prisma.evaluation.create({
-    data: {
-      tipoAvaliacao: 'gestor_para_colaborador',
-      avaliadorId: gestor1.id,
-      avaliadoId: colaborador2.id,
-      criterios: {
-        pontualidade: 4,
-        comunicacao: 4,
-        tecnico: 5,
-        proatividade: 4,
-        equipe: 4
-      },
-      media: 4.2,
-      comentario: 'Excelente habilidades técnicas.',
-      anonima: true
-    }
-  });
-
-  // Colaborador avalia gestor (360° - anônimo)
-  await prisma.evaluation.create({
-    data: {
-      tipoAvaliacao: 'colaborador_para_gestor',
-      avaliadorId: colaborador1.id,
-      avaliadoId: gestor1.id,
-      criterios: {
-        pontualidade: 5,
-        comunicacao: 4,
-        tecnico: 5,
-        proatividade: 5,
-        equipe: 4
-      },
-      media: 4.6,
-      comentario: 'Gestor muito acessível e sempre disposto a ajudar.',
-      anonima: true
-    }
-  });
-
-  await prisma.evaluation.create({
-    data: {
-      tipoAvaliacao: 'colaborador_para_gestor',
-      avaliadorId: colaborador2.id,
-      avaliadoId: gestor1.id,
-      criterios: {
-        pontualidade: 5,
-        comunicacao: 5,
-        tecnico: 4,
-        proatividade: 5,
-        equipe: 5
-      },
-      media: 4.8,
-      comentario: 'Ótima liderança e comunicação.',
-      anonima: true
-    }
-  });
-
-  // Admin avalia (360°)
-  await prisma.evaluation.create({
-    data: {
-      tipoAvaliacao: 'avaliacao_360',
-      avaliadorId: admin.id,
-      avaliadoId: gestor1.id,
-      criterios: {
-        pontualidade: 5,
-        comunicacao: 5,
-        tecnico: 5,
-        proatividade: 5,
-        equipe: 5
-      },
-      media: 5.0,
-      comentario: 'Excelente gestor, referência para a equipe.',
+      media: 4.4,
+      comentario: 'Excelente profissional, entrega com qualidade e dentro dos prazos.',
       anonima: false
     }
   });
 
+  await prisma.evaluation.create({
+    data: {
+      campaignId: campanha1.id,
+      avaliadorId: gestor1.id,
+      avaliadoId: colaborador2.id,
+      criterios: {
+        'Qualidade técnica': 4,
+        'Cumprimento de prazos': 3,
+        'Comunicação': 4,
+        'Trabalho em equipe': 4,
+        'Proatividade': 3
+      },
+      media: 3.6,
+      comentario: 'Bom desempenho técnico, precisa melhorar gestão de prazos.',
+      anonima: false
+    }
+  });
+
+  // Avaliações na campanha2 (RH) feitas pelo gestor2
+  await prisma.evaluation.create({
+    data: {
+      campaignId: campanha2.id,
+      avaliadorId: gestor2.id,
+      avaliadoId: colaborador3.id,
+      criterios: {
+        'Atendimento ao cliente interno': 5,
+        'Organização': 5,
+        'Conhecimento técnico': 4,
+        'Relacionamento interpessoal': 5
+      },
+      media: 4.75,
+      comentario: 'Profissional exemplar, referência no departamento.',
+      anonima: false
+    }
+  });
+
+  // Avaliações na campanha3 (finalizada) - histórico
+  await prisma.evaluation.create({
+    data: {
+      campaignId: campanha3.id,
+      avaliadorId: gestor1.id,
+      avaliadoId: colaborador1.id,
+      criterios: {
+        'Desempenho geral': 9,
+        'Metas atingidas': 8,
+        'Comportamento': 9
+      },
+      media: 8.67,
+      comentario: 'Ótimo ano, superou expectativas.',
+      anonima: false
+    }
+  });
+
+  await prisma.evaluation.create({
+    data: {
+      campaignId: campanha3.id,
+      avaliadorId: gestor2.id,
+      avaliadoId: colaborador3.id,
+      criterios: {
+        'Desempenho geral': 10,
+        'Metas atingidas': 9,
+        'Comportamento': 10
+      },
+      media: 9.67,
+      comentario: 'Desempenho excepcional durante todo o ano.',
+      anonima: false
+    }
+  });
+
+  console.log('✅ Avaliações criadas');
+
+  // ─── Nine Box ─────────────────────────────────────────────────────────────────
+
   console.log('📊 Criando avaliações Nine Box...');
 
-  // Nine Box para colaboradores
-  await prisma.nineBox.create({
-    data: {
-      pessoaId: colaborador1.id,
-      performance: 3,
-      potential: 3,
-      categoria: 'Superstar',
-      comentario: 'Alto desempenho e alto potencial de crescimento'
-    }
-  });
+  const nineBoxData = [
+    { pessoaId: colaborador1.id, performance: 3, potential: 3, categoria: 'Superstar', comentario: 'Alta performance e alto potencial' },
+    { pessoaId: colaborador2.id, performance: 2, potential: 2, categoria: 'Núcleo', comentario: 'Sólido e confiável' },
+    { pessoaId: colaborador3.id, performance: 3, potential: 2, categoria: 'Especialista', comentario: 'Excelente especialista técnica' },
+    { pessoaId: colaborador4.id, performance: 2, potential: 3, categoria: 'Estrela', comentario: 'Grande potencial de crescimento' },
+    { pessoaId: colaborador5.id, performance: 1, potential: 2, categoria: 'Dilema', comentario: 'Potencial presente, performance a desenvolver' }
+  ];
 
-  await prisma.nineBox.create({
-    data: {
-      pessoaId: colaborador2.id,
-      performance: 3,
-      potential: 2,
-      categoria: 'Especialista',
-      comentario: 'Excelente desempenho técnico'
-    }
-  });
+  for (const nb of nineBoxData) {
+    await prisma.nineBox.create({ data: nb });
+  }
 
-  await prisma.nineBox.create({
-    data: {
-      pessoaId: colaborador3.id,
-      performance: 2,
-      potential: 3,
-      categoria: 'Estrela',
-      comentario: 'Grande potencial de crescimento'
-    }
-  });
+  console.log('✅ Nine Box criado');
 
-  await prisma.nineBox.create({
-    data: {
-      pessoaId: colaborador4.id,
-      performance: 2,
-      potential: 2,
-      categoria: 'Núcleo',
-      comentario: 'Desempenho sólido e consistente'
-    }
-  });
-
-  await prisma.nineBox.create({
-    data: {
-      pessoaId: colaborador5.id,
-      performance: 2,
-      potential: 2,
-      categoria: 'Núcleo',
-      comentario: 'Bom desempenho geral'
-    }
-  });
-
-  console.log('✅ Seed concluído com sucesso!');
-  console.log('\n📋 Usuários criados:');
-  console.log('   Admin: admin@eniac.edu.br / admin123');
-  console.log('   Gestor 1: joao@eniac.edu.br / senha123');
-  console.log('   Gestor 2: maria@eniac.edu.br / senha123');
-  console.log('   Colaborador 1: ana@eniac.edu.br / senha123');
-  console.log('   Colaborador 2: pedro@eniac.edu.br / senha123');
-  console.log('   Colaborador 3: carla@eniac.edu.br / senha123');
-  console.log('   Colaborador 4: lucas@eniac.edu.br / senha123');
-  console.log('   Colaborador 5: juliana@eniac.edu.br / senha123');
-  console.log('\n🎯 Sistema pronto para uso!');
+  console.log('\n🎉 Seed concluído com sucesso!');
+  console.log('\n📋 Resumo:');
+  console.log('  👤 Admin:         admin@eniac.edu.br / admin123');
+  console.log('  👔 Gestor TI:     joao@eniac.edu.br / senha123');
+  console.log('  👔 Gestor RH:     maria@eniac.edu.br / senha123');
+  console.log('  👷 Colaboradores: ana, pedro, carla, lucas, beatriz @eniac.edu.br / senha123');
+  console.log('\n  📋 Campanhas ativas: 2 (TI e RH)');
+  console.log('  📋 Campanha finalizada: 1 (Anual 2025)');
 }
 
 main()
-  .catch((e) => {
+  .catch(e => {
     console.error('❌ Erro no seed:', e);
     process.exit(1);
   })
