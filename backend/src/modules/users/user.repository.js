@@ -135,6 +135,29 @@ class UserRepository {
     });
   }
 
+  async findGestoresByGestorId(gestorId) {
+    return prisma.user.findMany({
+      where: {
+        gruposComoColaborador: {
+          some: {
+            gestorId
+          }
+        },
+        tipo: 'gestor'
+      },
+      select: {
+        id: true,
+        ra: true,
+        nome: true,
+        email: true,
+        tipo: true,
+        cargo: true,
+        departamento: true,
+        foto: true
+      }
+    });
+  }
+
   async count() {
     return prisma.user.count();
   }

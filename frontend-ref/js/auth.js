@@ -511,15 +511,19 @@ export async function requireAuth() {
   }
   
   // Atualizar perfil do servidor para garantir dados mais recentes (incluindo foto)
-  try {
-    const { usersApi } = await import('./api.js');
-    const res = await usersApi.getProfile();
-    if (res.data) {
-      setUser(res.data);
-      console.log('[AUTH] Perfil atualizado do servidor:', res.data);
+  // Apenas admin pode acessar o perfil
+  const user = getUser();
+  if (user?.tipo === 'admin') {
+    try {
+      const { usersApi } = await import('./api.js');
+      const res = await usersApi.getProfile();
+      if (res.data) {
+        setUser(res.data);
+        console.log('[AUTH] Perfil atualizado do servidor:', res.data);
+      }
+    } catch (err) {
+      console.warn('[AUTH] Não foi possível atualizar perfil do servidor:', err);
     }
-  } catch (err) {
-    console.warn('[AUTH] Não foi possível atualizar perfil do servidor:', err);
   }
   
   return true;
@@ -587,6 +591,11 @@ export function updateHeaderUser() {
       userBtn.innerHTML = `<span>${iniciais}</span>`;
     }
   }
+
+  // Esconder link de perfil para não-admin
+  document.querySelectorAll('[data-role="admin"]').forEach(el => {
+    el.style.display = user.tipo === 'admin' ? '' : 'none';
+  });
 }
 
 export function sairDaConta() {

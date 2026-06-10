@@ -37,15 +37,41 @@ cp .env.example .env
 
 Edite o arquivo `.env` com suas configurações do PostgreSQL:
 
+**Opção 1: PostgreSQL Local (Recomendado para desenvolvimento)**
+
 ```env
 PORT=3000
-DIRECT_URL="postgresql://usuario:senha@localhost:5432/nome_banco"
-DATABASE_URL="postgresql://usuario:senha@localhost:5432/nome_banco"
+DIRECT_URL="postgresql://postgres:postgres@localhost:5432/ninebox"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ninebox"
 JWT_SECRET="sua_chave_secreta_aqui"
 JWT_EXPIRES_IN=30d
 NODE_ENV=development
 FRONTEND_URL=http://localhost:5500
 ```
+
+**Opção 2: Supabase (Se tiver conta)**
+
+```env
+PORT=3000
+DIRECT_URL="postgresql://postgres:SUA_SENHA@aws-1-us-east-1.pooler.supabase.com:5432/postgres"
+DATABASE_URL="postgresql://postgres:SUA_SENHA@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+JWT_SECRET="sua_chave_secreta_aqui"
+JWT_EXPIRES_IN=30d
+NODE_ENV=development
+FRONTEND_URL=http://localhost:5500
+```
+
+**Para usar PostgreSQL Local:**
+
+1. Instale PostgreSQL: https://www.postgresql.org/download/
+2. Crie um banco de dados:
+   ```bash
+   # No Windows (psql):
+   createdb ninebox
+   
+   # Ou usando pgAdmin:
+   # Crie um banco de dados chamado "ninebox"
+   ```
 
 #### 2.3 Rodar migrations do Prisma
 

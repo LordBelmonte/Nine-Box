@@ -59,7 +59,7 @@
         </div>
       </div>
       <div class="user-dropdown-divider"></div>
-      <a href="../perfil.html" class="user-dropdown-item"><i class="fa-solid fa-user-pen"></i> Meu Perfil</a>
+      <a href="../perfil.html" class="user-dropdown-item" data-role="admin"><i class="fa-solid fa-user-pen"></i> Meu Perfil</a>
       <button class="user-dropdown-item user-dropdown-sair" id="btn-sair-header" onclick="sairDaConta()" style="display:none">
         <i class="fa-solid fa-right-from-bracket"></i> Sair
       </button>
@@ -79,7 +79,8 @@
       <ul class="navbar-submenu">
         <li data-role="admin"><a href="campanhas.html" class="navbar-submenu-link active"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
         <li><a href="avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-star"></i> Avaliacoes</a></li>
-        <li data-role="gestorOrAdmin"><a href="nine-box.html" class="navbar-submenu-link"><i class="fa-solid fa-th"></i> Nine Box</a></li>
+        <li data-role="admin"><a href="historico-avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-history"></i> Histórico</a></li>
+        <li data-role="admin"><a href="nine-box.html" class="navbar-submenu-link"><i class="fa-solid fa-th"></i> Nine Box</a></li>
         <li><a href="competencias.html" class="navbar-submenu-link"><i class="fa-solid fa-clipboard-check"></i> Competencias</a></li>
       </ul>
     </li>
@@ -165,6 +166,9 @@
       <div id="competencias-chips" style="display:flex;flex-wrap:wrap;gap:8px">
         <p style="font-size:13px;color:var(--text-muted)">Carregando competencias...</p>
       </div>
+      <button onclick="abrirModalCompetencias()" style="margin-top:12px;padding:8px 12px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;width:fit-content">
+        <i class="fa-solid fa-plus"></i>
+      </button>
     </div>
 
     <div class="form-section">
@@ -177,11 +181,48 @@
       </div>
     </div>
 
+    <div class="form-section" id="colaboradores-por-gestor-section" style="display:none">
+      <div class="form-section-title"><i class="fa-solid fa-users"></i> Colaboradores a Avaliar por Gestor</div>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">
+        Para cada gestor responsavel, selecione quais colaboradores ele deve avaliar nesta campanha.
+      </p>
+      <div id="colaboradores-por-gestor-container" style="display:flex;flex-direction:column;gap:16px">
+        <!-- Será preenchido dinamicamente -->
+      </div>
+    </div>
+
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
       <button onclick="voltarParaLista()" style="padding:11px 24px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;cursor:pointer;color:var(--text);font-weight:600">Cancelar</button>
       <button id="btn-salvar" onclick="salvarCampanha()" style="padding:11px 28px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px">
         <i class="fa-solid fa-save"></i> <span id="btn-salvar-txt">Criar Campanha</span>
       </button>
+    </div>
+  </div>
+
+  <!-- Modal de Seleção de Competências -->
+  <div id="modal-competencias" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto">
+      <h3 style="margin:0 0 16px 0;font-size:18px;font-weight:700;color:var(--text)">Selecionar Competências</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Escolha as competências que deseja adicionar à campanha:</p>
+      <div id="modal-competencias-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+        <p style="font-size:13px;color:var(--text-muted)">Carregando competências...</p>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button onclick="fecharModalCompetencias()" style="padding:8px 16px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;color:var(--text);font-weight:600">Cancelar</button>
+        <button onclick="confirmarSelecaoCompetencias()" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmação -->
+  <div id="modal-confirmacao" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:24px;max-width:400px;width:90%">
+      <h3 id="confirmacao-titulo" style="margin:0 0 12px 0;font-size:18px;font-weight:700;color:var(--text)">Confirmação</h3>
+      <p id="confirmacao-mensagem" style="font-size:14px;color:var(--text);margin-bottom:20px">Deseja continuar?</p>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button id="btn-cancelar-confirmacao" style="padding:10px 20px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;cursor:pointer;color:var(--text);font-weight:600">Cancelar</button>
+        <button id="btn-confirmar-acao" style="padding:10px 20px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer">Confirmar</button>
+      </div>
     </div>
   </div>
 
@@ -199,8 +240,10 @@
   // Estado
   let campanhas = [];
   let gestores  = [];
+  let colaboradores = [];
   let competencias = [];
   let gestoresSelecionados = new Set();
+  let colaboradoresPorGestor = {}; // { gestorId: Set(colaboradorId) }
   let competenciasSelecionadas = new Set();
   let editandoId = null;
   let filtroAtual = '';
@@ -272,27 +315,61 @@
     renderLista();
   };
 
+  // ─── MODAL DE CONFIRMAÇÃO ─────────────────────────────────────────────────────
+
+  let confirmacaoCallback = null;
+
+  function mostrarConfirmacao(titulo, mensagem, callback) {
+    document.getElementById('confirmacao-titulo').textContent = titulo;
+    document.getElementById('confirmacao-mensagem').textContent = mensagem;
+    document.getElementById('modal-confirmacao').style.display = 'flex';
+    confirmacaoCallback = callback;
+  }
+
+  function fecharConfirmacao() {
+    document.getElementById('modal-confirmacao').style.display = 'none';
+    confirmacaoCallback = null;
+  }
+
+  document.getElementById('btn-cancelar-confirmacao').addEventListener('click', fecharConfirmacao);
+  document.getElementById('btn-confirmar-acao').addEventListener('click', () => {
+    if (confirmacaoCallback) {
+      confirmacaoCallback();
+    }
+    fecharConfirmacao();
+  });
+
   // ─── MUDAR STATUS ─────────────────────────────────────────────────────────────
 
   window.mudarStatus = async function(id, novoStatus) {
     const label = novoStatus === 'ativa' ? 'ativar' : 'finalizar';
-    if (!confirm('Deseja ' + label + ' esta campanha?')) return;
-    try {
-      await campaignsApi.updateStatus(id, novoStatus);
-      showToast('Campanha ' + (novoStatus === 'ativa' ? 'ativada' : 'finalizada') + ' com sucesso!', 'success');
-      await carregarCampanhas();
-    } catch (e) { showToast(e.message || 'Erro ao alterar status.', 'error'); }
+    mostrarConfirmacao(
+      'Confirmar Ação',
+      `Deseja ${label} esta campanha?`,
+      async () => {
+        try {
+          await campaignsApi.updateStatus(id, novoStatus);
+          showToast('Campanha ' + (novoStatus === 'ativa' ? 'ativada' : 'finalizada') + ' com sucesso!', 'success');
+          await carregarCampanhas();
+        } catch (e) { showToast(e.message || 'Erro ao alterar status.', 'error'); }
+      }
+    );
   };
 
   // ─── EXCLUIR ──────────────────────────────────────────────────────────────────
 
   window.excluirCampanha = async function(id, nome) {
-    if (!confirm('Excluir a campanha "' + nome + '"? Esta acao nao pode ser desfeita.')) return;
-    try {
-      await campaignsApi.delete(id);
-      showToast('Campanha excluida.', 'success');
-      await carregarCampanhas();
-    } catch (e) { showToast(e.message || 'Erro ao excluir.', 'error'); }
+    mostrarConfirmacao(
+      'Excluir Campanha',
+      `Excluir a campanha "${nome}"? Esta ação não pode ser desfeita.`,
+      async () => {
+        try {
+          await campaignsApi.delete(id);
+          showToast('Campanha excluída.', 'success');
+          await carregarCampanhas();
+        } catch (e) { showToast(e.message || 'Erro ao excluir.', 'error'); }
+      }
+    );
   };
 
   // ─── FORMULARIO ───────────────────────────────────────────────────────────────
@@ -301,6 +378,16 @@
     editandoId = campanha?.id || null;
     competenciasSelecionadas = new Set(campanha ? (campanha.competencias || []).map(c => c.competencyId) : []);
     gestoresSelecionados = new Set(campanha ? (campanha.gestores || []).map(g => g.gestorId) : []);
+    
+    // Carrega colaboradores por gestor existentes
+    colaboradoresPorGestor = {};
+    if (campanha?.gestores) {
+      for (const g of campanha.gestores) {
+        if (g.colaboradoresAvaliaveis && g.colaboradoresAvaliaveis.length > 0) {
+          colaboradoresPorGestor[g.gestorId] = new Set(g.colaboradoresAvaliaveis.map(c => c.colaboradorId));
+        }
+      }
+    }
 
     document.getElementById('form-titulo').textContent = campanha ? 'Editar Campanha' : 'Nova Campanha';
     document.getElementById('form-subtitulo').textContent = campanha ? campanha.nome : 'Selecione as competencias e responsaveis';
@@ -323,24 +410,77 @@
   window.voltarParaLista = function() {
     document.getElementById('tela-form').style.display = 'none';
     document.getElementById('tela-lista').style.display = 'block';
-    editandoId = null; competenciasSelecionadas = new Set(); gestoresSelecionados = new Set();
+    editandoId = null; competenciasSelecionadas = new Set(); gestoresSelecionados = new Set(); colaboradoresPorGestor = {};
   };
 
   window.atualizarTextoGestores = function() {
     const alvo = document.getElementById('f-alvo').value;
     const titulo = document.getElementById('gestores-titulo');
     const descricao = document.getElementById('gestores-descricao');
+    const colaboradoresSection = document.getElementById('colaboradores-por-gestor-section');
 
     if (alvo === 'colaborador') {
       titulo.textContent = 'Gestores Responsáveis';
-      descricao.textContent = 'Selecione quais gestores poderão realizar avaliações nesta campanha. As avaliações serão enviadas aos subordinados dos gestores selecionados.';
+      descricao.textContent = 'Selecione quais gestores poderão realizar avaliações nesta campanha.';
+      colaboradoresSection.style.display = 'block';
+      renderColaboradoresPorGestor();
     } else if (alvo === 'gestor') {
       titulo.textContent = 'Gestores a serem Avaliados';
       descricao.textContent = 'Selecione quais gestores serão avaliados nesta campanha. Os colaboradores subordinados poderão avaliar seus respectivos gestores.';
+      colaboradoresSection.style.display = 'none';
     } else if (alvo === 'todos') {
       titulo.textContent = 'Gestores Participantes';
       descricao.textContent = 'Selecione quais gestores participarão da campanha. Eles poderão avaliar seus subordinados e também serão avaliados por eles.';
+      colaboradoresSection.style.display = 'none';
     }
+  };
+
+  // ─── COLABORADORES POR GESTOR ─────────────────────────────────────────────────────
+
+  async function carregarColaboradores() {
+    try {
+      const res = await usersApi.list({ tipo: 'colaborador', limit: 1000 });
+      colaboradores = res.data?.users || [];
+    } catch (error) {
+      console.error('Erro ao carregar colaboradores:', error);
+    }
+  }
+
+  function renderColaboradoresPorGestor() {
+    const container = document.getElementById('colaboradores-por-gestor-container');
+    if (!gestoresSelecionados.size) {
+      container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Selecione gestores responsáveis primeiro.</p>';
+      return;
+    }
+
+    const gestoresSelecionadosArray = Array.from(gestoresSelecionados);
+    container.innerHTML = gestoresSelecionadosArray.map(gestorId => {
+      const gestor = gestores.find(g => g.id === gestorId);
+      if (!gestor) return '';
+
+      const colaboradoresSelecionadosIds = colaboradoresPorGestor[gestorId] || [];
+      const colaboradoresOptions = colaboradores.map(c => 
+        `<option value="${c.id}" ${colaboradoresSelecionadosIds.includes(c.id) ? 'selected' : ''}>${c.nome}</option>`
+      ).join('');
+
+      return `
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px">
+          <label style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;display:block">
+            ${gestor.nome} - Colaboradores a Avaliar
+          </label>
+          <select multiple style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--surface);color:var(--text);min-height:120px"
+            onchange="atualizarColaboradoresGestor('${gestorId}', this)">
+            ${colaboradoresOptions}
+          </select>
+          <p style="font-size:11px;color:var(--text-muted);margin-top:4px">Segure Ctrl para selecionar múltiplos</p>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.atualizarColaboradoresGestor = function(gestorId, select) {
+    const selectedOptions = Array.from(select.selectedOptions).map(opt => opt.value);
+    colaboradoresPorGestor[gestorId] = new Set(selectedOptions);
   };
 
   // ─── COMPETENCIAS CHIPS ─────────────────────────────────────────────────────────
@@ -362,8 +502,16 @@
 
   function renderCompetenciasChips() {
     const container = document.getElementById('competencias-chips');
-    container.innerHTML = competencias.map(c =>
-      '<div class="competencia-chip' + (competenciasSelecionadas.has(c.id) ? ' selected' : '') + '" onclick="toggleCompetencia(\'' + c.id + '\')" id="comp-chip-' + c.id + '">' +
+    
+    if (competenciasSelecionadas.size === 0) {
+      container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Nenhuma competência selecionada. Clique no botão "+" para adicionar.</p>';
+      return;
+    }
+    
+    const competenciasSelecionadasArray = competencias.filter(c => competenciasSelecionadas.has(c.id));
+    
+    container.innerHTML = competenciasSelecionadasArray.map(c =>
+      '<div class="competencia-chip selected" onclick="toggleCompetencia(\'' + c.id + '\')" id="comp-chip-' + c.id + '">' +
         '<i class="fa-solid fa-clipboard-check" style="font-size:11px"></i>' +
         c.nome +
         (c.tipo ? '<span style="font-size:10px;opacity:.7">(' + c.tipo + ')</span>' : '') +
@@ -375,6 +523,74 @@
     if (competenciasSelecionadas.has(id)) competenciasSelecionadas.delete(id);
     else competenciasSelecionadas.add(id);
     renderCompetenciasChips();
+  };
+
+  // ─── MODAL DE COMPETÊNCIAS ────────────────────────────────────────────────────────
+
+  let competenciasModalSelecionadas = new Set();
+
+  window.abrirModalCompetencias = async function() {
+    const modal = document.getElementById('modal-competencias');
+    const list = document.getElementById('modal-competencias-list');
+    competenciasModalSelecionadas = new Set(competenciasSelecionadas);
+    
+    try {
+      if (!competencias.length) {
+        const res = await competenciesApi.list({ limit: 100 });
+        competencias = res.data?.competencies || [];
+      }
+      
+      if (!competencias.length) {
+        list.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Nenhuma competência cadastrada. <a href="competencias.html" style="color:var(--primary)">Criar competências</a></p>';
+      } else {
+        list.innerHTML = competencias.map(c =>
+          '<div class="competencia-item' + (competenciasModalSelecionadas.has(c.id) ? ' selected' : '') + '" onclick="toggleCompetenciaModal(\'' + c.id + '\')" id="modal-comp-' + c.id + '" style="padding:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--bg)' + (competenciasModalSelecionadas.has(c.id) ? ';background:rgba(59,130,246,0.1);border-color:var(--primary)' : '') + '">' +
+            '<i class="fa-solid fa-clipboard-check" style="font-size:12px;color:var(--primary)"></i>' +
+            '<div style="flex:1">' +
+              '<div style="font-size:13px;font-weight:600;color:var(--text)">' + c.nome + '</div>' +
+              '<div style="font-size:11px;color:var(--text-muted)">' + (c.descricao || '') + '</div>' +
+            '</div>' +
+            '<i class="fa-solid fa-check" style="font-size:14px;color:var(--primary);display:' + (competenciasModalSelecionadas.has(c.id) ? 'block' : 'none') + '"></i>' +
+          '</div>'
+        ).join('');
+      }
+      
+      modal.style.display = 'flex';
+    } catch (e) {
+      list.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Erro ao carregar competências.</p>';
+      modal.style.display = 'flex';
+    }
+  };
+
+  window.fecharModalCompetencias = function() {
+    document.getElementById('modal-competencias').style.display = 'none';
+  };
+
+  window.toggleCompetenciaModal = function(id) {
+    if (competenciasModalSelecionadas.has(id)) {
+      competenciasModalSelecionadas.delete(id);
+    } else {
+      competenciasModalSelecionadas.add(id);
+    }
+    
+    const item = document.getElementById('modal-comp-' + id);
+    const check = item.querySelector('.fa-check');
+    
+    if (competenciasModalSelecionadas.has(id)) {
+      item.style.background = 'rgba(59,130,246,0.1)';
+      item.style.borderColor = 'var(--primary)';
+      check.style.display = 'block';
+    } else {
+      item.style.background = 'var(--bg)';
+      item.style.borderColor = 'var(--border)';
+      check.style.display = 'none';
+    }
+  };
+
+  window.confirmarSelecaoCompetencias = function() {
+    competenciasSelecionadas = new Set(competenciasModalSelecionadas);
+    renderCompetenciasChips();
+    fecharModalCompetencias();
   };
 
   // ─── GESTORES CHIPS ───────────────────────────────────────────────────────────
@@ -409,6 +625,7 @@
     if (gestoresSelecionados.has(id)) gestoresSelecionados.delete(id);
     else gestoresSelecionados.add(id);
     renderGestoresChips();
+    renderColaboradoresPorGestor();
   };
 
   // ─── SALVAR ───────────────────────────────────────────────────────────────────
@@ -435,7 +652,8 @@
       dataFim: fim,
       tipoAlvo,
       competencyIds: Array.from(competenciasSelecionadas),
-      gestorIds: Array.from(gestoresSelecionados)
+      gestorIds: Array.from(gestoresSelecionados),
+      gestorColaboradores: colaboradoresPorGestor
     };
 
     const btn = document.getElementById('btn-salvar');
@@ -471,6 +689,7 @@
 
   // ─── INIT ─────────────────────────────────────────────────────────────────────
   carregarCampanhas();
+  carregarColaboradores();
 </script>
 </body>
 </html>

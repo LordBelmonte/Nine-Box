@@ -9,29 +9,29 @@ const campaignController = new CampaignController();
 
 router.use(authMiddleware);
 
-// Gestor vê campanhas ativas atribuídas a ele (próprio ou especificado pelo admin)
-router.get('/ativas/gestor', isGestorOrAdminMiddleware, (req, res, next) =>
+// Gestor vê campanhas ativas atribuídas a ele (apenas admin)
+router.get('/ativas/gestor', isAdminMiddleware, (req, res, next) =>
   campaignController.findActiveForGestor(req, res, next)
 );
-router.get('/ativas/gestor/:gestorId', isGestorOrAdminMiddleware, (req, res, next) =>
+router.get('/ativas/gestor/:gestorId', isAdminMiddleware, (req, res, next) =>
   campaignController.findActiveForGestor(req, res, next)
 );
 
-// Progresso de uma campanha para um gestor
-router.get('/:id/progresso', isGestorOrAdminMiddleware, (req, res, next) =>
+// Progresso de uma campanha para um gestor (apenas admin)
+router.get('/:id/progresso', isAdminMiddleware, (req, res, next) =>
   campaignController.getCampaignProgress(req, res, next)
 );
-router.get('/:id/progresso/:gestorId', isGestorOrAdminMiddleware, (req, res, next) =>
+router.get('/:id/progresso/:gestorId', isAdminMiddleware, (req, res, next) =>
   campaignController.getCampaignProgress(req, res, next)
 );
 
-// Listar gestores responsáveis por uma campanha
-router.get('/:id/gestores', isGestorOrAdminMiddleware, (req, res, next) =>
+// Listar gestores responsáveis por uma campanha (apenas admin)
+router.get('/:id/gestores', isAdminMiddleware, (req, res, next) =>
   campaignController.getResponsavelGestores(req, res, next)
 );
 
-// Listar colaboradores não avaliados ainda nesta campanha por um gestor
-router.get('/:id/colaboradores-nao-avaliados/:gestorId', isGestorOrAdminMiddleware, (req, res, next) =>
+// Listar colaboradores não avaliados ainda nesta campanha por um gestor (apenas admin)
+router.get('/:id/colaboradores-nao-avaliados/:gestorId', isAdminMiddleware, (req, res, next) =>
   campaignController.getColaboradoresNaoAvaliados(req, res, next)
 );
 
@@ -45,8 +45,8 @@ router.get('/gestor/pendentes', isGestorOrAdminMiddleware, (req, res, next) =>
   campaignController.getPendingCampaignsForGestor(req, res, next)
 );
 
-// CRUD de campanhas
-router.get('/', isGestorOrAdminMiddleware, (req, res, next) =>
+// CRUD de campanhas (apenas admin)
+router.get('/', isAdminMiddleware, (req, res, next) =>
   campaignController.findAll(req, res, next)
 );
 router.get('/:id', authMiddleware, (req, res, next) =>

@@ -7,18 +7,18 @@ const groupController = new GroupController();
 
 router.use(authMiddleware);
 
-// Colaboradores de um gestor
-router.get('/gestor/:gestorId/colaboradores', isGestorOrAdminMiddleware, (req, res, next) =>
+// Colaboradores de um gestor (apenas admin)
+router.get('/gestor/:gestorId/colaboradores', isAdminMiddleware, (req, res, next) =>
   groupController.getColaboradores(req, res, next)
 );
 
-// Adicionar colaborador ao grupo do gestor
-router.post('/gestor/:gestorId/colaboradores', isGestorOrAdminMiddleware, (req, res, next) =>
+// Adicionar colaborador ao grupo do gestor (apenas admin)
+router.post('/gestor/:gestorId/colaboradores', isAdminMiddleware, (req, res, next) =>
   groupController.addColaborador(req, res, next)
 );
 
-// Remover colaborador do grupo do gestor
-router.delete('/gestor/:gestorId/colaboradores/:colaboradorId', isGestorOrAdminMiddleware, (req, res, next) =>
+// Remover colaborador do grupo do gestor (apenas admin)
+router.delete('/gestor/:gestorId/colaboradores/:colaboradorId', isAdminMiddleware, (req, res, next) =>
   groupController.removeColaborador(req, res, next)
 );
 

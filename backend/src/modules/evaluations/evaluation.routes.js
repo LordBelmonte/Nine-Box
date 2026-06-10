@@ -1,7 +1,7 @@
 import express from 'express';
 import { EvaluationController } from './evaluation.controller.js';
 import { DashboardController } from './evaluation.dashboard.controller.js';
-import { authMiddleware, isGestorOrAdminMiddleware } from '../../middlewares/auth.js';
+import { authMiddleware, isGestorOrAdminMiddleware, isAdminMiddleware } from '../../middlewares/auth.js';
 import { validate } from '../../middlewares/validate.js';
 import { createEvaluationSchema, updateEvaluationSchema } from './evaluation.validation.js';
 
@@ -36,7 +36,7 @@ router.get('/campanha/:campaignId', (req, res, next) =>
   evaluationController.findByCampaign(req, res, next)
 );
 
-router.get('/', (req, res, next) => evaluationController.findAll(req, res, next));
+router.get('/', isAdminMiddleware, (req, res, next) => evaluationController.findAll(req, res, next));
 router.get('/:id', (req, res, next) => evaluationController.findById(req, res, next));
 
 // Criar avaliação (resposta): gestor, admin e colaborador (dependendo do tipoAlvo da campanha)

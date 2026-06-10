@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Histórico de Avaliações — Portal de Gestão de Pessoas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script>(function(){const dm=localStorage.getItem('darkMode');if(dm==='1'||(dm===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark-mode');if(document.body)document.body.classList.add('dark-mode');}})();</script>
+  <style>
+    .historico-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .historico-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .historico-titulo {
+      color: var(--primary);
+      font-size: 28px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .historico-subtitulo {
+      color: var(--text-muted);
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .filtros-container {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .filtro-item {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filtro-item label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .filtro-item select,
+    .filtro-item input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      color: var(--text);
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+    }
+
+    .filtro-item select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+    }
+
+    .btn-filtrar {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-filtrar:hover {
+      background: #1d4ed8;
+    }
+
+    .historico-tabela {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+    }
+
+    .historico-tabela th {
+      background: var(--primary);
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-weight: 500;
+    }
+
+    .historico-tabela td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .historico-tabela tr:hover {
+      background: var(--primary-light);
+    }
+
+    .badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-gestor {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge-colaborador {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .badge-admin {
+      background: #fce7f3;
+      color: #9d174d;
+    }
+
+    .badge-pendente {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge-concluida {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .pagination button {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pagination button:hover {
+      background: var(--primary-light);
+    }
+
+    .pagination button.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h2 id="page-title">Histórico de Avaliações</h2>
+  <button id="dark-mode-btn" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i></button>
+  <div class="user-menu" id="user-menu">
+    <div class="user" id="user-btn" onclick="toggleUserMenu()"><i class="fa-solid fa-user"></i></div>
+    <div class="user-dropdown" id="user-dropdown">
+      <div class="user-dropdown-info">
+        <div class="user-dropdown-avatar" id="user-dropdown-avatar"><i class="fa-solid fa-user"></i></div>
+        <div>
+          <div class="user-dropdown-nome" id="user-dropdown-nome">Carregando...</div>
+          <div class="user-dropdown-tipo" id="user-dropdown-tipo"></div>
+        </div>
+      </div>
+      <div class="user-dropdown-divider"></div>
+      <a href="../perfil.html" class="user-dropdown-item" data-role="admin"><i class="fa-solid fa-user-pen"></i> Meu Perfil</a>
+      <button class="user-dropdown-item user-dropdown-sair" id="btn-sair-header" onclick="sairDaConta()">
+        <i class="fa-solid fa-right-from-bracket"></i> Sair
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="navbar">
+  <ul class="navbar-nav">
+    <li class="navbar-item"><a href="../index.html" class="navbar-link"><i class="fa-solid fa-home"></i><span>Inicio</span></a></li>
+    <li class="navbar-item" data-role="admin"><a href="cadastrar.html" class="navbar-link"><i class="fa-solid fa-user-plus"></i><span>Cadastrar</span></a></li>
+    <li class="navbar-item" data-role="admin"><a href="consultar.html" class="navbar-link"><i class="fa-solid fa-magnifying-glass"></i><span>Consultar</span></a></li>
+    <li class="navbar-item navbar-item-dropdown">
+      <a href="#" class="navbar-link navbar-link-dropdown active" onclick="toggleSubmenu(event, this)">
+        <i class="fa-solid fa-star"></i><span>Avaliacoes</span><i class="fa-solid fa-chevron-down navbar-chevron"></i>
+      </a>
+      <ul class="navbar-submenu">
+        <li data-role="admin"><a href="campanhas.html" class="navbar-submenu-link"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
+        <li><a href="avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-star"></i> Avaliacoes</a></li>
+        <li data-role="admin"><a href="historico-avaliacoes.html" class="navbar-submenu-link active"><i class="fa-solid fa-history"></i> Histórico</a></li>
+        <li data-role="admin"><a href="nine-box.html" class="navbar-submenu-link"><i class="fa-solid fa-th"></i> Nine Box</a></li>
+        <li><a href="competencias.html" class="navbar-submenu-link"><i class="fa-solid fa-clipboard-check"></i> Competencias</a></li>
+      </ul>
+    </li>
+    <li class="navbar-item" data-role="admin"><a href="grupos.html" class="navbar-link"><i class="fa-solid fa-users"></i><span>Grupos</span></a></li>
+    <li class="navbar-item" data-role="admin"><a href="relatorios.html" class="navbar-link"><i class="fa-solid fa-chart-bar"></i><span>Relatorios</span></a></li>
+    <li class="navbar-item" data-role="admin"><a href="../perfil.html" class="navbar-link"><i class="fa-solid fa-user"></i><span>Perfil</span></a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="historico-container">
+    <div class="historico-card">
+      <h3 class="historico-titulo">Histórico de Avaliações</h3>
+      <p class="historico-subtitulo">Visualize todas as avaliações realizadas no sistema por gestores e colaboradores</p>
+      
+      <div class="filtros-container">
+        <div class="filtro-item">
+          <label for="filtro-campanha">Campanha</label>
+          <select id="filtro-campanha">
+            <option value="">Todas</option>
+          </select>
+        </div>
+        <div class="filtro-item">
+          <label for="filtro-avaliado">Avaliado</label>
+          <select id="filtro-avaliado">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="filtro-item">
+          <label for="filtro-avaliador">Avaliador</label>
+          <select id="filtro-avaliador">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="filtro-item">
+          <label for="filtro-tipo">Tipo de Usuário</label>
+          <select id="filtro-tipo">
+            <option value="">Todos</option>
+            <option value="gestor">Gestor</option>
+            <option value="colaborador">Colaborador</option>
+          </select>
+        </div>
+        <div class="filtro-item" style="display: flex; align-items: flex-end;">
+          <button class="btn-filtrar" id="btn-filtrar">Filtrar</button>
+        </div>
+      </div>
+
+      <table class="historico-tabela">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Campanha</th>
+            <th>Avaliado</th>
+            <th>Tipo</th>
+            <th>Avaliador</th>
+            <th>Média</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="historico-tbody">
+          <tr>
+            <td colspan="7" style="text-align: center;">Carregando...</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pagination" id="pagination">
+        <button id="btn-anterior" disabled>Anterior</button>
+        <span id="pagina-info">Página 1</span>
+        <button id="btn-proxima" disabled>Próxima</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+  import { requireAuth, getUser, isAdmin, sairDaConta, toggleUserMenu, updateHeaderUser } from '../js/auth.js';
+  import { evaluationsApi, campaignsApi, usersApi } from '../js/api.js';
+  import '../js/navbar.js';
+
+  requireAuth();
+
+  if (!isAdmin()) {
+    window.location.href = '../index.html';
+  }
+
+  updateHeaderUser();
+
+  let currentPage = 1;
+  const itemsPerPage = 20;
+  let allEvaluations = [];
+  let filteredEvaluations = [];
+  let campaigns = [];
+  let users = [];
+
+  async function loadCampaigns() {
+    try {
+      const res = await campaignsApi.list();
+      console.log('Resposta campanhas:', res);
+      campaigns = res.data?.campaigns || res.data || [];
+      const select = document.getElementById('filtro-campanha');
+      campaigns.forEach(c => {
+        const option = document.createElement('option');
+        option.value = c.id;
+        option.textContent = c.nome;
+        select.appendChild(option);
+      });
+    } catch (error) {
+      console.error('Erro ao carregar campanhas:', error);
+    }
+  }
+
+  async function loadUsers() {
+    try {
+      const res = await usersApi.list({ page: 1, limit: 1000 });
+      users = res.data.users || [];
+      
+      const avaliadoSelect = document.getElementById('filtro-avaliado');
+      const avaliadorSelect = document.getElementById('filtro-avaliador');
+      
+      users.forEach(u => {
+        const option1 = document.createElement('option');
+        option1.value = u.id;
+        option1.textContent = u.nome;
+        avaliadoSelect.appendChild(option1);
+        
+        const option2 = document.createElement('option');
+        option2.value = u.id;
+        option2.textContent = u.nome;
+        avaliadorSelect.appendChild(option2);
+      });
+    } catch (error) {
+      console.error('Erro ao carregar usuários:', error);
+    }
+  }
+
+  async function loadEvaluations() {
+    const tbody = document.getElementById('historico-tbody');
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando...</td></tr>';
+
+    try {
+      const res = await evaluationsApi.list({ page: 1, limit: 1000 });
+      console.log('Resposta avaliações:', res);
+      allEvaluations = res.data?.evaluations || res.data || [];
+      
+      // Adicionar avaliações pendentes
+      const pendingEvaluations = await loadPendingEvaluations();
+      allEvaluations = [...allEvaluations, ...pendingEvaluations];
+      
+      filteredEvaluations = [...allEvaluations];
+      renderTable();
+    } catch (error) {
+      console.error('Erro ao carregar avaliações:', error);
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Erro ao carregar avaliações</td></tr>';
+    }
+  }
+
+  async function loadPendingEvaluations() {
+    const pending = [];
+    const activeCampaigns = campaigns.filter(c => c.status === 'ativa');
+    
+    for (const campaign of activeCampaigns) {
+      if (campaign.tipoAlvo === 'gestor') {
+        // Para campanhas de gestores, encontra colaboradores que ainda não avaliaram
+        for (const colaborador of users.filter(u => u.tipo === 'colaborador')) {
+          const alreadyEvaluated = allEvaluations.some(e => 
+            e.campaignId === campaign.id && 
+            e.avaliadorId === colaborador.id
+          );
+          if (!alreadyEvaluated) {
+            // Encontra gestores que este colaborador deve avaliar
+            const gestoresParaAvaliar = users.filter(u => u.tipo === 'gestor');
+            for (const gestor of gestoresParaAvaliar) {
+              const alreadyEvaluatedGestor = allEvaluations.some(e => 
+                e.campaignId === campaign.id && 
+                e.avaliadorId === colaborador.id &&
+                e.avaliadoId === gestor.id
+              );
+              if (!alreadyEvaluatedGestor) {
+                pending.push({
+                  id: `pending-${campaign.id}-${colaborador.id}-${gestor.id}`,
+                  campaignId: campaign.id,
+                  avaliadoId: gestor.id,
+                  avaliadorId: colaborador.id,
+                  status: 'Pendente',
+                  createdAt: campaign.createdAt,
+                  media: null,
+                  isPending: true
+                });
+              }
+            }
+          }
+        }
+      } else if (campaign.tipoAlvo === 'colaborador') {
+        // Para campanhas de colaboradores, encontra gestores que ainda não avaliaram
+        for (const gestor of users.filter(u => u.tipo === 'gestor')) {
+          const colaboradoresDoGestor = users.filter(u => u.tipo === 'colaborador');
+          for (const colaborador of colaboradoresDoGestor) {
+            const alreadyEvaluated = allEvaluations.some(e => 
+              e.campaignId === campaign.id && 
+              e.avaliadorId === gestor.id &&
+              e.avaliadoId === colaborador.id
+            );
+            if (!alreadyEvaluated) {
+              pending.push({
+                id: `pending-${campaign.id}-${gestor.id}-${colaborador.id}`,
+                campaignId: campaign.id,
+                avaliadoId: colaborador.id,
+                avaliadorId: gestor.id,
+                status: 'Pendente',
+                createdAt: campaign.createdAt,
+                media: null,
+                isPending: true
+              });
+            }
+          }
+        }
+      }
+    }
+    
+    return pending;
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('historico-tbody');
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const pageData = filteredEvaluations.slice(start, end);
+
+    if (pageData.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Nenhuma avaliação encontrada</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = pageData.map(e => {
+      const campaign = campaigns.find(c => c.id === e.campaignId);
+      const avaliado = users.find(u => u.id === e.avaliadoId);
+      const avaliador = users.find(u => u.id === e.avaliadorId);
+      
+      const tipoClass = avaliado?.tipo === 'gestor' ? 'badge-gestor' : 
+                       avaliado?.tipo === 'colaborador' ? 'badge-colaborador' : 'badge-admin';
+      
+      const data = new Date(e.createdAt).toLocaleDateString('pt-BR');
+      const status = e.isPending ? 'Pendente' : 'Concluída';
+      const statusClass = e.isPending ? 'badge-pendente' : 'badge-concluida';
+      
+      return `
+        <tr>
+          <td>${data}</td>
+          <td>${campaign?.nome || 'N/A'}</td>
+          <td>${avaliado?.nome || 'N/A'}</td>
+          <td><span class="badge ${tipoClass}">${avaliado?.tipo || 'N/A'}</span></td>
+          <td>${avaliador?.nome || 'N/A'}</td>
+          <td>${e.media || 'N/A'}</td>
+          <td><span class="badge ${statusClass}">${status}</span></td>
+        </tr>
+      `;
+    }).join('');
+
+    updatePagination();
+  }
+
+  function updatePagination() {
+    const totalPages = Math.ceil(filteredEvaluations.length / itemsPerPage);
+    document.getElementById('pagina-info').textContent = `Página ${currentPage} de ${totalPages}`;
+    document.getElementById('btn-anterior').disabled = currentPage === 1;
+    document.getElementById('btn-proxima').disabled = currentPage === totalPages;
+  }
+
+  function paginaAnterior() {
+    if (currentPage > 1) {
+      currentPage--;
+      renderTable();
+    }
+  }
+
+  function proximaPagina() {
+    const totalPages = Math.ceil(filteredEvaluations.length / itemsPerPage);
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderTable();
+    }
+  }
+
+  function aplicarFiltros() {
+    const campaignId = document.getElementById('filtro-campanha').value;
+    const avaliadoId = document.getElementById('filtro-avaliado').value;
+    const avaliadorId = document.getElementById('filtro-avaliador').value;
+    const tipo = document.getElementById('filtro-tipo').value;
+
+    filteredEvaluations = allEvaluations.filter(e => {
+      if (campaignId && e.campaignId !== campaignId) return false;
+      if (avaliadoId && e.avaliadoId !== avaliadoId) return false;
+      if (avaliadorId && e.avaliadorId !== avaliadorId) return false;
+      if (tipo) {
+        const avaliado = users.find(u => u.id === e.avaliadoId);
+        if (avaliado?.tipo !== tipo) return false;
+      }
+      return true;
+    });
+
+    currentPage = 1;
+    renderTable();
+  }
+
+  // Inicialização
+  Promise.all([loadCampaigns(), loadUsers()]).then(() => {
+    loadEvaluations();
+    
+    // Adicionar event listeners para paginação
+    document.getElementById('btn-anterior').addEventListener('click', paginaAnterior);
+    document.getElementById('btn-proxima').addEventListener('click', proximaPagina);
+    
+    // Adicionar event listener para filtros
+    document.getElementById('btn-filtrar').addEventListener('click', aplicarFiltros);
+  });
+</script>
+
+</body>
+</html>

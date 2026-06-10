@@ -37,7 +37,7 @@
         </div>
       </div>
       <div class="user-dropdown-divider"></div>
-      <a href="../perfil.html" class="user-dropdown-item"><i class="fa-solid fa-user-pen"></i> Meu Perfil</a>
+      <a href="../perfil.html" class="user-dropdown-item" data-role="admin"><i class="fa-solid fa-user-pen"></i> Meu Perfil</a>
       <button class="user-dropdown-item user-dropdown-sair" id="btn-sair-header" onclick="sairDaConta()" style="display:none">
         <i class="fa-solid fa-right-from-bracket"></i> Sair
       </button>
@@ -55,9 +55,10 @@
         <i class="fa-solid fa-star"></i><span>Avaliações</span><i class="fa-solid fa-chevron-down navbar-chevron"></i>
       </a>
       <ul class="navbar-submenu">
-                <li data-role="admin"><a href="campanhas.html" class="navbar-submenu-link"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
-<li><a href="avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-star"></i> Avaliações</a></li>
-        <li data-role="gestorOrAdmin"><a href="nine-box.html" class="navbar-submenu-link"><i class="fa-solid fa-th"></i> Nine Box</a></li>
+        <li data-role="admin"><a href="campanhas.html" class="navbar-submenu-link"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
+        <li><a href="avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-star"></i> Avaliações</a></li>
+        <li data-role="admin"><a href="historico-avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-history"></i> Histórico</a></li>
+        <li data-role="admin"><a href="nine-box.html" class="navbar-submenu-link"><i class="fa-solid fa-th"></i> Nine Box</a></li>
         <li><a href="competencias.html" class="navbar-submenu-link active"><i class="fa-solid fa-clipboard-check"></i> Competências</a></li>
       </ul>
     </li>
@@ -139,24 +140,14 @@
 
       <!-- CRITÉRIOS -->
       <div class="comp-criterios-section">
-        <h4>Critérios de Avaliação:</h4>
+        <div class="comp-criterios-header">
+          <h4>Critérios de Avaliação:</h4>
+          <button type="button" class="comp-btn-add-criterio" id="btn-add-criterio" onclick="adicionarCriterio()">
+            <i class="fa-solid fa-plus"></i> Adicionar critério
+          </button>
+        </div>
         <div class="comp-criterios-grid" id="comp-criterios-grid">
-          <div class="comp-criterio-item">
-            <label><i class="fa-solid fa-square-check"></i> Critério 1</label>
-            <textarea placeholder="Descreva o critério 1..." rows="3"></textarea>
-          </div>
-          <div class="comp-criterio-item">
-            <label><i class="fa-solid fa-square-check"></i> Critério 2</label>
-            <textarea placeholder="Descreva o critério 2..." rows="3"></textarea>
-          </div>
-          <div class="comp-criterio-item">
-            <label><i class="fa-solid fa-square-check"></i> Critério 3</label>
-            <textarea placeholder="Descreva o critério 3..." rows="3"></textarea>
-          </div>
-          <div class="comp-criterio-item">
-            <label><i class="fa-solid fa-square-check"></i> Critério 4</label>
-            <textarea placeholder="Descreva o critério 4..." rows="3"></textarea>
-          </div>
+          <!-- critérios gerados dinamicamente -->
         </div>
 
         <div class="comp-escala-info">
@@ -193,6 +184,7 @@
 
   let editandoId = null;
   let todasCompetencias = [];
+  const MAX_CRITERIOS = 10;
 
   const TIPO_LABELS = { desempenho:'Desempenho', comportamento:'Comportamento', tecnica:'Técnica', lideranca:'Liderança' };
   const DE_LABELS   = { gestor:'Gestor', colaborador:'Colaborador', todos:'Todos' };
@@ -203,8 +195,71 @@
 
   // Exibe botão Nova apenas para admin
   if (isAdmin()) document.getElementById('btn-nova-comp').style.display = 'flex';
-  
-  // Inicializar Choices.js nos selects
+
+  // --- Gestão dinâmica de critérios ---
+
+  function renderCriterios(valores = ['']) {
+    const grid = document.getElementById('comp-criterios-grid');
+    grid.innerHTML = '';
+    valores.forEach((val, i) => adicionarCriterioItem(val, i));
+    atualizarBotaoAdd();
+  }
+
+  function adicionarCriterioItem(valor = '', index = null) {
+    const grid = document.getElementById('comp-criterios-grid');
+    const total = grid.querySelectorAll('.comp-criterio-item').length;
+    const num = index !== null ? index + 1 : total + 1;
+
+    const item = document.createElement('div');
+    item.className = 'comp-criterio-item';
+    item.innerHTML = `
+      <div class="comp-criterio-label-row">
+        <label><i class="fa-solid fa-square-check"></i> Critério ${num}</label>
+        <button type="button" class="comp-btn-rm-criterio" onclick="removerCriterio(this)" title="Remover critério">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <textarea placeholder="Descreva o critério ${num}..." rows="3">${valor}</textarea>
+    `;
+    grid.appendChild(item);
+    atualizarBotaoAdd();
+    renumerarCriterios();
+  }
+
+  window.adicionarCriterio = function() {
+    const grid = document.getElementById('comp-criterios-grid');
+    if (grid.querySelectorAll('.comp-criterio-item').length >= MAX_CRITERIOS) return;
+    adicionarCriterioItem();
+  };
+
+  window.removerCriterio = function(btn) {
+    const grid = document.getElementById('comp-criterios-grid');
+    if (grid.querySelectorAll('.comp-criterio-item').length <= 1) {
+      showToast('A competência deve ter pelo menos 1 critério.', 'error');
+      return;
+    }
+    btn.closest('.comp-criterio-item').remove();
+    renumerarCriterios();
+    atualizarBotaoAdd();
+  };
+
+  function renumerarCriterios() {
+    const items = document.querySelectorAll('#comp-criterios-grid .comp-criterio-item');
+    items.forEach((item, i) => {
+      item.querySelector('label').innerHTML = `<i class="fa-solid fa-square-check"></i> Critério ${i + 1}`;
+      item.querySelector('textarea').placeholder = `Descreva o critério ${i + 1}...`;
+    });
+  }
+
+  function atualizarBotaoAdd() {
+    const grid = document.getElementById('comp-criterios-grid');
+    const btn = document.getElementById('btn-add-criterio');
+    const total = grid.querySelectorAll('.comp-criterio-item').length;
+    btn.disabled = total >= MAX_CRITERIOS;
+    btn.title = total >= MAX_CRITERIOS ? `Máximo de ${MAX_CRITERIOS} critérios atingido` : 'Adicionar critério';
+  }
+
+  // --- Choices.js ---
   function initChoices() {
     if (choicesCompDe) choicesCompDe.destroy();
     if (choicesCompTipo) choicesCompTipo.destroy();
@@ -286,7 +341,6 @@
     document.getElementById('comp-descricao').value = '';
     document.getElementById('comp-de').value = '';
     document.getElementById('comp-tipo').value = '';
-    document.querySelectorAll('#comp-criterios-grid textarea').forEach(t => t.value = '');
     
     // Inicializar Choices.js
     initChoices();
@@ -298,9 +352,13 @@
         document.getElementById('comp-descricao').value = comp.descricao || '';
         document.getElementById('comp-de').value = comp.competenciaDe || '';
         document.getElementById('comp-tipo').value = comp.tipo || '';
-        const textareas = document.querySelectorAll('#comp-criterios-grid textarea');
-        (comp.criterios || []).forEach((cr, i) => { if (textareas[i]) textareas[i].value = cr; });
+        // Carrega critérios existentes
+        renderCriterios(comp.criterios && comp.criterios.length ? comp.criterios : ['']);
+      } else {
+        renderCriterios(['']);
       }
+    } else {
+      renderCriterios(['']);
     }
   };
 

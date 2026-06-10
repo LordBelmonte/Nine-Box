@@ -44,15 +44,6 @@ function aplicarPermissoesNav() {
   const user = getUser();
   if (!user) return;
 
-  // Colaboradores não veem o navbar
-  if (isColaborador()) {
-    const navbar = document.querySelector('.navbar');
-    if (navbar) {
-      navbar.style.display = 'none';
-    }
-    return;
-  }
-
   // Elementos visíveis apenas para administradores
   document.querySelectorAll('[data-role="admin"]').forEach(el => {
     el.style.display = isAdmin() ? '' : 'none';
@@ -67,6 +58,32 @@ function aplicarPermissoesNav() {
   document.querySelectorAll('[data-role="colaborador"]').forEach(el => {
     el.style.display = isColaborador() ? '' : 'none';
   });
+
+  // Colaboradores veem apenas Avaliações no menu principal
+  if (isColaborador()) {
+    document.querySelectorAll('.navbar-item').forEach(el => {
+      const link = el.querySelector('a');
+      if (link && !el.closest('.navbar-item-dropdown')) {
+        const href = link.getAttribute('href');
+        // Permite apenas Avaliações
+        const allowed = href.includes('avaliacoes.html');
+        el.style.display = allowed ? '' : 'none';
+      }
+    });
+  }
+
+  // Gestores veem Início e Avaliações no menu principal
+  if (isGestor()) {
+    document.querySelectorAll('.navbar-item').forEach(el => {
+      const link = el.querySelector('a');
+      if (link && !el.closest('.navbar-item-dropdown')) {
+        const href = link.getAttribute('href');
+        // Permite apenas Avaliações e Início
+        const allowed = href.includes('avaliacoes.html') || href.includes('index.html');
+        el.style.display = allowed ? '' : 'none';
+      }
+    });
+  }
 }
 
 // Inicialização ao carregar a página

@@ -323,11 +323,44 @@
   gap: 14px;
 }
 
+.comp-criterios-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .comp-criterios-section h4 {
   font-size: 15px;
   font-weight: 700;
   color: var(--primary);
   margin: 0;
+}
+
+.comp-btn-add-criterio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+  white-space: nowrap;
+}
+
+.comp-btn-add-criterio:hover {
+  background: #1d4ed8;
+}
+
+.comp-btn-add-criterio:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: var(--text-muted);
 }
 
 .comp-criterios-grid {
@@ -340,6 +373,48 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.comp-criterio-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.comp-criterio-label-row label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+}
+
+.comp-criterio-label-row label i {
+  color: var(--primary-light);
+}
+
+.comp-btn-rm-criterio {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.comp-btn-rm-criterio:hover {
+  background: #ef4444;
+  color: white;
 }
 
 .comp-criterio-item label {

@@ -14,44 +14,222 @@
       max-width: 800px;
       margin: 0 auto;
       padding: 40px 20px;
+      text-align: center;
+    }
+
+    .orientacoes-header {
+      margin-bottom: 40px;
+    }
+
+    .orientacoes-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--primary), #6366f1);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.25);
+    }
+
+    .orientacoes-icon i {
+      font-size: 36px;
+      color: white;
+    }
+
+    .orientacoes-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .orientacoes-subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+
+    .info-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .info-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .info-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), #6366f1);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .info-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+    }
+
+    .info-card:hover::before {
+      opacity: 1;
+    }
+
+    .info-card-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--primary), #6366f1);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .info-card-icon i {
+      font-size: 24px;
+      color: white;
+    }
+
+    .info-card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .info-card-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
     }
 
     .orientacoes-box {
-      background: var(--surface);
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 40px;
-      margin-bottom: 30px;
-      box-shadow: var(--shadow-md);
+      background: linear-gradient(135deg, var(--surface), rgba(99, 102, 241, 0.03));
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 40px;
+      margin-bottom: 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      text-align: left;
+      position: relative;
+    }
+
+    .orientacoes-box::before {
+      content: '"';
+      position: absolute;
+      top: 20px;
+      left: 24px;
+      font-size: 48px;
+      color: var(--primary);
+      opacity: 0.15;
+      font-family: Georgia, serif;
+      line-height: 1;
     }
 
     .orientacoes-texto {
       color: var(--text);
-      font-size: 16px;
-      line-height: 1.8;
+      font-size: 17px;
+      line-height: 1.7;
       white-space: pre-wrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    .orientacoes-texto strong {
+      color: var(--primary);
+      font-weight: 700;
     }
 
     .btn-container {
       display: flex;
       justify-content: center;
-      margin-top: 30px;
+      gap: 16px;
+      flex-wrap: wrap;
     }
 
     .btn-comecar {
-      background: var(--primary);
+      background: linear-gradient(135deg, var(--primary), #6366f1);
       color: white;
       border: none;
-      padding: 12px 36px;
-      border-radius: var(--radius-sm);
-      font-size: 16px;
+      padding: 18px 56px;
+      border-radius: 14px;
+      font-size: 17px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .btn-comecar:hover {
-      background: #1d4ed8;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 28px rgba(99, 102, 241, 0.45);
+    }
+
+    .btn-comecar:active {
+      transform: translateY(-1px);
+    }
+
+    .btn-voltar {
+      background: var(--surface);
+      color: var(--text);
+      border: 2px solid var(--border);
+      padding: 18px 40px;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-voltar:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--bg);
+    }
+
+    @media (max-width: 768px) {
+      .info-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .orientacoes-title {
+        font-size: 26px;
+      }
+
+      .btn-container {
+        flex-direction: column;
+      }
+
+      .btn-comecar,
+      .btn-voltar {
+        width: 100%;
+        justify-content: center;
+      }
     }
   </style>
 </head>
@@ -79,30 +257,42 @@
   </div>
 </header>
 
-<nav class="navbar">
-  <ul class="navbar-nav">
-    <li class="navbar-item"><a href="../index.html" class="navbar-link"><i class="fa-solid fa-home"></i><span>Inicio</span></a></li>
-    <li class="navbar-item" data-role="admin"><a href="cadastrar.html" class="navbar-link"><i class="fa-solid fa-user-plus"></i><span>Cadastrar</span></a></li>
-    <li class="navbar-item" data-role="gestorOrAdmin"><a href="consultar.html" class="navbar-link"><i class="fa-solid fa-magnifying-glass"></i><span>Consultar</span></a></li>
-    <li class="navbar-item navbar-item-dropdown">
-      <a href="#" class="navbar-link navbar-link-dropdown" onclick="toggleSubmenu(event, this)">
-        <i class="fa-solid fa-star"></i><span>Avaliacoes</span><i class="fa-solid fa-chevron-down navbar-chevron"></i>
-      </a>
-      <ul class="navbar-submenu">
-        <li data-role="admin"><a href="campanhas.html" class="navbar-submenu-link"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
-        <li><a href="avaliacoes.html" class="navbar-submenu-link active"><i class="fa-solid fa-star"></i> Avaliacoes</a></li>
-        <li data-role="gestorOrAdmin"><a href="nine-box.html" class="navbar-submenu-link"><i class="fa-solid fa-th"></i> Nine Box</a></li>
-        <li><a href="competencias.html" class="navbar-submenu-link"><i class="fa-solid fa-clipboard-check"></i> Competencias</a></li>
-      </ul>
-    </li>
-    <li class="navbar-item" data-role="gestorOrAdmin"><a href="grupos.html" class="navbar-link"><i class="fa-solid fa-users"></i><span>Grupos</span></a></li>
-    <li class="navbar-item"><a href="relatorios.html" class="navbar-link"><i class="fa-solid fa-chart-bar"></i><span>Relatorios</span></a></li>
-    <li class="navbar-item"><a href="../perfil.html" class="navbar-link"><i class="fa-solid fa-user"></i><span>Perfil</span></a></li>
-  </ul>
-</nav>
+
 
 <main class="wrapper">
   <div class="orientacoes-container">
+    <div class="orientacoes-header">
+      <div class="orientacoes-icon">
+        <i class="fa-solid fa-star"></i>
+      </div>
+      <h1 class="orientacoes-title" id="orientacoes-title">Avaliação de Desempenho</h1>
+      <p class="orientacoes-subtitle">Avalie as competências do seu gestor de forma construtiva</p>
+    </div>
+
+    <div class="info-cards">
+      <div class="info-card">
+        <div class="info-card-icon">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <div class="info-card-title">Seja Objetivo</div>
+        <div class="info-card-desc">Baseie suas respostas em fatos observados</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">
+          <i class="fa-solid fa-check-double"></i>
+        </div>
+        <div class="info-card-title">Complete Tudo</div>
+        <div class="info-card-desc">Responda todos os critérios da avaliação</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="info-card-title">100% Anônima</div>
+        <div class="info-card-desc">Sua identidade será totalmente protegida</div>
+      </div>
+    </div>
+
     <div class="orientacoes-box">
       <div class="orientacoes-texto" id="orientacoes-texto">
         Carregando orientações...
@@ -110,8 +300,11 @@
     </div>
 
     <div class="btn-container">
+      <button class="btn-voltar" onclick="window.location.href='avaliacoes.html'">
+        <i class="fa-solid fa-arrow-left"></i> Cancelar
+      </button>
       <button class="btn-comecar" id="responderCompetencias">
-        Começar
+        <i class="fa-solid fa-play"></i> Iniciar Avaliação
       </button>
     </div>
   </div>
@@ -127,26 +320,43 @@
   const user = getUser();
   const campaignId = localStorage.getItem('campaignId');
 
-  // Se for colaborador, esconder header e navbar
-  if (isColaborador()) {
-    document.body.classList.add('colaborador-mode');
+  // Se for colaborador ou gestor, esconder header completamente
+  if (isColaborador() || isGestor()) {
     const header = document.querySelector('header');
-    const navbar = document.querySelector('.navbar');
     if (header) header.style.display = 'none';
-    if (navbar) navbar.style.display = 'none';
   }
 
   async function loadOrientacoes() {
     const container = document.getElementById('orientacoes-texto');
+    const titleEl = document.getElementById('orientacoes-title');
     console.log('Carregando orientações para campaignId:', campaignId);
     try {
       const response = await campaignsApi.getById(campaignId);
       console.log('Resposta da API:', response);
       const campaign = response.data;
       console.log('Campanha:', campaign);
-      
-      if (campaign.descricao) {
-        container.textContent = campaign.descricao;
+
+      // Atualiza título com nome da campanha
+      if (campaign.nome) {
+        titleEl.textContent = campaign.nome;
+      }
+
+      // Mostra competências da campanha
+      if (campaign.competencias && campaign.competencias.length > 0) {
+        const competenciesHtml = campaign.competencies.map(cc => {
+          const comp = cc.competency;
+          const criteriosCount = comp.criterios ? comp.criterios.length : 0;
+          return `
+            <div style="margin-bottom: 16px; padding: 16px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border);">
+              <strong style="color: var(--primary); font-size: 15px;">${comp.nome}</strong>
+              ${comp.descricao ? `<p style="margin: 8px 0 0; font-size: 13px; color: var(--text-muted);">${comp.descricao}</p>` : ''}
+              <p style="margin: 8px 0 0; font-size: 12px; color: var(--text-muted);">
+                <i class="fa-solid fa-list-check"></i> ${criteriosCount} critério${criteriosCount !== 1 ? 's' : ''} para avaliar
+              </p>
+            </div>
+          `;
+        }).join('');
+        container.innerHTML = competenciesHtml;
       } else {
         container.textContent = 'Esta avaliação deve ser realizada com calma e atenção. Após iniciada, você terá que responder a todas as perguntas. Deseja começar?';
       }

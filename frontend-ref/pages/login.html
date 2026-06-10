@@ -182,7 +182,7 @@
     
     // Redirecionar após um pequeno delay se não fizer logout
     setTimeout(() => {
-      if (user.tipo === 'colaborador') {
+      if (user.tipo === 'colaborador' || user.tipo === 'gestor') {
         window.location.href = 'avaliacoes.html';
       } else {
         window.location.href = '../index.html';
@@ -210,8 +210,8 @@
       setToken(res.data.token);
       setUser(res.data.user);
       
-      // Colaboradores vão direto para avaliações
-      if (res.data.user.tipo === 'colaborador') {
+      // Colaboradores e gestores vão direto para avaliações
+      if (res.data.user.tipo === 'colaborador' || res.data.user.tipo === 'gestor') {
         window.location.href = 'avaliacoes.html';
       } else {
         window.location.href = '../index.html';

@@ -12,14 +12,14 @@ router.use(authMiddleware);
 
 // Rotas públicas (autenticadas)
 // IMPORTANTE: Rotas específicas ANTES de rotas genéricas para evitar conflitos
-router.get('/stats/distribution', isGestorOrAdminMiddleware, (req, res, next) => nineBoxController.getGridDistribution(req, res, next));
+router.get('/stats/distribution', isAdminMiddleware, (req, res, next) => nineBoxController.getGridDistribution(req, res, next));
 router.get('/stats/tipo', isAdminMiddleware, (req, res, next) => nineBoxController.getStatsByTipo(req, res, next));
-router.get('/calculate/person/:pessoaId', isGestorOrAdminMiddleware, (req, res, next) => nineBoxController.calculateForPerson(req, res, next));
-router.get('/calculate/team', isGestorOrAdminMiddleware, (req, res, next) => nineBoxController.calculateForTeam(req, res, next));
-router.get('/pessoa/:pessoaId/latest', (req, res, next) => nineBoxController.findLatestByPessoa(req, res, next));
-router.get('/pessoa/:pessoaId', (req, res, next) => nineBoxController.findByPessoa(req, res, next));
-router.get('/', (req, res, next) => nineBoxController.findAll(req, res, next));
-router.get('/:id', (req, res, next) => nineBoxController.findById(req, res, next));
+router.get('/calculate/all', isAdminMiddleware, (req, res, next) => nineBoxController.calculateAll(req, res, next));
+router.get('/calculate/person/:pessoaId', isAdminMiddleware, (req, res, next) => nineBoxController.calculateForPerson(req, res, next));
+router.get('/pessoa/:pessoaId/latest', isAdminMiddleware, (req, res, next) => nineBoxController.findLatestByPessoa(req, res, next));
+router.get('/pessoa/:pessoaId', isAdminMiddleware, (req, res, next) => nineBoxController.findByPessoa(req, res, next));
+router.get('/', isAdminMiddleware, (req, res, next) => nineBoxController.findAll(req, res, next));
+router.get('/:id', isAdminMiddleware, (req, res, next) => nineBoxController.findById(req, res, next));
 
 // Rotas de gestor/admin
 // OBSERVAÇÃO: Criação manual de Nine Box foi descontinuada

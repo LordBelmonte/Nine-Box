@@ -31,7 +31,7 @@
         </div>
       </div>
       <div class="user-dropdown-divider"></div>
-      <a href="../perfil.html" class="user-dropdown-item">
+      <a href="../perfil.html" class="user-dropdown-item" data-role="admin">
         <i class="fa-solid fa-user-pen"></i> Meu Perfil
       </a>
       <button class="user-dropdown-item user-dropdown-sair" id="btn-sair-header" onclick="sairDaConta()" style="display:none">
@@ -41,33 +41,11 @@
   </div>
 </header>
 
-<nav class="navbar">
-  <ul class="navbar-nav">
-    <li class="navbar-item"><a href="../index.html" class="navbar-link"><i class="fa-solid fa-home"></i><span>Inicio</span></a></li>
-    <li class="navbar-item" data-role="admin"><a href="cadastrar.html" class="navbar-link"><i class="fa-solid fa-user-plus"></i><span>Cadastrar</span></a></li>
-    <li class="navbar-item" data-role="gestorOrAdmin"><a href="consultar.html" class="navbar-link"><i class="fa-solid fa-magnifying-glass"></i><span>Consultar</span></a></li>
-    <li class="navbar-item navbar-item-dropdown">
-      <a href="#" class="navbar-link navbar-link-dropdown" onclick="toggleSubmenu(event, this)">
-        <i class="fa-solid fa-star"></i><span>Avaliacoes</span><i class="fa-solid fa-chevron-down navbar-chevron"></i>
-      </a>
-      <ul class="navbar-submenu">
-        <li data-role="admin"><a href="campanhas.html" class="navbar-submenu-link"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
-        <li><a href="avaliacoes.html" class="navbar-submenu-link active"><i class="fa-solid fa-star"></i> Avaliacoes</a></li>
-        <li data-role="gestorOrAdmin"><a href="nine-box.html" class="navbar-submenu-link"><i class="fa-solid fa-th"></i> Nine Box</a></li>
-        <li><a href="competencias.html" class="navbar-submenu-link"><i class="fa-solid fa-clipboard-check"></i> Competencias</a></li>
-      </ul>
-    </li>
-    <li class="navbar-item" data-role="gestorOrAdmin"><a href="grupos.html" class="navbar-link"><i class="fa-solid fa-users"></i><span>Grupos</span></a></li>
-    <li class="navbar-item"><a href="relatorios.html" class="navbar-link"><i class="fa-solid fa-chart-bar"></i><span>Relatorios</span></a></li>
-    <li class="navbar-item"><a href="../perfil.html" class="navbar-link"><i class="fa-solid fa-user"></i><span>Perfil</span></a></li>
-  </ul>
-</nav>
-
 <style>
   .avaliacao-container {
-    max-width: 1100px;
+    max-width: 800px;
     margin: 0 auto;
-    padding: 20px 20px;
+    padding: 20px;
   }
 
   .avaliacao-header {
@@ -92,7 +70,7 @@
     height: 6px;
     background: var(--border);
     border-radius: 4px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     overflow: hidden;
   }
 
@@ -107,15 +85,15 @@
     text-align: center;
     font-size: 13px;
     color: var(--text-muted);
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
 
+  /* ── Card da competência ── */
   .competencia-card {
     background: var(--surface);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-radius: 14px;
+    padding: 28px 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
     border: 1px solid var(--border);
   }
 
@@ -124,158 +102,120 @@
     text-align: center;
     font-size: 20px;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
   .competencia-descricao {
     text-align: center;
     font-size: 14px;
-    color: var(--text);
-    margin-bottom: 20px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
     line-height: 1.5;
-    font-weight: 400;
   }
 
-  .categoria-group {
-    margin-bottom: 16px;
+  /* ── Step label (critério X de Y) ── */
+  .criterio-step-info {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
   }
 
-  .categorias-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  .categoria-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-    padding: 8px 12px;
-    border-radius: 8px;
-  }
-
-  .categoria-header.ideal {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
-    border: 1px solid rgba(16, 185, 129, 0.2);
-  }
-
-  .categoria-header.bom {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
-    border: 1px solid rgba(59, 130, 246, 0.2);
-  }
-
-  .categoria-header.mediano {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
-    border: 1px solid rgba(245, 158, 11, 0.2);
-  }
-
-  .categoria-header.melhorar {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
-    border: 1px solid rgba(239, 68, 68, 0.2);
-  }
-
-  .categoria-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 14px;
-  }
-
-  .categoria-icon.ideal {
-    background: linear-gradient(135deg, #10b981, #059669);
-  }
-
-  .categoria-icon.bom {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-  }
-
-  .categoria-icon.mediano {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-  }
-
-  .categoria-icon.melhorar {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-  }
-
-  .categoria-title {
-    font-size: 14px;
+  /* ── Pergunta do critério ── */
+  .criterio-pergunta {
+    text-align: center;
+    font-size: 18px;
     font-weight: 600;
     color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 28px;
+    padding: 0 8px;
   }
 
-  .categoria-description {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 2px;
+  /* ── Opções de nota ── */
+  .notas-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 0;
   }
 
-  .radio-group {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    background: var(--bg);
-    border-radius: 10px;
-    border: 1px solid var(--border);
-  }
-
-  .radio-group input[type="radio"] {
-    display: none;
-  }
-
-  .radio-option {
+  .nota-btn {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    padding: 20px 12px;
+    border: 2px solid var(--border);
+    border-radius: 16px;
     cursor: pointer;
-    padding: 10px 16px;
-    border-radius: 8px;
     transition: all 0.2s ease;
-    border: 2px solid transparent;
-    flex: 1;
+    background: var(--bg);
+    user-select: none;
+    position: relative;
   }
 
-  .radio-option:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-
-  .radio-option.selected {
+  .nota-btn:hover {
     border-color: var(--primary);
-    background: linear-gradient(135deg, var(--primary), #6366f1);
-    color: white;
+    background: var(--surface);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
   }
 
-  .radio-option-value {
-    font-size: 20px;
+  .nota-btn input[type="radio"] { display: none; }
+
+  /* Badge de nota — circular e destacado */
+  .nota-badge {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
     font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
   }
 
-  .radio-option-label {
+  .nota-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .nota-desc {
     font-size: 11px;
-    font-weight: 500;
-    opacity: 0.8;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.3;
   }
 
-  .radio-option.selected .radio-option-label {
-    opacity: 1;
-  }
+  /* selecionado — cores por nota */
+  .nota-btn.sel-1 { border-color: #ef4444; background: rgba(239,68,68,.05); }
+  .nota-btn.sel-1 .nota-badge { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239,68,68,0.4); }
 
-  .categoria-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border), transparent);
-    margin: 16px 0;
-  }
+  .nota-btn.sel-2 { border-color: #f59e0b; background: rgba(245,158,11,.05); }
+  .nota-btn.sel-2 .nota-badge { background: #f59e0b; color: white; box-shadow: 0 4px 12px rgba(245,158,11,0.4); }
 
-  .observacoes-container {
-    margin-top: 20px;
+  .nota-btn.sel-3 { border-color: #3b82f6; background: rgba(59,130,246,.05); }
+  .nota-btn.sel-3 .nota-badge { background: #3b82f6; color: white; box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+
+  .nota-btn.sel-4 { border-color: #10b981; background: rgba(16,185,129,.05); }
+  .nota-btn.sel-4 .nota-badge { background: #10b981; color: white; box-shadow: 0 4px 12px rgba(16,185,129,0.4); }
+
+  /* ── Tela de observações ── */
+  .obs-desc {
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
   }
 
   .observacoes-label {
@@ -288,39 +228,36 @@
     gap: 6px;
   }
 
-  .observacoes-label i {
-    color: var(--primary);
-  }
+  .observacoes-label i { color: var(--primary); }
 
   .observacoes-container textarea {
     width: 100%;
-    height: 60px;
+    height: 100px;
     padding: 10px;
-    border: 1px solid var(--border);
+    border: 1.5px solid var(--border);
     border-radius: 8px;
     font-family: inherit;
     font-size: 13px;
     resize: vertical;
     background: var(--bg);
     color: var(--text);
-    transition: all 0.2s ease;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
   }
 
   .observacoes-container textarea:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 3px rgba(99,102,241,.1);
   }
 
-  .observacoes-container textarea::placeholder {
-    color: var(--text-muted);
-  }
-
+  /* ── Paginação (por competência) ── */
   .pagination-container {
     display: flex;
     justify-content: center;
     gap: 8px;
     margin-top: 24px;
+    flex-wrap: wrap;
   }
 
   .page-number {
@@ -329,20 +266,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--border);
+    border: 1.5px solid var(--border);
     border-radius: 8px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--text);
     transition: all 0.2s ease;
   }
 
-  .page-number:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-    transform: translateY(-1px);
-  }
+  .page-number:hover { border-color: var(--primary); color: var(--primary); }
 
   .page-number.active {
     background: linear-gradient(135deg, var(--primary), #6366f1);
@@ -350,6 +283,10 @@
     border-color: var(--primary);
   }
 
+  .page-number.done { border-color: #10b981; color: #10b981; }
+  .page-number.done.active { background: #10b981; border-color: #10b981; color: white; }
+
+  /* ── Botões nav ── */
   .buttons-container {
     display: flex;
     justify-content: space-between;
@@ -357,8 +294,7 @@
     margin-top: 24px;
   }
 
-  .btn-voltar,
-  .btn-proximo {
+  .btn-voltar, .btn-proximo {
     padding: 10px 24px;
     border: none;
     border-radius: 8px;
@@ -374,14 +310,13 @@
   .btn-voltar {
     background: white;
     color: var(--primary);
-    border: 1px solid var(--primary);
+    border: 1.5px solid var(--primary);
   }
 
   .btn-voltar:hover {
     background: var(--primary);
     color: white;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
   }
 
   .btn-proximo {
@@ -389,25 +324,14 @@
     color: white;
   }
 
-  .btn-proximo:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
-  }
+  .btn-proximo:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,.4); }
+  .btn-proximo:disabled { background: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; }
 
-  .btn-proximo:disabled {
-    background: var(--text-muted);
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-
+  /* ── Modal ── */
   .modal-overlay {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: rgba(0,0,0,0.7);
     backdrop-filter: blur(6px);
     justify-content: center;
@@ -415,87 +339,41 @@
     z-index: 1000;
   }
 
-  .modal-overlay.show {
-    display: flex;
-  }
+  .modal-overlay.show { display: flex; }
 
   .modal {
     background: var(--surface);
-    padding: 48px;
-    border-radius: 24px;
-    max-width: 520px;
+    padding: 40px;
+    border-radius: 20px;
+    max-width: 480px;
     width: 90%;
     text-align: center;
     box-shadow: 0 24px 80px rgba(0,0,0,0.3);
   }
 
-  .modal h3 {
-    color: var(--primary);
-    font-size: 26px;
-    font-weight: 700;
-    margin-bottom: 16px;
-  }
+  .modal h3 { color: var(--primary); font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+  .modal p  { color: var(--text-muted); font-size: 15px; margin-bottom: 28px; line-height: 1.6; }
 
-  .modal p {
-    color: var(--text-muted);
-    font-size: 17px;
-    margin-bottom: 36px;
-    line-height: 1.6;
-  }
-
-  .modal-buttons {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-  }
+  .modal-buttons { display: flex; gap: 12px; justify-content: center; }
 
   .btn-modal {
-    padding: 16px 36px;
+    padding: 12px 28px;
     border: none;
-    border-radius: 14px;
-    font-size: 16px;
+    border-radius: 10px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
   }
 
-  .btn-modal-cancel {
-    background: var(--bg);
-    color: var(--text);
-    border: 2px solid var(--border);
-  }
+  .btn-modal-cancel { background: var(--bg); color: var(--text); border: 2px solid var(--border); }
+  .btn-modal-cancel:hover { background: var(--border); }
+  .btn-modal-confirm { background: linear-gradient(135deg, var(--primary), #6366f1); color: white; }
+  .btn-modal-confirm:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(99,102,241,.4); }
 
-  .btn-modal-cancel:hover {
-    background: var(--border);
-  }
-
-  .btn-modal-confirm {
-    background: linear-gradient(135deg, var(--primary), #6366f1);
-    color: white;
-  }
-
-  .btn-modal-confirm:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 100px 20px;
-    color: var(--text-muted);
-  }
-
-  .empty-state i {
-    font-size: 72px;
-    margin-bottom: 28px;
-    color: var(--primary-light);
-  }
-
-  .empty-state h3 {
-    font-size: 26px;
-    margin-bottom: 14px;
-    color: var(--text);
-  }
+  .empty-state { text-align: center; padding: 80px 20px; color: var(--text-muted); }
+  .empty-state i { font-size: 60px; margin-bottom: 20px; color: var(--primary-light); }
+  .empty-state h3 { font-size: 22px; margin-bottom: 10px; color: var(--text); }
 </style>
 
 <main class="wrapper">
@@ -508,24 +386,41 @@
     <div class="progress-bar">
       <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
     </div>
-    <div class="progress-text" id="progress-text">0 de 0 competências respondidas</div>
+    <div class="progress-text" id="progress-text">0 de 0 critérios respondidos</div>
 
-    <div id="competencias-content">
-      <!-- Competências serão geradas dinamicamente -->
-    </div>
+    <div id="competencias-content"></div>
 
-    <div class="pagination-container" id="pagination-container">
-      <!-- Paginação será gerada dinamicamente -->
-    </div>
+    <div class="pagination-container" id="pagination-container"></div>
 
     <div class="buttons-container">
-      <button class="btn-voltar" id="btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
-      <button class="btn-proximo" id="btn-proximo">Próxima <i class="fa-solid fa-arrow-right"></i></button>
+      <button class="btn-voltar" id="btn-voltar">
+        <i class="fa-solid fa-arrow-left"></i> Voltar
+      </button>
+      <button class="btn-proximo" id="btn-proximo">
+        Próximo <i class="fa-solid fa-arrow-right"></i>
+      </button>
     </div>
   </div>
 </main>
 
-<!-- Modal de finalização -->
+<!-- Modal: sair da avaliação -->
+<div class="modal-overlay" id="modal-sair">
+  <div class="modal">
+    <h3 style="color:#ef4444">
+      <i class="fa-solid fa-triangle-exclamation" style="margin-right:8px"></i>Sair da avaliação?
+    </h3>
+    <p>Se você sair agora, seu progresso será perdido e a avaliação terá que ser reiniciada.</p>
+    <div class="modal-buttons">
+      <button class="btn-modal btn-modal-cancel" id="btn-continuar-avaliacao">Continuar avaliando</button>
+      <button class="btn-modal" id="btn-confirmar-sair"
+        style="background:linear-gradient(135deg,#ef4444,#dc2626);color:white">
+        Sim, sair
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: finalizar avaliação -->
 <div class="modal-overlay" id="modal-finalizar">
   <div class="modal">
     <h3>Finalizar Avaliação</h3>
@@ -538,345 +433,360 @@
 </div>
 
 <script type="module">
-  import { requireAuth, getUser, isColaborador } from '../js/auth.js';
-  import { campaignsApi, evaluationsApi, competenciesApi } from '../js/api.js';
+  import { requireAuth, getUser, isColaborador, isGestor, sairDaConta, toggleUserMenu } from '../js/auth.js';
+  import { campaignsApi, evaluationsApi } from '../js/api.js';
   import '../js/navbar.js';
 
   requireAuth();
 
   const user = getUser();
   const campaignId = localStorage.getItem('campaignId');
-  
-  // Se for colaborador, esconder header e navbar
-  if (isColaborador()) {
-    document.body.classList.add('colaborador-mode');
+
+  // Oculta header para colaborador/gestor
+  if (user && (user.tipo === 'colaborador' || user.tipo === 'gestor')) {
     const header = document.querySelector('header');
-    const navbar = document.querySelector('.navbar');
     if (header) header.style.display = 'none';
-    if (navbar) navbar.style.display = 'none';
   }
-  
-  let competencies = [];
-  let currentPage = 0;
-  const itemsPerPage = 1;
-  let respostas = {};
 
-  async function loadCampaign() {
-    try {
-      const response = await campaignsApi.getById(campaignId);
-      const campaign = response.data;
-      console.log('Campanha carregada:', campaign);
-      console.log('Competências da campanha:', campaign.competencias);
-      document.getElementById('campanha-nome').textContent = campaign.nome;
-      
-      // Salvar a campanha para uso posterior
-      window.currentCampaign = campaign;
-      
-      // Carregar competências da campanha
-      if (campaign.competencias && campaign.competencias.length > 0) {
-        competencies = campaign.competencias.map(cc => cc.competency);
-        console.log('Competências mapeadas:', competencies);
-        renderCompetencias();
-      } else {
-        console.log('Nenhuma competência associada');
-        document.getElementById('competencias-content').innerHTML = `
-          <div class="empty-state">
-            <i class="fa-solid fa-clipboard-list"></i>
-            <h3>Nenhuma competência associada</h3>
-            <p>Esta campanha não possui competências associadas.</p>
-          </div>
-        `;
-      }
-    } catch (error) {
-      console.error('Erro ao carregar campanha:', error);
-      document.getElementById('competencias-content').innerHTML = `
-        <div class="empty-state">
-          <i class="fa-solid fa-exclamation-circle"></i>
-          <h3>Erro ao carregar avaliação</h3>
-          <p>Não foi possível carregar a avaliação. Tente novamente mais tarde.</p>
-        </div>
-      `;
+  // ── Bloqueio de saída ─────────────────────────────────────────────
+  let avaliacaoConcluida = false;
+
+  window.addEventListener('beforeunload', e => {
+    if (avaliacaoConcluida) return;
+    e.preventDefault();
+    e.returnValue = '';
+  });
+
+  document.querySelectorAll('a[href]').forEach(link => {
+    link.addEventListener('click', e => {
+      if (avaliacaoConcluida) return;
+      e.preventDefault();
+      mostrarModalSaida(link.href);
+    });
+  });
+
+  const btnSairHeader = document.getElementById('btn-sair-header');
+  if (btnSairHeader) {
+    btnSairHeader.addEventListener('click', e => {
+      if (avaliacaoConcluida) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      mostrarModalSaida(null, true);
+    }, true);
+  }
+
+  function mostrarModalSaida(destino = null, logout = false) {
+    window._saidaDestino = destino;
+    window._saidaLogout  = logout;
+    document.getElementById('modal-sair').classList.add('show');
+  }
+
+  document.getElementById('btn-continuar-avaliacao').addEventListener('click', () => {
+    document.getElementById('modal-sair').classList.remove('show');
+  });
+
+  document.getElementById('btn-confirmar-sair').addEventListener('click', () => {
+    avaliacaoConcluida = true;
+    // NÃO limpa o localStorage - mantém a avaliação como "em aberto"
+    // localStorage.removeItem('respostas_avaliacao');
+    // localStorage.removeItem('campaignId');
+    if (window._saidaLogout) {
+      import('../js/auth.js').then(m => m.sairDaConta());
+    } else {
+      window.location.href = window._saidaDestino || 'avaliacoes.html';
     }
+  });
+
+  // ── Estado ────────────────────────────────────────────────────────
+  let competencies = [];
+  // steps: [{ type:'criterio', comp, idx } | { type:'obs', comp }]
+  let steps = [];
+  let currentStep = 0;
+  // respostas[compId] = { criterios: [1..4, ...], observacao: '' }
+  // Verifica se as respostas no localStorage pertencem ao usuário atual
+  const storedData = JSON.parse(localStorage.getItem('respostas_avaliacao') || '{}');
+  const storedUserId = localStorage.getItem('respostas_avaliacao_userId');
+  let respostas = (storedUserId === user.userId) ? storedData : {};
+
+  function buildSteps() {
+    steps = [];
+    competencies.forEach(comp => {
+      (comp.criterios || []).forEach((_, idx) => {
+        steps.push({ type: 'criterio', comp, idx });
+      });
+      steps.push({ type: 'obs', comp });
+    });
   }
 
-  async function loadCompetencies() {
-    // Esta função não é mais necessária, pois as competências são carregadas diretamente da campanha
-  }
-
-  function saveResposta(idCompetencia, valor) {
-    const observacaoExistente = respostas[idCompetencia]?.observacao || '';
-    respostas[idCompetencia] = {
-      valor,
-      observacao: observacaoExistente
-    };
-    localStorage.setItem('respostas_avaliacao', JSON.stringify(respostas));
-  }
-
-  function saveObservacao(idCompetencia) {
-    const textarea = document.getElementById(`observacao_${idCompetencia}`);
-    const texto = textarea.value;
-    const valorExistente = respostas[idCompetencia]?.valor || '';
-    
-    respostas[idCompetencia] = {
-      valor: valorExistente,
-      observacao: texto
-    };
-    localStorage.setItem('respostas_avaliacao', JSON.stringify(respostas));
-  }
-
-  function renderCompetencias() {
+  // ── Render do step atual ──────────────────────────────────────────
+  function renderStep() {
     const container = document.getElementById('competencias-content');
     container.innerHTML = '';
+    if (!steps.length) return;
 
-    const startIndex = currentPage * itemsPerPage;
-    const endIndex = Math.min(startIndex + itemsPerPage, competencies.length);
-    const currentCompetencies = competencies.slice(startIndex, endIndex);
+    const step = steps[currentStep];
+    const { comp } = step;
+    const compId = comp.id;
 
-    currentCompetencies.forEach((competencia) => {
-      const idCompetencia = competencia.id;
-      const observacao = respostas[idCompetencia]?.observacao || "";
+    const card = document.createElement('div');
+    card.className = 'competencia-card';
 
-      const card = document.createElement('div');
-      card.className = 'competencia-card';
+    if (step.type === 'criterio') {
+      const { idx } = step;
+      const criterioTexto = comp.criterios[idx];
+      const valorSalvo = respostas[compId]?.criterios?.[idx] ?? null;
 
-      const radioChecked = (valor) => respostas[idCompetencia]?.valor == valor ? 'checked' : '';
-
-      const categorias = [
-        { 
-          titulo: competencia.ideal || 'Ideal', 
-          valores: [4.9, 4.5, 4.1], 
-          icon: 'fa-solid fa-star',
-          class: 'ideal',
-          descricao: 'Desempenho excepcional, supera todas as expectativas'
-        },
-        { 
-          titulo: competencia.bom || 'Bom', 
-          valores: [3.9, 3.5, 3.1], 
-          icon: 'fa-solid fa-thumbs-up',
-          class: 'bom',
-          descricao: 'Desempenho sólido e consistente'
-        },
-        { 
-          titulo: competencia.mediano || 'Mediano', 
-          valores: [2.9, 2.5, 2.1], 
-          icon: 'fa-solid fa-minus',
-          class: 'mediano',
-          descricao: 'Desempenho dentro do esperado'
-        },
-        { 
-          titulo: competencia.a_melhorar || 'A melhorar', 
-          valores: [1.9, 1.5, 1.1], 
-          icon: 'fa-solid fa-arrow-trend-down',
-          class: 'melhorar',
-          descricao: 'Precisa de desenvolvimento'
-        }
+      // Rótulos das notas vêm da competência cadastrada
+      const notas = [
+        { val: 1, label: 'Ruim', desc: 'Não atende', sel: 'sel-1' },
+        { val: 2, label: 'Regular', desc: 'Atende parcialmente', sel: 'sel-2' },
+        { val: 3, label: 'Bom', desc: 'Atende bem', sel: 'sel-3' },
+        { val: 4, label: 'Excelente', desc: 'Supera expectativas', sel: 'sel-4' },
       ];
 
       card.innerHTML = `
-        <div class="competencia-titulo">${competencia.nome}</div>
-        <div class="competencia-descricao">${competencia.descricao || ''}</div>
-        
-        <div class="categorias-grid">
-          ${categorias.map(({ titulo, valores, icon, class: catClass, descricao }, index) => `
-            <div class="categoria-group">
-              <div class="categoria-header ${catClass}">
-                <div class="categoria-icon ${catClass}"><i class="${icon}"></i></div>
-                <div>
-                  <div class="categoria-title">${titulo}</div>
-                  <div class="categoria-description">${descricao}</div>
-                </div>
-              </div>
-              <div class="radio-group" id="radio-group-${idCompetencia}-${index}">
-                ${valores.map((valor, valIndex) => `
-                  <label class="radio-option ${radioChecked(valor) ? 'selected' : ''}" data-valor="${valor}">
-                    <input type="radio" name="competencia_${idCompetencia}" value="${valor}" ${radioChecked(valor)}>
-                    <span class="radio-option-value">${valor}</span>
-                    <span class="radio-option-label">${['Alto', 'Médio-Alto', 'Médio'][valIndex]}</span>
-                  </label>
-                `).join('')}
-              </div>
-            </div>
+        <div class="competencia-titulo">${comp.nome}</div>
+        <div class="competencia-descricao">${comp.descricao || ''}</div>
+        <div class="criterio-step-info">Critério ${idx + 1} de ${comp.criterios.length}</div>
+        <div class="criterio-pergunta">${criterioTexto}</div>
+        <div class="notas-grid">
+          ${notas.map(n => `
+            <label class="nota-btn ${valorSalvo === n.val ? n.sel : ''}" data-val="${n.val}">
+              <input type="radio" name="nota_step" value="${n.val}" ${valorSalvo === n.val ? 'checked' : ''}>
+              <span class="nota-badge">${n.val}</span>
+              <span class="nota-label">${n.label}</span>
+              <span class="nota-desc">${n.desc}</span>
+            </label>
           `).join('')}
-        </div>
-
-        <div class="observacoes-container">
-          <div class="observacoes-label"><i class="fa-solid fa-comment-dots"></i> Observações (opcional)</div>
-          <textarea id="observacao_${idCompetencia}" placeholder="Adicione suas observações aqui...">${observacao}</textarea>
         </div>
       `;
 
       container.appendChild(card);
 
-      // Adicionar event listeners aos radio inputs
-      const radioInputs = card.querySelectorAll(`input[name="competencia_${idCompetencia}"]`);
-      radioInputs.forEach(input => {
-        input.addEventListener('change', (e) => {
-          const valor = parseFloat(e.target.value);
-          saveResposta(idCompetencia, valor);
-          
-          // Atualizar visualmente
-          const radioOptions = card.querySelectorAll('.radio-option');
-          radioOptions.forEach(option => {
-            option.classList.remove('selected');
+      card.querySelectorAll('input[name="nota_step"]').forEach(input => {
+        input.addEventListener('change', e => {
+          const val = parseInt(e.target.value);
+          if (!respostas[compId]) respostas[compId] = { criterios: [], observacao: '' };
+          respostas[compId].criterios[idx] = val;
+          localStorage.setItem('respostas_avaliacao', JSON.stringify(respostas));
+          localStorage.setItem('respostas_avaliacao_userId', user.userId);
+
+          // Visual
+          card.querySelectorAll('.nota-btn').forEach(btn => {
+            const bVal = parseInt(btn.dataset.val);
+            const nInfo = notas.find(n => n.val === bVal);
+            btn.className = 'nota-btn' + (bVal === val ? ' ' + nInfo.sel : '');
           });
-          e.target.closest('.radio-option').classList.add('selected');
+
           updateProgress();
+          // Avança automaticamente após 320ms
+          setTimeout(() => {
+            if (currentStep < steps.length - 1) { currentStep++; renderStep(); }
+          }, 320);
         });
       });
 
-      // Adicionar event listener ao textarea
-      const textarea = card.querySelector(`#observacao_${idCompetencia}`);
-      textarea.addEventListener('change', () => {
-        saveObservacao(idCompetencia);
-      });
-    });
-
-    renderPagination();
-    updateProgress();
-  }
-
-  function updateProgress() {
-    const total = competencies.length;
-    const respondidas = Object.keys(respostas).filter(id => respostas[id]?.valor).length;
-    const porcentagem = total > 0 ? (respondidas / total) * 100 : 0;
-    
-    document.getElementById('progress-fill').style.width = `${porcentagem}%`;
-    document.getElementById('progress-text').textContent = `${respondidas} de ${total} competências respondidas`;
-  }
-
-  function renderPagination() {
-    const totalPages = Math.ceil(competencies.length / itemsPerPage);
-    const paginationContainer = document.getElementById('pagination-container');
-    paginationContainer.innerHTML = '';
-
-    for (let i = 0; i < totalPages; i++) {
-      const pageNumber = document.createElement('div');
-      pageNumber.className = `page-number ${i === currentPage ? 'active' : ''}`;
-      pageNumber.textContent = i + 1;
-      pageNumber.addEventListener('click', () => {
-        currentPage = i;
-        renderCompetencias();
-      });
-      paginationContainer.appendChild(pageNumber);
-    }
-  }
-
-  function verificaSeTodasRespondidas() {
-    console.log(respostas);
-    return competencies.every(comp => respostas[comp.id]?.valor);
-  }
-
-  // Botão próximo
-  document.getElementById('btn-proximo').addEventListener('click', () => {
-    const totalPages = Math.ceil(competencies.length / itemsPerPage);
-
-    if (currentPage < totalPages - 1) {
-      currentPage++;
-      renderCompetencias();
     } else {
-      if (verificaSeTodasRespondidas()) {
-        document.getElementById('modal-finalizar').classList.add('show');
-      } else {
-        alert('Por favor, preencha todas as competências antes de finalizar.');
+      // tela de observações
+      const obs = respostas[compId]?.observacao || '';
+      card.innerHTML = `
+        <div class="competencia-titulo">${comp.nome}</div>
+        <p class="obs-desc">Deseja adicionar alguma observação sobre esta competência? (opcional)</p>
+        <div class="observacoes-container">
+          <div class="observacoes-label"><i class="fa-solid fa-comment-dots"></i> Observações</div>
+          <textarea id="obs_${compId}" placeholder="Adicione suas observações aqui..." rows="4">${obs}</textarea>
+        </div>
+      `;
+      container.appendChild(card);
+
+      card.querySelector(`#obs_${compId}`).addEventListener('input', e => {
+        if (!respostas[compId]) respostas[compId] = { criterios: [], observacao: '' };
+        respostas[compId].observacao = e.target.value;
+        localStorage.setItem('respostas_avaliacao', JSON.stringify(respostas));
+        localStorage.setItem('respostas_avaliacao_userId', user.userId);
+      });
+    }
+
+    updateNavButtons();
+    updateProgress();
+    renderPagination();
+  }
+
+  // ── Progresso ─────────────────────────────────────────────────────
+  function updateProgress() {
+    const totalCrit = competencies.reduce((s, c) => s + (c.criterios?.length || 0), 0);
+    // Conta quantos critérios já foram passados (incluindo o atual)
+    let currentCrit = 0;
+    for (let i = 0; i <= currentStep; i++) {
+      if (steps[i] && steps[i].type === 'criterio') {
+        currentCrit++;
       }
     }
-  });
+    const pct = totalCrit > 0 ? (currentCrit / totalCrit) * 100 : 0;
+    document.getElementById('progress-fill').style.width = `${pct}%`;
+    document.getElementById('progress-text').textContent = `${currentCrit} de ${totalCrit} critérios`;
+  }
 
-  // Botão voltar
-  document.getElementById('btn-voltar').addEventListener('click', () => {
-    if (currentPage > 0) {
-      currentPage--;
-      renderCompetencias();
+  // ── Botões ────────────────────────────────────────────────────────
+  function updateNavButtons() {
+    const isLast = currentStep === steps.length - 1;
+    const btnProximo = document.getElementById('btn-proximo');
+    btnProximo.innerHTML = isLast
+      ? 'Finalizar <i class="fa-solid fa-check"></i>'
+      : 'Próximo <i class="fa-solid fa-arrow-right"></i>';
+  }
+
+  document.getElementById('btn-proximo').addEventListener('click', () => {
+    if (currentStep < steps.length - 1) {
+      currentStep++;
+      renderStep();
     } else {
-      window.location.href = 'avaliacao-orientacoes.html';
+      const faltando = steps.findIndex(s =>
+        s.type === 'criterio' && respostas[s.comp.id]?.criterios?.[s.idx] == null
+      );
+      if (faltando >= 0) {
+        currentStep = faltando;
+        renderStep();
+        return;
+      }
+      document.getElementById('modal-finalizar').classList.add('show');
     }
   });
 
-  // Modal cancelar
+  document.getElementById('btn-voltar').addEventListener('click', () => {
+    if (currentStep > 0) { currentStep--; renderStep(); }
+    else mostrarModalSaida('avaliacao-orientacoes.html');
+  });
+
+  // ── Paginação (bolinhas por critério) ──────────────────────────
+  function renderPagination() {
+    const container = document.getElementById('pagination-container');
+    container.innerHTML = '';
+    steps.forEach((step, i) => {
+      // Só mostra paginação para critérios, não para observações
+      if (step.type === 'obs') return;
+
+      const dot = document.createElement('div');
+      const isCurrent = currentStep === i;
+      const isDone = respostas[step.comp.id]?.criterios?.[step.idx] != null;
+      dot.className = 'page-number' + (isCurrent ? ' active' : '') + (isDone ? ' done' : '');
+      dot.textContent = i + 1;
+      dot.title = `${step.comp.nome} - Critério ${step.idx + 1}`;
+      dot.addEventListener('click', () => {
+        currentStep = i;
+        renderStep();
+      });
+      container.appendChild(dot);
+    });
+  }
+
+  // ── Modal finalizar ───────────────────────────────────────────────
   document.getElementById('btn-cancelar-finalizar').addEventListener('click', () => {
     document.getElementById('modal-finalizar').classList.remove('show');
   });
 
-  // Modal confirmar
   document.getElementById('btn-confirmar-finalizar').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-confirmar-finalizar');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
     try {
-      // Converter respostas para formato esperado pelo backend
+      // Monta criterios: { "NomeCompetencia": media_das_notas }
       const criterios = {};
-      Object.keys(respostas).forEach(id => {
-        const competencia = competencies.find(c => c.id == id);
-        if (competencia) {
-          criterios[competencia.nome] = respostas[id]?.valor;
+      competencies.forEach(comp => {
+        const r = respostas[comp.id];
+        if (r?.criterios?.length) {
+          const notas = r.criterios.filter(n => n != null);
+          criterios[comp.nome] = parseFloat((notas.reduce((a, b) => a + b, 0) / notas.length).toFixed(2));
         }
       });
 
-      // Determinar avaliadoId baseado no tipo da campanha
       const campaign = window.currentCampaign;
-      console.log('Campanha completa:', campaign);
-      console.log('tipoAlvo:', campaign.tipoAlvo);
-      console.log('gestores:', campaign.gestores);
-      
       let avaliadoId;
-      
       if (campaign.tipoAlvo === 'gestor') {
-        // Colaborador avaliando gestor - pegar o primeiro gestor associado à campanha
-        if (campaign.gestores && campaign.gestores.length > 0) {
-          avaliadoId = campaign.gestores[0].gestorId;
-        } else {
-          throw new Error('Nenhum gestor associado à campanha');
-        }
-      } else if (campaign.tipoAlvo === 'colaborador') {
-        // Gestor avaliando colaborador - usar o próprio usuário como avaliado (colaborador)
-        // Isso precisa ser ajustado baseado em como o sistema funciona
-        avaliadoId = user.userId;
+        if (!campaign.gestores?.length) throw new Error('Nenhum gestor associado à campanha');
+        avaliadoId = campaign.gestores[0].gestorId;
       } else {
-        // Fallback para o próprio usuário
         avaliadoId = user.userId;
       }
-
-      console.log('avaliadoId determinado:', avaliadoId);
 
       const payload = {
         campaignId,
         avaliadoId,
         criterios,
-        comentario: Object.values(respostas).map(r => r.observacao).filter(o => o).join('; ') || null,
+        comentario: Object.values(respostas).map(r => r.observacao).filter(Boolean).join('; ') || null,
         anonima: true
       };
 
-      console.log('Enviando payload:', payload);
       await evaluationsApi.create(payload);
-
       localStorage.removeItem('respostas_avaliacao');
+      localStorage.removeItem('respostas_avaliacao_userId');
       localStorage.removeItem('campaignId');
-
+      avaliacaoConcluida = true;
       window.location.href = 'avaliacao-agradecimentos.html';
     } catch (error) {
       console.error('Erro ao enviar avaliação:', error);
-      // Usar toast em vez de alert
-      if (typeof showToast === 'function') {
-        showToast('Erro ao enviar avaliação: ' + (error.message || 'Tente novamente.'), 'error');
-      } else {
-        console.error('Detalhes do erro:', error);
-      }
+      btn.disabled = false;
+      btn.textContent = 'Sim, Finalizar';
+      document.getElementById('modal-finalizar').classList.remove('show');
+      alert('Erro ao enviar avaliação. Tente novamente.');
     }
   });
 
-  // Carregar respostas salvas
-  const savedRespostas = localStorage.getItem('respostas_avaliacao');
-  if (savedRespostas) {
-    respostas = JSON.parse(savedRespostas);
+  // ── Carrega campanha ──────────────────────────────────────────────
+  async function loadCampaign() {
+    try {
+      const response = await campaignsApi.getById(campaignId);
+      const campaign = response.data;
+
+      if (campaign.tipoAlvo === 'gestor' && user.tipo !== 'colaborador' && user.tipo !== 'admin') {
+        document.getElementById('competencias-content').innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-lock"></i>
+            <h3>Acesso negado</h3>
+            <p>Esta campanha é destinada apenas para colaboradores avaliarem gestores.</p>
+          </div>`;
+        return;
+      }
+      if (campaign.tipoAlvo === 'colaborador' && user.tipo !== 'gestor' && user.tipo !== 'admin') {
+        document.getElementById('competencias-content').innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-lock"></i>
+            <h3>Acesso negado</h3>
+            <p>Esta campanha é destinada apenas para gestores avaliarem colaboradores.</p>
+          </div>`;
+        return;
+      }
+
+      document.getElementById('campanha-nome').textContent = campaign.nome;
+      window.currentCampaign = campaign;
+
+      if (campaign.competencias?.length) {
+        competencies = campaign.competencias.map(cc => cc.competency);
+        buildSteps();
+        renderStep();
+      } else {
+        document.getElementById('competencias-content').innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-clipboard-list"></i>
+            <h3>Nenhuma competência associada</h3>
+            <p>Esta campanha não possui competências associadas.</p>
+          </div>`;
+      }
+    } catch {
+      document.getElementById('competencias-content').innerHTML = `
+        <div class="empty-state">
+          <i class="fa-solid fa-exclamation-circle"></i>
+          <h3>Erro ao carregar avaliação</h3>
+          <p>Não foi possível carregar a avaliação. Tente novamente mais tarde.</p>
+        </div>`;
+    }
   }
 
-  // Expor funções para uso global
-  window.saveResposta = saveResposta;
-  window.saveObservacao = saveObservacao;
+  window.toggleUserMenu = toggleUserMenu;
+  window.sairDaConta   = sairDaConta;
 
-  // Carregar campanha ao iniciar
-  if (campaignId) {
-    loadCampaign();
-  } else {
-    window.location.href = 'avaliacoes.html';
-  }
+  if (campaignId) loadCampaign();
+  else window.location.href = 'avaliacoes.html';
 </script>
 
 </body>

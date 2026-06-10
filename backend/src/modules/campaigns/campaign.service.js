@@ -32,8 +32,12 @@ class CampaignService {
     }
 
     // Cria a campanha sem competencyIds e criterios
-    const { competencyIds, gestorIds, ...campaignData } = data;
-    const campaign = await this.campaignRepository.create(campaignData);
+    const { competencyIds, gestorIds, gestorColaboradores, ...campaignData } = data;
+    const campaign = await this.campaignRepository.create({
+      ...campaignData,
+      gestorIds,
+      gestorColaboradores
+    });
 
     // Associa as competências à campanha
     if (competencyIds && competencyIds.length > 0) {
@@ -133,8 +137,8 @@ class CampaignService {
     }
 
     // Remove competencyIds e criterios antes de atualizar
-    const { competencyIds, criterios, ...updateData } = data;
-    return this.campaignRepository.update(id, updateData);
+    const { competencyIds, criterios, gestorColaboradores, ...updateData } = data;
+    return this.campaignRepository.update(id, { ...updateData, gestorColaboradores });
   }
 
   async updateStatus(id, status, userTipo) {
@@ -240,8 +244,7 @@ class CampaignService {
     }
 
     try {
-      // Busca campanhas ativas onde o colaborador pode ser avaliado (tipoAlvo: colaborador)
-      // E campanhas onde o colaborador deve avaliar gestores (tipoAlvo: gestor)
+      // Busca campanhas ativas
       const campaigns = await this.campaignRepository.findAll({ status: 'ativa' });
 
       // Filtra campanhas onde o colaborador ainda não respondeu
@@ -249,13 +252,12 @@ class CampaignService {
 
       for (const campaign of campaigns.campaigns) {
         try {
-          // Verifica se o colaborador já respondeu a esta campanha como avaliador
-          const avaliacoesFeitas = await this.evaluationRepository.findByCampaignAndAvaliador(campaign.id, userId);
+          // Para tipoAlvo: gestor, colaborador avalia gestor
+          if (campaign.tipoAlvo === 'gestor') {
+            // Verifica se o colaborador já respondeu a esta campanha como avaliador
+            const avaliacoesFeitas = await this.evaluationRepository.findByCampaignAndAvaliador(campaign.id, userId);
 
-          if (avaliacoesFeitas.length === 0) {
-            // Para campanhas tipoAlvo: gestor, colaborador deve avaliar seu gestor
-            // Para campanhas tipoAlvo: colaborador, colaborador é avaliado pelo gestor
-            if (campaign.tipoAlvo === 'gestor') {
+            if (avaliacoesFeitas.length === 0) {
               // Verifica se o colaborador é subordinado de pelo menos um dos gestores responsáveis pela campanha
               const gestoresResponsaveis = campaign.gestores || [];
               let isSubordinadoDeAlgumGestor = false;
@@ -271,8 +273,15 @@ class CampaignService {
               if (isSubordinadoDeAlgumGestor) {
                 campaignsPendentes.push(campaign);
               }
-            } else if (campaign.tipoAlvo === 'todos') {
-              // Para campanhas tipoAlvo: todos, colaborador pode avaliar gestores que são seus responsáveis
+            }
+          }
+          // Para tipoAlvo: colaborador, colaborador é avaliado pelo gestor (não precisa fazer nada aqui)
+          // Para tipoAlvo: todos, colaborador pode avaliar gestores que são seus responsáveis
+          else if (campaign.tipoAlvo === 'todos') {
+            // Verifica se o colaborador já respondeu a esta campanha como avaliador
+            const avaliacoesFeitas = await this.evaluationRepository.findByCampaignAndAvaliador(campaign.id, userId);
+
+            if (avaliacoesFeitas.length === 0) {
               const gestoresResponsaveis = campaign.gestores || [];
               let isSubordinadoDeAlgumGestor = false;
               
@@ -307,10 +316,36 @@ class CampaignService {
       throw new AppError('Apenas gestores podem acessar esta funcionalidade', 403);
     }
 
-    // Busca campanhas ativas onde o gestor é responsável
-    const campaigns = await this.campaignRepository.findActiveForGestor(userId);
+    try {
+      // Busca campanhas ativas onde o gestor é responsável
+      const campaigns = await this.campaignRepository.findActiveForGestor(userId);
 
-    return campaigns;
+      // Filtra campanhas onde gestores avaliam colaboradores (tipoAlvo: colaborador)
+      // Gestores não podem avaliar em campanhas tipoAlvo: gestor
+      const filteredCampaigns = campaigns.filter(c => c.tipoAlvo === 'colaborador' || c.tipoAlvo === 'todos');
+
+      // Para cada campanha, verifica se o gestor ainda tem colaboradores para avaliar
+      const campaignsPendentes = [];
+
+      for (const campaign of filteredCampaigns) {
+        try {
+          // Busca colaboradores que o gestor deve avaliar nesta campanha
+          const colaboradoresNaoAvaliados = await this.campaignRepository.getColaboradoresNaoAvaliados(campaign.id, userId);
+
+          if (colaboradoresNaoAvaliados.length > 0) {
+            campaignsPendentes.push(campaign);
+          }
+        } catch (error) {
+          console.error(`Erro ao processar campanha ${campaign.id}:`, error);
+          // Continue with next campaign
+        }
+      }
+
+      return campaignsPendentes;
+    } catch (error) {
+      console.error('Erro em getPendingCampaignsForGestor:', error);
+      throw error;
+    }
   }
 
   // --- Helpers privados ---

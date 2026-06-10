@@ -9,23 +9,24 @@ datasource db {
 }
 
 model User {
-  id                    String              @id @default(uuid())
-  ra                    String              @unique
+  id                    String                      @id @default(uuid())
+  ra                    String                      @unique
   nome                  String
-  email                 String              @unique
+  email                 String                      @unique
   senha                 String
   tipo                  UserType
   foto                  String?
   cargo                 String?
   departamento          String?
-  createdAt             DateTime            @default(now())
-  updatedAt             DateTime            @updatedAt
+  createdAt             DateTime                    @default(now())
+  updatedAt             DateTime                    @updatedAt
   campanhasResponsavel  CampaignGestor[]
-  avaliacoesRecebidas   Evaluation[]        @relation("AvaliadoRelation")
-  avaliacoesFeitas      Evaluation[]        @relation("AvaliadorRelation")
-  gruposComoColaborador GestorColaborador[] @relation("ColaboradorRelation")
-  gruposComoGestor      GestorColaborador[] @relation("GestorRelation")
+  avaliacoesRecebidas   Evaluation[]                @relation("AvaliadoRelation")
+  avaliacoesFeitas      Evaluation[]                @relation("AvaliadorRelation")
+  gruposComoColaborador GestorColaborador[]         @relation("ColaboradorRelation")
+  gruposComoGestor      GestorColaborador[]         @relation("GestorRelation")
   nineBoxAvaliacoes     NineBox[]
+  colaboradoresAvaliaveis CampaignGestorColaborador[]
 
   @@index([ra])
   @@index([email])
@@ -79,17 +80,32 @@ model CampaignCompetency {
 }
 
 model CampaignGestor {
-  id         String             @id @default(uuid())
-  campaignId String
-  gestorId   String
-  createdAt  DateTime           @default(now())
-  campaign   EvaluationCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  gestor     User               @relation(fields: [gestorId], references: [id], onDelete: Cascade)
+  id                      String                     @id @default(uuid())
+  campaignId               String
+  gestorId                 String
+  createdAt                DateTime                   @default(now())
+  campaign                 EvaluationCampaign         @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  gestor                   User                       @relation(fields: [gestorId], references: [id], onDelete: Cascade)
+  colaboradoresAvaliaveis  CampaignGestorColaborador[]
 
   @@unique([campaignId, gestorId])
   @@index([campaignId])
   @@index([gestorId])
   @@map("campaign_gestores")
+}
+
+model CampaignGestorColaborador {
+  id            String             @id @default(uuid())
+  campaignGestorId String
+  colaboradorId String
+  createdAt     DateTime           @default(now())
+  campaignGestor CampaignGestor    @relation(fields: [campaignGestorId], references: [id], onDelete: Cascade)
+  colaborador   User               @relation(fields: [colaboradorId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignGestorId, colaboradorId])
+  @@index([campaignGestorId])
+  @@index([colaboradorId])
+  @@map("campaign_gestor_colaboradores")
 }
 
 model Evaluation {

@@ -166,6 +166,18 @@ class NineBoxController {
       next(error);
     }
   }
+
+  async calculateAll(req, res, next) {
+    try {
+      const allNineBoxes = await nineBoxService.calculateAllNineBoxes();
+      return res.json({
+        success: true,
+        data: allNineBoxes
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export { NineBoxController };

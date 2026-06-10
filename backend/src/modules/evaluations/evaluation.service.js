@@ -41,6 +41,14 @@ class EvaluationService {
       if (userTipo !== 'gestor' && userTipo !== 'admin') {
         throw new AppError('Sem permissão para avaliar colaboradores', 403);
       }
+      // Gestor só pode avaliar colaboradores que o admin definiu para ele nesta campanha
+      if (userTipo === 'gestor') {
+        const todosColaboradoresPermitidos = await this.campaignRepository.getColaboradoresDoGestorNaCampanha(campaignId, userId);
+        const permitido = todosColaboradoresPermitidos.some(c => c.id === avaliadoId);
+        if (!permitido) {
+          throw new AppError('Você não tem permissão para avaliar este colaborador nesta campanha', 403);
+        }
+      }
     } else if (campaign.tipoAlvo === 'gestor') {
       // Campanha para avaliar gestores (colaborador → gestor)
       if (avaliado.tipo !== 'gestor') {

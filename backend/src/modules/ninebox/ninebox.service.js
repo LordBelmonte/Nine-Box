@@ -13,18 +13,18 @@ class NineBoxService {
 
   // Classifica uma nota em BAIXO, MÉDIO ou ALTO
   classifyScore(score) {
-    if (score >= 1.0 && score <= 2.5) {
+    if (score >= 1 && score <= 1.5) {
       return 'BAIXO';
-    } else if (score >= 2.6 && score <= 4.0) {
+    } else if (score >= 1.6 && score <= 2.5) {
       return 'MÉDIO';
-    } else if (score >= 4.1 && score <= 5.0) {
+    } else if (score >= 2.6 && score <= 4) {
       return 'ALTO';
     }
     return 'INDEFINIDO';
   }
 
   // Calcula a categoria baseada em performance (X) e potential (Y)
-  // Escala 1-5 com faixas: BAIXO (1.0-2.5), MÉDIO (2.6-4.0), ALTO (4.1-5.0)
+  // Escala 1-4 com faixas: BAIXO (1-1.5), MÉDIO (1.6-2.5), ALTO (2.6-4)
   calculateCategoria(performance, potential) {
     const xClass = this.classifyScore(performance);
     const yClass = this.classifyScore(potential);
@@ -73,9 +73,9 @@ class NineBoxService {
       return null;
     }
 
-    // Calcula média e converte para escala 1-5
+    // Calcula média (escala 1-4, já está correta)
     const media = allNotas.reduce((a, b) => a + b, 0) / allNotas.length;
-    const performance = (media / 10) * 5; // Converte de escala 1-10 para 1-5
+    const performance = media; // Já está na escala 1-4
 
     return parseFloat(performance.toFixed(2));
   }
@@ -109,9 +109,9 @@ class NineBoxService {
       return null;
     }
 
-    // Calcula média e converte para escala 1-5
+    // Calcula média (escala 1-4, já está correta)
     const media = allNotas.reduce((a, b) => a + b, 0) / allNotas.length;
-    const potential = (media / 10) * 5; // Converte de escala 1-10 para 1-5
+    const potential = media; // Já está na escala 1-4
 
     return parseFloat(potential.toFixed(2));
   }
@@ -143,12 +143,70 @@ class NineBoxService {
     };
   }
 
+  // Calcula Nine Box para todos os usuários (para admin)
+  async calculateAllNineBoxes() {
+    // Busca todos os usuários
+    const users = await this.userRepository.findAll({ page: 1, limit: 1000 });
+    const allUsers = users.users || [];
+
+    console.log('[calculateAllNineBoxes] Total de usuários:', allUsers.length);
+
+    if (!allUsers || allUsers.length === 0) {
+      return {
+        team: [],
+        total: 0
+      };
+    }
+
+    // Calcula Nine Box para cada usuário
+    const allNineBoxes = await Promise.all(
+      allUsers.map(async (user) => {
+        const nineBox = await this.calculateNineBoxFromEvaluations(user.id);
+        console.log(`[calculateAllNineBoxes] Usuário ${user.nome} (${user.tipo}):`, nineBox);
+        return {
+          ...nineBox,
+          id: user.id,
+          pessoa: {
+            id: user.id,
+            nome: user.nome,
+            email: user.email,
+            tipo: user.tipo,
+            cargo: user.cargo,
+            departamento: user.departamento,
+            ra: user.ra,
+            foto: user.foto
+          }
+        };
+      })
+    );
+
+    // Filtra apenas usuários com dados válidos (performance e potential não null)
+    const validNineBoxes = allNineBoxes.filter(nb => nb.performance !== null && nb.potential !== null);
+    console.log('[calculateAllNineBoxes] NineBoxes válidos:', validNineBoxes.length, 'de', allNineBoxes.length);
+
+    return {
+      team: validNineBoxes,
+      total: validNineBoxes.length
+    };
+  }
+
   // Calcula Nine Box para todo o time de um gestor
   async calculateTeamNineBox(gestorId) {
-    // Busca todos os colaboradores do gestor
-    const colaboradores = await this.userRepository.findByGestorId(gestorId);
+    // Busca todos os usuários (colaboradores e gestores) relacionados ao gestor
+    const pessoas = await this.userRepository.findByGestorId(gestorId);
 
-    if (!colaboradores || colaboradores.length === 0) {
+    // Busca também gestores que são subordinados a este gestor
+    const gestoresSubordinados = await this.userRepository.findGestoresByGestorId(gestorId);
+
+    // Combina as listas, removendo duplicatas
+    const todasPessoas = [...pessoas];
+    gestoresSubordinados.forEach(gestor => {
+      if (!todasPessoas.some(p => p.id === gestor.id)) {
+        todasPessoas.push(gestor);
+      }
+    });
+
+    if (!todasPessoas || todasPessoas.length === 0) {
       return {
         gestorId,
         team: [],
@@ -156,22 +214,22 @@ class NineBoxService {
       };
     }
 
-    // Calcula Nine Box para cada colaborador
+    // Calcula Nine Box para cada pessoa (incluindo gestores)
     const teamNineBox = await Promise.all(
-      colaboradores.map(async (colaborador) => {
-        const nineBox = await this.calculateNineBoxFromEvaluations(colaborador.id);
+      todasPessoas.map(async (pessoa) => {
+        const nineBox = await this.calculateNineBoxFromEvaluations(pessoa.id);
         return {
           ...nineBox,
-          id: colaborador.id, // Use pessoa ID as ID for frontend compatibility
+          id: pessoa.id, // Use pessoa ID as ID for frontend compatibility
           pessoa: {
-            id: colaborador.id,
-            nome: colaborador.nome,
-            email: colaborador.email,
-            tipo: colaborador.tipo,
-            cargo: colaborador.cargo,
-            departamento: colaborador.departamento,
-            ra: colaborador.ra,
-            foto: colaborador.foto
+            id: pessoa.id,
+            nome: pessoa.nome,
+            email: pessoa.email,
+            tipo: pessoa.tipo,
+            cargo: pessoa.cargo,
+            departamento: pessoa.departamento,
+            ra: pessoa.ra,
+            foto: pessoa.foto
           }
         };
       })
@@ -180,7 +238,7 @@ class NineBoxService {
     return {
       gestorId,
       team: teamNineBox,
-      total: colaboradores.length
+      total: todasPessoas.length
     };
   }
 

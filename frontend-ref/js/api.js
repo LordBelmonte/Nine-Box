@@ -669,6 +669,10 @@ export const nineBoxApi = {
     return api.get('/ninebox/calculate/team');
   },
 
+  calculateAll: async () => {
+    return api.get('/ninebox/calculate/all');
+  },
+
   calculateForPerson: async (pessoaId) => {
     return api.get(`/ninebox/calculate/person/${pessoaId}`);
   },

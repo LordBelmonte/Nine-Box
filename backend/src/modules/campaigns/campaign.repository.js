@@ -2,14 +2,21 @@ import { prisma } from '../../config/database.js';
 
 class CampaignRepository {
   async create(data) {
-    const { gestorIds, ...campaignData } = data;
+    const { gestorIds, gestorColaboradores, ...campaignData } = data;
 
     return prisma.evaluationCampaign.create({
       data: {
         ...campaignData,
         gestores: gestorIds && gestorIds.length > 0
           ? {
-              create: gestorIds.map(gestorId => ({ gestorId }))
+              create: gestorIds.map(gestorId => ({
+                gestorId,
+                colaboradoresAvaliaveis: gestorColaboradores && gestorColaboradores[gestorId]
+                  ? {
+                      create: gestorColaboradores[gestorId].map(colaboradorId => ({ colaboradorId }))
+                    }
+                  : undefined
+              }))
             }
           : undefined
       },
@@ -18,6 +25,13 @@ class CampaignRepository {
           include: {
             gestor: {
               select: { id: true, nome: true, email: true, cargo: true, departamento: true }
+            },
+            colaboradoresAvaliaveis: {
+              include: {
+                colaborador: {
+                  select: { id: true, nome: true, email: true, cargo: true, departamento: true }
+                }
+              }
             }
           }
         }
@@ -33,6 +47,13 @@ class CampaignRepository {
           include: {
             gestor: {
               select: { id: true, nome: true, email: true, cargo: true, departamento: true }
+            },
+            colaboradoresAvaliaveis: {
+              include: {
+                colaborador: {
+                  select: { id: true, nome: true, email: true, cargo: true, departamento: true }
+                }
+              }
             }
           }
         },
@@ -84,7 +105,7 @@ class CampaignRepository {
   }
 
   async update(id, data) {
-    const { gestorIds, ...campaignData } = data;
+    const { gestorIds, gestorColaboradores, ...campaignData } = data;
 
     // Se gestorIds fornecido, substitui os gestores
     if (gestorIds !== undefined) {
@@ -96,6 +117,40 @@ class CampaignRepository {
       }
     }
 
+    // Se gestorColaboradores fornecido, atualiza os colaboradores avaliáveis por gestor
+    if (gestorColaboradores !== undefined) {
+      // Deleta todos os colaboradores avaliáveis existentes
+      await prisma.campaignGestorColaborador.deleteMany({
+        where: {
+          campaignGestor: {
+            campaignId: id
+          }
+        }
+      });
+
+      // Adiciona os novos colaboradores avaliáveis por gestor
+      for (const [gestorId, colaboradorIds] of Object.entries(gestorColaboradores)) {
+        if (colaboradorIds && colaboradorIds.length > 0) {
+          // Encontra o CampaignGestor correspondente
+          const campaignGestor = await prisma.campaignGestor.findFirst({
+            where: {
+              campaignId: id,
+              gestorId
+            }
+          });
+
+          if (campaignGestor) {
+            await prisma.campaignGestorColaborador.createMany({
+              data: colaboradorIds.map(colaboradorId => ({
+                campaignGestorId: campaignGestor.id,
+                colaboradorId
+              }))
+            });
+          }
+        }
+      }
+    }
+
     return prisma.evaluationCampaign.update({
       where: { id },
       data: campaignData,
@@ -104,6 +159,13 @@ class CampaignRepository {
           include: {
             gestor: {
               select: { id: true, nome: true, email: true, cargo: true, departamento: true }
+            },
+            colaboradoresAvaliaveis: {
+              include: {
+                colaborador: {
+                  select: { id: true, nome: true, email: true, cargo: true, departamento: true }
+                }
+              }
             }
           }
         },
@@ -149,12 +211,24 @@ class CampaignRepository {
 
   // Retorna progresso de uma campanha: quantos colaboradores já foram avaliados pelo gestor
   async getCampaignProgress(campaignId, gestorId) {
-    // Colaboradores do grupo do gestor
-    const grupo = await prisma.gestorColaborador.findMany({
-      where: { gestorId },
-      select: { colaboradorId: true }
+    // Encontra o CampaignGestor correspondente
+    const campaignGestor = await prisma.campaignGestor.findFirst({
+      where: {
+        campaignId,
+        gestorId
+      },
+      include: {
+        colaboradoresAvaliaveis: {
+          select: { colaboradorId: true }
+        }
+      }
     });
-    const colaboradorIds = grupo.map(g => g.colaboradorId);
+
+    // Usa apenas os colaboradores definidos explicitamente pelo admin para este gestor nesta campanha
+    let colaboradorIds = [];
+    if (campaignGestor) {
+      colaboradorIds = campaignGestor.colaboradoresAvaliaveis.map(c => c.colaboradorId);
+    }
 
     // Avaliações já feitas pelo gestor nessa campanha
     const avaliacoes = await prisma.evaluation.findMany({
@@ -190,14 +264,44 @@ class CampaignRepository {
     });
   }
 
-  async getColaboradoresNaoAvaliados(campaignId, gestorId) {
-    // Todos os colaboradores do grupo do gestor
-    const grupoColaboradores = await prisma.gestorColaborador.findMany({
-      where: { gestorId },
-      select: { colaboradorId: true }
+  // Retorna todos os colaboradores que o admin definiu para o gestor avaliar nesta campanha (avaliados ou não)
+  async getColaboradoresDoGestorNaCampanha(campaignId, gestorId) {
+    const campaignGestor = await prisma.campaignGestor.findFirst({
+      where: { campaignId, gestorId },
+      include: {
+        colaboradoresAvaliaveis: {
+          include: {
+            colaborador: {
+              select: { id: true, nome: true, email: true, cargo: true, departamento: true }
+            }
+          }
+        }
+      }
     });
 
-    const colaboradorIds = grupoColaboradores.map(g => g.colaboradorId);
+    if (!campaignGestor) return [];
+    return campaignGestor.colaboradoresAvaliaveis.map(c => c.colaborador);
+  }
+
+  async getColaboradoresNaoAvaliados(campaignId, gestorId) {
+    // Encontra o CampaignGestor correspondente
+    const campaignGestor = await prisma.campaignGestor.findFirst({
+      where: {
+        campaignId,
+        gestorId
+      },
+      include: {
+        colaboradoresAvaliaveis: {
+          select: { colaboradorId: true }
+        }
+      }
+    });
+
+    // Usa apenas os colaboradores definidos explicitamente pelo admin para este gestor nesta campanha
+    let colaboradorIds = [];
+    if (campaignGestor) {
+      colaboradorIds = campaignGestor.colaboradoresAvaliaveis.map(c => c.colaboradorId);
+    }
 
     // Colaboradores que NÃO foram avaliados por este gestor nesta campanha
     const naoAvaliados = await prisma.user.findMany({

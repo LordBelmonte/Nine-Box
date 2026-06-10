@@ -37,7 +37,7 @@
         </div>
       </div>
       <div class="user-dropdown-divider"></div>
-      <a href="../perfil.html" class="user-dropdown-item"><i class="fa-solid fa-user-pen"></i> Meu Perfil</a>
+      <a href="../perfil.html" class="user-dropdown-item" data-role="admin"><i class="fa-solid fa-user-pen"></i> Meu Perfil</a>
       <button class="user-dropdown-item user-dropdown-sair" id="btn-sair-header" onclick="sairDaConta()" style="display:none">
         <i class="fa-solid fa-right-from-bracket"></i> Sair
       </button>
@@ -55,9 +55,10 @@
         <i class="fa-solid fa-star"></i><span>Avaliações</span><i class="fa-solid fa-chevron-down navbar-chevron"></i>
       </a>
       <ul class="navbar-submenu">
-                <li data-role="admin"><a href="campanhas.html" class="navbar-submenu-link"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
-<li><a href="avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-star"></i> Avaliações</a></li>
-        <li data-role="gestorOrAdmin"><a href="nine-box.html" class="navbar-submenu-link active"><i class="fa-solid fa-th"></i> Nine Box</a></li>
+        <li data-role="admin"><a href="campanhas.html" class="navbar-submenu-link"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
+        <li><a href="avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-star"></i> Avaliações</a></li>
+        <li data-role="admin"><a href="historico-avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-history"></i> Histórico</a></li>
+        <li data-role="admin"><a href="nine-box.html" class="navbar-submenu-link active"><i class="fa-solid fa-th"></i> Nine Box</a></li>
         <li><a href="competencias.html" class="navbar-submenu-link"><i class="fa-solid fa-clipboard-check"></i> Competências</a></li>
       </ul>
     </li>
@@ -250,10 +251,21 @@
 
   async function carregarGrid() {
     try {
-      // Use the old list endpoint for now
-      const res = await nineBoxApi.list({ limit: 200 });
-      console.log('Resposta list:', res);
-      allNineBoxes = res.data.nineBoxes || [];
+      let res;
+      // Apenas admin tem acesso ao ninebox
+      if (isAdmin()) {
+        res = await nineBoxApi.calculateAll();
+        console.log('Resposta calculateAll (admin):', res);
+        allNineBoxes = res.data.team || [];
+        console.log('Quantidade de pessoas:', allNineBoxes.length);
+        if (allNineBoxes.length === 0) {
+          showToast('Não há avaliações suficientes para calcular o Nine Box', 'warning');
+        }
+      } else {
+        showToast('Acesso negado. Apenas administradores podem acessar o Nine Box', 'error');
+        window.location.href = '../index.html';
+        return;
+      }
       console.log('allNineBoxes:', allNineBoxes);
       renderGrid();
     } catch (error) {
