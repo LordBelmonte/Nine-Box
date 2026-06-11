@@ -91,6 +91,17 @@ class GroupRepository {
     });
     return !!row;
   }
+
+  // Conta o número total de grupos (gestores com colaboradores)
+  async countGroups() {
+    const result = await prisma.gestorColaborador.groupBy({
+      by: ['gestorId'],
+      _count: {
+        gestorId: true
+      }
+    });
+    return result.length;
+  }
 }
 
 export { GroupRepository };

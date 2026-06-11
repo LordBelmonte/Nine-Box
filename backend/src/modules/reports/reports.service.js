@@ -21,13 +21,14 @@ class ReportsService {
       throw new AppError('Sem permissão para ver dashboard geral', 403);
     }
 
-    const [gestores, colaboradores, evaluations, nineBoxStats, competencyStats, campaigns] = await Promise.all([
+    const [gestores, colaboradores, evaluations, nineBoxStats, competencyStats, campaigns, groupsCount] = await Promise.all([
       this.userRepository.findAll({ page: 1, limit: 1, tipo: 'gestor' }),
       this.userRepository.findAll({ page: 1, limit: 1, tipo: 'colaborador' }),
       this.evaluationRepository.findAll({ page: 1, limit: 10 }),
       this.nineBoxRepository.getGridDistribution(),
       this.competencyRepository.getStatsByTipo(),
-      this.campaignRepository.findAll({ page: 1, limit: 100, status: 'ativa' })
+      this.campaignRepository.findAll({ page: 1, limit: 100 }),
+      this.groupRepository.countGroups()
     ]);
 
     const userStats = {
@@ -46,12 +47,35 @@ class ReportsService {
       lista: evaluations.evaluations
     };
 
+    // Calcular avaliações pendentes (avaliações com status pendente)
+    const avaliacoesPendentes = evaluations.evaluations.filter(ev => !ev.status || ev.status === 'pendente').length;
+
     return {
+      totalUsuarios: userStats.total,
+      totalGestores: userStats.porTipo.gestor,
+      totalColaboradores: userStats.porTipo.colaborador,
       usuarios: userStats,
       avaliacoes: evaluationStats,
+      avaliacoesPendentes: avaliacoesPendentes,
       nineBox: nineBoxStats,
+      totalNineBox: nineBoxStats?.total || 0,
       competencias: competencyStats,
-      campanhasAtivas: campaigns.pagination.total,
+      totalCompetencias: competencyStats?.total || competencyStats?.length || 0,
+      campanhas: {
+        total: campaigns.pagination.total,
+        ativas: campaigns.campaigns.filter(c => c.status === 'ativa').length
+      },
+      totalCampanhas: campaigns.pagination.total,
+      campanhasAtivas: campaigns.campaigns.filter(c => c.status === 'ativa').length,
+      grupos: {
+        total: groupsCount
+      },
+      totalGrupos: groupsCount,
+      relatorios: {
+        total: 0 // Relatórios são gerados dinamicamente, não há tabela de relatórios
+      },
+      totalRelatorios: 0,
+      usuariosAtivos: userStats.total || 0, // Considerando todos os usuários como ativos
       timestamp: new Date().toISOString()
     };
   }

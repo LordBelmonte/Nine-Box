@@ -31,9 +31,6 @@
         </div>
       </div>
       <div class="user-dropdown-divider"></div>
-      <a href="perfil.html" class="user-dropdown-item">
-        <i class="fa-solid fa-user-pen"></i> Meu Perfil
-      </a>
       <button class="user-dropdown-item user-dropdown-sair" id="btn-sair-header" onclick="sairDaConta()" style="display:none">
         <i class="fa-solid fa-right-from-bracket"></i> Sair da conta
       </button>
@@ -55,7 +52,7 @@
         <span>Cadastrar</span>
       </a>
     </li>
-    <li class="navbar-item" data-role="gestorOrAdmin">
+    <li class="navbar-item" data-role="admin">
       <a href="pages/consultar.html" class="navbar-link">
         <i class="fa-solid fa-magnifying-glass"></i>
         <span>Consultar</span>
@@ -67,7 +64,7 @@
         <span>Avaliações Pendentes</span>
       </a>
     </li>
-    <li class="navbar-item navbar-item-dropdown" data-role="gestorOrAdmin">
+    <li class="navbar-item navbar-item-dropdown" data-role="admin">
       <a href="#" class="navbar-link navbar-link-dropdown" onclick="toggleSubmenu(event, this)">
         <i class="fa-solid fa-star"></i>
         <span>Avaliações</span>
@@ -81,22 +78,16 @@
         <li><a href="pages/competencias.html" class="navbar-submenu-link"><i class="fa-solid fa-clipboard-check"></i> Competências</a></li>
       </ul>
     </li>
-    <li class="navbar-item" data-role="gestorOrAdmin">
+    <li class="navbar-item" data-role="admin">
       <a href="pages/grupos.html" class="navbar-link">
         <i class="fa-solid fa-users"></i>
         <span>Grupos</span>
       </a>
     </li>
-    <li class="navbar-item" data-role="gestorOrAdmin">
+    <li class="navbar-item" data-role="admin">
       <a href="pages/relatorios.html" class="navbar-link">
         <i class="fa-solid fa-chart-bar"></i>
         <span>Relatórios</span>
-      </a>
-    </li>
-    <li class="navbar-item">
-      <a href="perfil.html" class="navbar-link">
-        <i class="fa-solid fa-user"></i>
-        <span>Perfil</span>
       </a>
     </li>
   </ul>
@@ -127,65 +118,116 @@
   }
   .dash-welcome-btn:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(30,58,138,0.25); }
   body.dark-mode .dash-welcome { background: #1e293b; border-color: #334155; }
+
+  /* Dashboard stats */
+  .dash-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .dash-stats-small {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .dash-stats-large {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .dash-stat {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .dash-stat-large {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .dash-stat i,
+  .dash-stat-large i {
+    font-size: 28px;
+    color: var(--primary);
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 10px;
+  }
+
+  .dash-stat-large i {
+    font-size: 32px;
+    width: 56px;
+    height: 56px;
+  }
+
+  .dash-stat-val,
+  .dash-stat-large .dash-stat-val {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    display: block;
+  }
+
+  .dash-stat-large .dash-stat-val {
+    font-size: 36px;
+  }
+
+  .dash-stat-label,
+  .dash-stat-large .dash-stat-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .dash-stat-large .dash-stat-label {
+    font-size: 14px;
+  }
 </style>
 
 <main class="wrapper wrapper-center">
   <div class="dashboard">
 
-    <!--
-      dash-stats: container acima dos cards.
-      O JS injeta aqui:
-        - o bloco de boas-vindas (quando não há dados / backend offline)
-        - os cards de stats (quando há dados)
-    -->
+    <!-- Dashboard stats -->
     <div class="dash-stats" id="dash-stats"></div>
-
-    <!-- Menu de cards -->
-    <div class="container" id="menu-cards">
-      <!-- Cards injetados pelo JS conforme permissão -->
-    </div>
 
   </div>
 </main>
 
 <script type="module">
-  import { requireAuth, isAdmin, isGestorOrAdmin, getUser } from './js/auth.js';
-  import { reportsApi } from './js/api.js';
+  import { requireAuth, getUser, isGestor, isColaborador } from './js/auth.js';
   import './js/navbar.js';
 
   requireAuth();
 
-  const user      = getUser();
-  const cards     = document.getElementById('menu-cards');
-  const statsBox  = document.getElementById('dash-stats');
+  const user = getUser();
 
-  // ---- CARDS (sem "Meu Perfil") ----
-  const allCards = [
-    { href: 'pages/cadastrar.html',    icon: 'fa-user-plus',        label: 'Cadastrar',    role: 'admin' },
-    { href: 'pages/consultar.html',    icon: 'fa-magnifying-glass', label: 'Consultar',    role: 'gestorOrAdmin' },
-    { href: 'pages/avaliacoes.html',   icon: 'fa-star',             label: 'Avaliações',   role: 'all' },
-    { href: 'pages/nine-box.html',     icon: 'fa-th',               label: 'Nine Box',     role: 'gestorOrAdmin' },
-    { href: 'pages/competencias.html', icon: 'fa-clipboard-check',  label: 'Competências', role: 'all' },
-    { href: 'pages/relatorios.html',   icon: 'fa-chart-bar',        label: 'Relatórios',   role: 'all' },
-  ];
-
-  function canSee(role) {
-    if (role === 'all') return true;
-    if (role === 'admin') return isAdmin();
-    if (role === 'gestorOrAdmin') return isGestorOrAdmin();
-    return false;
+  // Redirecionar gestor/colaborador para avaliações
+  if (isGestor() || isColaborador()) {
+    window.location.href = 'pages/avaliacoes.html';
   }
 
-  cards.innerHTML = allCards
-    .filter(c => canSee(c.role))
-    .map(c => `
-      <a href="${c.href}" class="card">
-        <i class="fa-solid ${c.icon}"></i>
-        <p>${c.label}</p>
-      </a>
-    `).join('');
+  // Apenas admin continua na página
+  const statsBox = document.getElementById('dash-stats');
 
-  // ---- WELCOME (bloco acima dos cards, igual ao /frontend original) ----
   function mostrarWelcome() {
     statsBox.innerHTML = `
       <div class="dash-welcome">
@@ -200,78 +242,129 @@
 
   function mostrarStats(d) {
     statsBox.innerHTML = `
-      <div class="dash-stat">
-        <i class="fa-solid fa-user-tie"></i>
-        <div>
-          <span class="dash-stat-val">${d.usuarios?.porTipo?.gestor ?? '—'}</span>
-          <span class="dash-stat-label">Gestores</span>
+      <div class="dash-stats-small">
+        <div class="dash-stat">
+          <i class="fa-solid fa-user-tie"></i>
+          <div>
+            <span class="dash-stat-val">${d.usuarios?.porTipo?.gestor ?? '—'}</span>
+            <span class="dash-stat-label">Gestores</span>
+          </div>
+        </div>
+        <div class="dash-stat">
+          <i class="fa-solid fa-users"></i>
+          <div>
+            <span class="dash-stat-val">${d.usuarios?.porTipo?.colaborador ?? '—'}</span>
+            <span class="dash-stat-label">Colaboradores</span>
+          </div>
+        </div>
+        <div class="dash-stat">
+          <i class="fa-solid fa-star"></i>
+          <div>
+            <span class="dash-stat-val">${d.avaliacoes?.total ?? '—'}</span>
+            <span class="dash-stat-label">Avaliações</span>
+          </div>
+        </div>
+        <div class="dash-stat">
+          <i class="fa-solid fa-th"></i>
+          <div>
+            <span class="dash-stat-val">${d.nineBox?.total ?? '—'}</span>
+            <span class="dash-stat-label">Nine Box</span>
+          </div>
         </div>
       </div>
-      <div class="dash-stat">
-        <i class="fa-solid fa-users"></i>
-        <div>
-          <span class="dash-stat-val">${d.usuarios?.porTipo?.colaborador ?? '—'}</span>
-          <span class="dash-stat-label">Colaboradores</span>
+      <div class="dash-stats-large">
+        <div class="dash-stat-large">
+          <i class="fa-solid fa-bullhorn"></i>
+          <div>
+            <span class="dash-stat-val">${d.totalCampanhas ?? '—'}</span>
+            <span class="dash-stat-label">Campanhas</span>
+          </div>
         </div>
-      </div>
-      <div class="dash-stat">
-        <i class="fa-solid fa-star"></i>
-        <div>
-          <span class="dash-stat-val">${d.avaliacoes?.total ?? '—'}</span>
-          <span class="dash-stat-label">Avaliações</span>
+        <div class="dash-stat-large">
+          <i class="fa-solid fa-clipboard-check"></i>
+          <div>
+            <span class="dash-stat-val">${d.totalCompetencias ?? '—'}</span>
+            <span class="dash-stat-label">Competências</span>
+          </div>
         </div>
-      </div>
-      <div class="dash-stat">
-        <i class="fa-solid fa-th"></i>
-        <div>
-          <span class="dash-stat-val">${d.nineBox?.total ?? '—'}</span>
-          <span class="dash-stat-label">Nine Box</span>
+        <div class="dash-stat-large">
+          <i class="fa-solid fa-users-gear"></i>
+          <div>
+            <span class="dash-stat-val">${d.totalGrupos ?? '—'}</span>
+            <span class="dash-stat-label">Grupos</span>
+          </div>
+        </div>
+        <div class="dash-stat-large">
+          <i class="fa-solid fa-chart-bar"></i>
+          <div>
+            <span class="dash-stat-val">${d.totalRelatorios ?? '—'}</span>
+            <span class="dash-stat-label">Relatórios</span>
+          </div>
+        </div>
+        <div class="dash-stat-large">
+          <i class="fa-solid fa-user-check"></i>
+          <div>
+            <span class="dash-stat-val">${d.usuariosAtivos ?? '—'}</span>
+            <span class="dash-stat-label">Usuários Ativos</span>
+          </div>
+        </div>
+        <div class="dash-stat-large">
+          <i class="fa-solid fa-clock"></i>
+          <div>
+            <span class="dash-stat-val">${d.avaliacoesPendentes ?? '—'}</span>
+            <span class="dash-stat-label">Avaliações Pendentes</span>
+          </div>
         </div>
       </div>`;
   }
 
-  // Gestor/admin: tenta carregar stats; se falhar ou não houver dados, mostra welcome
-  if (isGestorOrAdmin()) {
-    try {
+  // Carregar dashboard para admin
+  try {
+    const { reportsApi } = await import('./js/api.js');
+    
+    // Função para carregar dados do dashboard
+    async function carregarDashboard() {
       const res = await reportsApi.dashboard();
-      const d   = res.data;
+      const d = res.data;
       const totalUsuarios = d.totalUsuarios ?? 0;
 
-      if (totalUsuarios <= 1) {
-        // Só o próprio admin existe — mostra boas-vindas
-        mostrarWelcome();
-      } else {
-        // Adaptar estrutura para mostrarStats
+      // Mostrar stats se houver dados suficientes
+      if (totalUsuarios > 0 || d.totalGestores > 0 || d.totalColaboradores > 0 || d.avaliacoes?.total > 0) {
         const statsData = {
           usuarios: {
-            total: d.totalUsuarios,
+            total: d.totalUsuarios || 0,
             porTipo: {
-              gestor: d.totalGestores,
-              colaborador: d.totalColaboradores
+              gestor: d.totalGestores || 0,
+              colaborador: d.totalColaboradores || 0
             }
           },
           avaliacoes: {
-            total: d.totalAvaliacoes
+            total: d.avaliacoes?.total || 0
           },
           nineBox: {
             total: d.totalNineBox ?? 0
-          }
+          },
+          totalCampanhas: d.totalCampanhas || 0,
+          totalCompetencias: d.totalCompetencias || 0,
+          totalGrupos: d.totalGrupos || 0,
+          totalRelatorios: d.totalRelatorios || 0,
+          usuariosAtivos: d.usuariosAtivos || 0,
+          avaliacoesPendentes: d.avaliacoesPendentes || 0
         };
         mostrarStats(statsData);
+      } else {
+        mostrarWelcome();
       }
-    } catch (error) {
-      // Backend offline ou erro — mostra boas-vindas
-      console.error('Erro ao carregar dashboard:', error);
-      mostrarWelcome();
     }
-  } else {
-    // Colaborador: welcome sem botão de cadastrar
-    statsBox.innerHTML = `
-      <div class="dash-welcome">
-        <i class="fa-solid fa-users"></i>
-        <h3>Bem-vindo ao Portal de Gestão de Pessoas!</h3>
-        <p>Use o menu acima para acessar avaliações e competências.</p>
-      </div>`;
+
+    // Carregar dashboard inicialmente
+    await carregarDashboard();
+
+    // Atualizar dashboard automaticamente a cada 30 segundos
+    setInterval(carregarDashboard, 30000);
+  } catch (error) {
+    console.error('Erro ao carregar dashboard:', error);
+    mostrarWelcome();
   }
 </script>
 </body>

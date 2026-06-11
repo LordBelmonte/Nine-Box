@@ -37,7 +37,6 @@
         </div>
       </div>
       <div class="user-dropdown-divider"></div>
-      <a href="../perfil.html" class="user-dropdown-item" data-role="admin"><i class="fa-solid fa-user-pen"></i> Meu Perfil</a>
       <button class="user-dropdown-item user-dropdown-sair" id="btn-sair-header" onclick="sairDaConta()" style="display:none">
         <i class="fa-solid fa-right-from-bracket"></i> Sair
       </button>
@@ -62,9 +61,8 @@
         <li><a href="competencias.html" class="navbar-submenu-link active"><i class="fa-solid fa-clipboard-check"></i> Competências</a></li>
       </ul>
     </li>
-    <li class="navbar-item" data-role="gestorOrAdmin"><a href="grupos.html" class="navbar-link"><i class="fa-solid fa-users"></i><span>Grupos</span></a></li>
+    <li class="navbar-item" data-role="admin"><a href="grupos.html" class="navbar-link"><i class="fa-solid fa-users"></i><span>Grupos</span></a></li>
     <li class="navbar-item"><a href="relatorios.html" class="navbar-link"><i class="fa-solid fa-chart-bar"></i><span>Relatórios</span></a></li>
-    <li class="navbar-item"><a href="../perfil.html" class="navbar-link"><i class="fa-solid fa-user"></i><span>Perfil</span></a></li>
   </ul>
 </nav>
 
@@ -175,12 +173,12 @@
 </main>
 
 <script type="module">
-  import { requireAuth, isAdmin } from '../js/auth.js';
+  import { requireAuth, isAdmin, requireAdmin } from '../js/auth.js';
   import { competenciesApi } from '../js/api.js';
   import { showToast } from '../js/components/toast.js';
   import '../js/navbar.js';
 
-  requireAuth();
+  requireAdmin();
 
   let editandoId = null;
   let todasCompetencias = [];

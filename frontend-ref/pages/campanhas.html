@@ -41,6 +41,9 @@
     .btn-acao.ativar{background:#d1fae5;color:#065f46;border-color:#6ee7b7}
     .btn-acao.finalizar{background:#f1f5f9;color:#475569;border-color:#cbd5e1}
     .btn-acao.excluir{background:transparent;color:#ef4444;border-color:#fecaca}
+    .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1100;align-items:center;justify-content:center}
+    .modal-overlay.show{display:flex}
+    .comp-field select{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");background-repeat:no-repeat;background-position:right.7em top 50%;background-size:.65em auto;padding-right:2.5em}
   </style>
 </head>
 <body>
@@ -202,7 +205,12 @@
   <!-- Modal de Seleção de Competências -->
   <div id="modal-competencias" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
     <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto">
-      <h3 style="margin:0 0 16px 0;font-size:18px;font-weight:700;color:var(--text)">Selecionar Competências</h3>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 style="margin:0;font-size:18px;font-weight:700;color:var(--text)">Selecionar Competências</h3>
+        <button id="btn-criar-competencia" style="padding:8px 12px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" title="Criar nova competência">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
       <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Escolha as competências que deseja adicionar à campanha:</p>
       <div id="modal-competencias-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
         <p style="font-size:13px;color:var(--text-muted)">Carregando competências...</p>
@@ -211,6 +219,87 @@
         <button onclick="fecharModalCompetencias()" style="padding:8px 16px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;color:var(--text);font-weight:600">Cancelar</button>
         <button onclick="confirmarSelecaoCompetencias()" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer">Adicionar</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal de Criação de Competência -->
+  <div id="modal-criar-competencia" class="modal-overlay">
+    <div class="comp-form-card" style="max-width:700px;width:90%;max-height:90vh;overflow-y:auto">
+      <div class="comp-form-header">
+        <div>
+          <h3>Nova Competência</h3>
+          <p class="comp-form-sub">
+            <i class="fa-solid fa-circle-dot" style="color:var(--success)"></i>
+            Crie uma nova competência para sua avaliação
+          </p>
+        </div>
+        <button class="comp-btn-cancelar" onclick="fecharModalCriarCompetencia()">
+          <i class="fa-solid fa-xmark"></i> Cancelar
+        </button>
+      </div>
+      
+      <form id="formNovaCompetencia">
+        <div class="comp-row">
+          <div class="comp-field" style="flex:2">
+            <label for="nova-competencia-nome">Nome da competência:</label>
+            <input type="text" id="nova-competencia-nome" placeholder="Ex: Delegar tarefas" required>
+          </div>
+          <div class="comp-field">
+            <label for="nova-competencia-de">Competência de:</label>
+            <select id="nova-competencia-de" required>
+              <option value="">Selecione...</option>
+              <option value="gestor">Gestor</option>
+              <option value="colaborador">Colaborador</option>
+            </select>
+          </div>
+          <div class="comp-field">
+            <label for="nova-competencia-tipo">Tipo:</label>
+            <select id="nova-competencia-tipo" required>
+              <option value="">Selecione...</option>
+              <option value="desempenho">Desempenho</option>
+              <option value="comportamento">Comportamento</option>
+              <option value="tecnica">Técnica</option>
+              <option value="lideranca">Liderança</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="comp-field">
+          <label for="nova-competencia-descricao">Descrição:</label>
+          <textarea id="nova-competencia-descricao" placeholder="Quanto à habilidade de delegar tarefas ao time, avalie:" rows="3" required></textarea>
+        </div>
+        
+        <!-- Critérios -->
+        <div class="comp-criterios-section">
+          <div class="comp-criterios-header">
+            <h4>Critérios de Avaliação:</h4>
+            <button type="button" class="comp-btn-add-criterio" onclick="adicionarCriterioModal()">
+              <i class="fa-solid fa-plus"></i> Adicionar critério
+            </button>
+          </div>
+          <div class="comp-criterios-grid" id="nova-competencia-criterios">
+            <!-- Critérios gerados dinamicamente -->
+          </div>
+          
+          <div class="comp-escala-info">
+            <i class="fa-solid fa-circle-info"></i>
+            Os critérios são avaliados de 1 a 4, segundo a seguinte métrica:
+          </div>
+          <div class="comp-escala-grid">
+            <div class="comp-escala-item nota-1"><span>Nota 1 – Não cumpre o requisito</span></div>
+            <div class="comp-escala-item nota-3"><span>Nota 3 – Cumpre sempre</span></div>
+            <div class="comp-escala-item nota-2"><span>Nota 2 – Cumpre moderadamente</span></div>
+            <div class="comp-escala-item nota-4"><span>Nota 4 – Cumpre o requisito e supera expectativas</span></div>
+          </div>
+        </div>
+        
+        <div class="comp-form-actions">
+          <button type="button" class="comp-btn-voltar" onclick="fecharModalCriarCompetencia()">Voltar</button>
+          <button type="submit" class="comp-btn-salvar">
+            <i class="fa-solid fa-floppy-disk"></i> <span>Criar Competência</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -247,6 +336,7 @@
   let competenciasSelecionadas = new Set();
   let editandoId = null;
   let filtroAtual = '';
+  let criterioCount = 0;
 
   // ─── LISTA ────────────────────────────────────────────────────────────────────
 
@@ -593,6 +683,97 @@
     fecharModalCompetencias();
   };
 
+  // ─── MODAL DE CRIAÇÃO DE COMPETÊNCIA ───────────────────────────────────────────────
+
+  window.abrirModalCriarCompetencia = function() {
+    const modal = document.getElementById('modal-criar-competencia');
+    modal.classList.add('show');
+    // Limpar formulário
+    document.getElementById('formNovaCompetencia').reset();
+    // Limpar critérios
+    document.getElementById('nova-competencia-criterios').innerHTML = '';
+    criterioCount = 0;
+  };
+
+  window.fecharModalCriarCompetencia = function() {
+    document.getElementById('modal-criar-competencia').classList.remove('show');
+  };
+
+  window.adicionarCriterioModal = function() {
+    criterioCount++;
+    const container = document.getElementById('nova-competencia-criterios');
+    const criterioDiv = document.createElement('div');
+    criterioDiv.className = 'comp-criterio-item';
+    criterioDiv.id = 'criterio-' + criterioCount;
+    criterioDiv.innerHTML = `
+      <div class="comp-criterio-label-row">
+        <label><i class="fa-solid fa-circle-dot"></i> Critério ${criterioCount}</label>
+        <button type="button" class="comp-btn-rm-criterio" onclick="removerCriterioModal(${criterioCount})">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <textarea placeholder="Descreva o critério ${criterioCount}..." class="criterio-input" rows="2"></textarea>
+    `;
+    container.appendChild(criterioDiv);
+  };
+
+  window.removerCriterioModal = function(id) {
+    const criterioDiv = document.getElementById('criterio-' + id);
+    if (criterioDiv) criterioDiv.remove();
+  };
+
+  // Formulário de criação de competência
+  document.getElementById('formNovaCompetencia').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const nome = document.getElementById('nova-competencia-nome').value.trim();
+    const competenciaDe = document.getElementById('nova-competencia-de').value;
+    const tipo = document.getElementById('nova-competencia-tipo').value;
+    const descricao = document.getElementById('nova-competencia-descricao').value.trim();
+    
+    if (!nome || !competenciaDe || !tipo || !descricao) {
+      showToast('Preencha todos os campos obrigatórios.', 'error');
+      return;
+    }
+    
+    // Coletar critérios
+    const criterioInputs = document.querySelectorAll('.criterio-input');
+    const criterios = [];
+    criterioInputs.forEach(input => {
+      if (input.value.trim()) {
+        criterios.push(input.value.trim());
+      }
+    });
+    
+    try {
+      const payload = {
+        nome,
+        competenciaDe,
+        tipo,
+        descricao,
+        criterios
+      };
+      
+      await competenciesApi.create(payload);
+      showToast('Competência criada com sucesso!', 'success');
+      
+      // Recarregar competências
+      competencias = [];
+      await competenciesApi.list({ limit: 100 }).then(res => {
+        competencias = res.data?.competencies || [];
+      });
+      
+      // Atualizar modal de seleção
+      await abrirModalCompetencias();
+      
+      // Fechar modal de criação
+      fecharModalCriarCompetencia();
+      
+    } catch (error) {
+      showToast(error.message || 'Erro ao criar competência.', 'error');
+    }
+  });
+
   // ─── GESTORES CHIPS ───────────────────────────────────────────────────────────
 
   async function carregarGestoresChips() {
@@ -690,6 +871,9 @@
   // ─── INIT ─────────────────────────────────────────────────────────────────────
   carregarCampanhas();
   carregarColaboradores();
+
+  // Event listener para botão de criar competência
+  document.getElementById('btn-criar-competencia').addEventListener('click', window.abrirModalCriarCompetencia);
 </script>
 </body>
 </html>

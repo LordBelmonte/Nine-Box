@@ -9,18 +9,26 @@ class ReportsController {
       
       // Adaptar formato para compatibilidade com frontend
       const response = {
-        totalUsuarios: stats.usuarios.total,
-        totalGestores: stats.usuarios.porTipo?.gestor || 0,
-        totalColaboradores: stats.usuarios.porTipo?.colaborador || 0,
+        totalUsuarios: stats.totalUsuarios || stats.usuarios.total,
+        totalGestores: stats.totalGestores || stats.usuarios.porTipo?.gestor || 0,
+        totalColaboradores: stats.totalColaboradores || stats.usuarios.porTipo?.colaborador || 0,
         totalAvaliacoes: stats.avaliacoes.total,
-        totalNineBox: stats.nineBox?.total || 0,
+        totalNineBox: stats.totalNineBox ?? stats.nineBox?.total ?? 0,
+        totalCampanhas: stats.totalCampanhas || 0,
         campanhasAtivas: stats.campanhasAtivas || 0,
+        totalCompetencias: stats.totalCompetencias || 0,
+        totalGrupos: stats.totalGrupos || 0,
+        totalRelatorios: stats.totalRelatorios || 0,
+        usuariosAtivos: stats.usuariosAtivos || stats.totalUsuarios || stats.usuarios.total || 0,
+        avaliacoesPendentes: stats.avaliacoesPendentes || 0,
         mediaGeral: parseFloat((stats.avaliacoes.mediaGeral || 0).toFixed(1)),
         ultimasAvaliacoes: stats.avaliacoes.lista || [],
         usuarios: stats.usuarios,
         avaliacoes: stats.avaliacoes,
         nineBox: stats.nineBox,
         competencias: stats.competencias,
+        campanhas: stats.campanhas,
+        grupos: stats.grupos,
         timestamp: stats.timestamp
       };
       

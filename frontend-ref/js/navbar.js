@@ -1,7 +1,7 @@
 // Navegação, dark mode e controle de usuário
 // Gerencia a navegação do sistema, alternância de modo escuro e permissões de acesso
 
-import { getUser, sairDaConta, toggleUserMenu, updateHeaderUser, isAdmin, isGestorOrAdmin, isGestor, isColaborador } from './auth.js';
+import { getUser, sairDaConta, toggleUserMenu, updateHeaderUser, isAdmin, isGestor, isColaborador } from './auth.js';
 
 // Controle de submenu dropdown
 window.toggleSubmenu = function(e, link) {
@@ -49,40 +49,26 @@ function aplicarPermissoesNav() {
     el.style.display = isAdmin() ? '' : 'none';
   });
 
-  // Elementos visíveis para gestores e administradores
-  document.querySelectorAll('[data-role="gestorOrAdmin"]').forEach(el => {
-    el.style.display = isGestorOrAdmin() ? '' : 'none';
-  });
-
   // Elementos visíveis apenas para colaboradores
   document.querySelectorAll('[data-role="colaborador"]').forEach(el => {
     el.style.display = isColaborador() ? '' : 'none';
   });
 
-  // Colaboradores veem apenas Avaliações no menu principal
-  if (isColaborador()) {
+  // Gestor e Colaborador veem apenas Avaliações no menu principal
+  if ((isGestor() || isColaborador()) && !isAdmin()) {
     document.querySelectorAll('.navbar-item').forEach(el => {
       const link = el.querySelector('a');
       if (link && !el.closest('.navbar-item-dropdown')) {
         const href = link.getAttribute('href');
         // Permite apenas Avaliações
-        const allowed = href.includes('avaliacoes.html');
+        const allowed = href.includes('avaliacoes.html') || href.includes('avaliacoes-pendentes.html');
         el.style.display = allowed ? '' : 'none';
       }
     });
-  }
 
-  // Gestores veem Início e Avaliações no menu principal
-  if (isGestor()) {
-    document.querySelectorAll('.navbar-item').forEach(el => {
-      const link = el.querySelector('a');
-      if (link && !el.closest('.navbar-item-dropdown')) {
-        const href = link.getAttribute('href');
-        // Permite apenas Avaliações e Início
-        const allowed = href.includes('avaliacoes.html') || href.includes('index.html');
-        el.style.display = allowed ? '' : 'none';
-      }
-    });
+    // Esconder link de Perfil no dropdown
+    const perfilLink = document.querySelector('a[href="perfil.html"]');
+    if (perfilLink) perfilLink.style.display = 'none';
   }
 }
 
@@ -118,6 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Atualizar informações do usuário no header
   updateHeaderUser();
+
+  // Aplicar permissões imediatamente
   aplicarPermissoesNav();
 
   // Aplicar modo escuro salvo ou preferência do sistema

@@ -214,7 +214,7 @@
 </div>
 
 <script type="module">
-  import { requireAuth, isGestorOrAdmin, isAdmin, getUser } from '../js/auth.js';
+  import { requireAuth, isAdmin, getUser } from '../js/auth.js';
   import { usersApi, evaluationsApi, competenciesApi } from '../js/api.js';
   import { showToast } from '../js/components/toast.js';
   import '../js/navbar.js';
@@ -232,7 +232,7 @@
   const TIPO_LABELS = { desempenho:'Desempenho', comportamento:'Comportamento', tecnica:'Técnica', lideranca:'Liderança' };
 
   // Oculta botão nova para colaboradores
-  if (!isGestorOrAdmin()) document.getElementById('btn-nova-180').style.display = 'none';
+  if (!isAdmin()) document.getElementById('btn-nova-180').style.display = 'none';
 
   // Carrega dados necessários
   async function init() {
@@ -269,7 +269,7 @@
         <div style="text-align:center;padding:60px 20px;color:var(--text-muted)">
           <i class="fa-solid fa-clipboard-list" style="font-size:48px;color:var(--border);display:block;margin-bottom:16px"></i>
           <p style="font-size:15px;margin:0 0 16px">Nenhuma avaliação 180° registrada ainda.</p>
-          ${isGestorOrAdmin() ? '<button class="r180-btn-novo" onclick="abrirFormulario()" style="margin:0 auto"><i class="fa-solid fa-plus"></i> Criar primeira avaliação</button>' : ''}
+          ${isAdmin() ? '<button class="r180-btn-novo" onclick="abrirFormulario()" style="margin:0 auto"><i class="fa-solid fa-plus"></i> Criar primeira avaliação</button>' : ''}
         </div>`;
       return;
     }

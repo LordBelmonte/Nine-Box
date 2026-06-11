@@ -490,11 +490,6 @@ export function isColaborador() {
   return getUser()?.tipo === 'colaborador';
 }
 
-export function isGestorOrAdmin() {
-  const tipo = getUser()?.tipo;
-  return tipo === 'gestor' || tipo === 'admin';
-}
-
 // =============================================
 // PROTEÇÃO DE ROTAS
 // =============================================
@@ -545,7 +540,27 @@ export function requireRole(role) {
   };
 
   if (!allowed[role]) {
-    window.location.href = '/frontend-ref/index.html';
+    // Se for gestor ou colaborador tentando acessar página de admin, redireciona para avaliações
+    if (tipo === 'gestor' || tipo === 'colaborador') {
+      window.location.href = '/frontend-ref/pages/avaliacoes.html';
+    } else {
+      window.location.href = '/frontend-ref/index.html';
+    }
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Redireciona gestor/colaborador para avaliações se tentarem acessar página administrativa
+ * Apenas admin pode acessar páginas administrativas
+ */
+export function requireAdmin() {
+  if (!requireAuth()) return false;
+
+  const tipo = getUser()?.tipo;
+  if (tipo !== 'admin') {
+    window.location.href = '/frontend-ref/pages/avaliacoes.html';
     return false;
   }
   return true;
@@ -617,6 +632,6 @@ document.addEventListener('click', (e) => {
 // HELPERS
 // =============================================
 export function tipoLabel(tipo) {
-  const labels = { admin: 'Gestor', gestor: 'Gestor', colaborador: 'Colaborador' };
+  const labels = { admin: 'Administrador', gestor: 'Gestor', colaborador: 'Colaborador' };
   return labels[tipo] || tipo;
 }
