@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avaliação Enviada — Portal de Gestão de Pessoas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script>(function(){const dm=localStorage.getItem('darkMode');if(dm==='1'||(dm===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark-mode');if(document.body)document.body.classList.add('dark-mode');}})();</script>
+  <style>
+    .agradecimentos-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .agradecimentos-box {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 60px 40px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .agradecimentos-icon {
+      font-size: 64px;
+      color: var(--primary);
+      margin-bottom: 30px;
+    }
+
+    .agradecimentos-titulo {
+      color: var(--primary);
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .agradecimentos-texto {
+      color: var(--text);
+      font-size: 18px;
+      line-height: 1.8;
+      margin-bottom: 40px;
+    }
+
+    .proximo-info {
+      color: var(--text-muted);
+      font-size: 16px;
+      margin-bottom: 24px;
+    }
+
+    .proximo-info strong {
+      color: var(--primary);
+    }
+
+    .progress-info {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 40px;
+    }
+
+    .progress-bar-mini {
+      width: 100%;
+      max-width: 320px;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      margin: 12px auto 0;
+      overflow: hidden;
+    }
+
+    .progress-fill-mini {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .botoes-container {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-finalizar {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px 48px;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-finalizar:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-cancelar {
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+      padding: 14px 48px;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-cancelar:hover {
+      background: var(--primary);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h2 id="page-title">Portal de Gestão de Pessoas</h2>
+  <button id="dark-mode-btn" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i></button>
+  <div class="user-menu" id="user-menu">
+    <div class="user" id="user-btn" onclick="toggleUserMenu()"><i class="fa-solid fa-user"></i></div>
+    <div class="user-dropdown" id="user-dropdown">
+      <div class="user-dropdown-info">
+        <div class="user-dropdown-avatar" id="user-dropdown-avatar"><i class="fa-solid fa-user"></i></div>
+        <div>
+          <div class="user-dropdown-nome" id="user-dropdown-nome">Carregando...</div>
+          <div class="user-dropdown-tipo" id="user-dropdown-tipo"></div>
+        </div>
+      </div>
+      <div class="user-dropdown-divider"></div>
+      <a href="../perfil.html" class="user-dropdown-item" data-role="admin">
+        <i class="fa-solid fa-user-pen"></i> Meu Perfil
+      </a>
+      <button class="user-dropdown-item user-dropdown-sair" id="btn-sair-header" onclick="sairDaConta()" style="display:none">
+        <i class="fa-solid fa-right-from-bracket"></i> Sair
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrapper">
+  <div class="agradecimentos-container">
+    <div class="agradecimentos-box">
+      <i class="fa-solid fa-check-circle agradecimentos-icon"></i>
+      <h3 class="agradecimentos-titulo">Avaliação Enviada!</h3>
+      <p class="agradecimentos-texto">
+        A avaliação foi registrada com sucesso. Parabéns por completar esta etapa!
+      </p>
+
+      <p class="proximo-info">Próximo: <strong id="proximo-colaborador">Carregando...</strong></p>
+
+      <div class="progress-info" id="progress-info">
+        Carregando informações...
+        <div class="progress-bar-mini">
+          <div class="progress-fill-mini" id="progress-fill-mini" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <div class="botoes-container">
+        <button class="btn-finalizar" id="btn-proximo-colaborador">
+          <i class="fa-solid fa-arrow-right"></i> Próximo Colaborador
+        </button>
+        <button class="btn-cancelar" id="btn-cancelar-fila">
+          <i class="fa-solid fa-xmark"></i> Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+  import { requireAuth, getUser, toggleUserMenu, sairDaConta } from '../js/auth.js';
+  import '../js/navbar.js';
+
+  requireAuth();
+
+  const user = getUser();
+
+  if (user && (user.tipo === 'colaborador' || user.tipo === 'gestor')) {
+    const header = document.querySelector('header');
+    if (header) header.style.display = 'none';
+  }
+
+  const filaRestante = JSON.parse(localStorage.getItem('colaboradoresFila') || '[]');
+  const proxColaborador = localStorage.getItem('proxColaborador') ? JSON.parse(localStorage.getItem('proxColaborador')) : null;
+
+  const totalGeral = parseInt(localStorage.getItem('colaboradoresTotal'), 10) || (filaRestante.length + 1);
+  const avaliadosAte = totalGeral - filaRestante.length;
+  const percentual = totalGeral > 0 ? (avaliadosAte / totalGeral) * 100 : 0;
+
+  if (proxColaborador) {
+    document.getElementById('proximo-colaborador').textContent = proxColaborador.nome;
+  } else {
+    document.getElementById('proximo-colaborador').textContent = 'Nenhum';
+  }
+
+  const progressEl = document.getElementById('progress-info');
+  if (totalGeral > 0) {
+    progressEl.innerHTML = `
+      ${avaliadosAte} de ${totalGeral} colaboradores avaliados
+      <div class="progress-bar-mini">
+        <div class="progress-fill-mini" style="width: ${percentual}%;"></div>
+      </div>
+    `;
+  }
+
+  document.getElementById('btn-proximo-colaborador').addEventListener('click', () => {
+    if (filaRestante.length > 0) {
+      window.location.href = 'avaliacao-orientacoes.html';
+    } else {
+      alert('Nenhum colaborador pendente.');
+      window.location.href = 'avaliacoes.html';
+    }
+  });
+
+  document.getElementById('btn-cancelar-fila').addEventListener('click', () => {
+    localStorage.removeItem('colaboradoresFila');
+    localStorage.removeItem('proxColaborador');
+    localStorage.removeItem('campaignId');
+    localStorage.removeItem('colaboradoresTotal');
+    window.location.href = 'avaliacoes.html';
+  });
+
+  window.toggleUserMenu = toggleUserMenu;
+  window.sairDaConta = sairDaConta;
+</script>
+
+</body>
+</html>

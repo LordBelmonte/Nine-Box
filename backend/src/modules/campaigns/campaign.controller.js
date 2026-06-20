@@ -9,6 +9,7 @@ const campaignService = new CampaignService(campaignRepository, evaluationReposi
 class CampaignController {
   async create(req, res, next) {
     try {
+      console.log('[CampaignController.create] req.body:', JSON.stringify(req.body, null, 2));
       const campaign = await campaignService.create(req.body, req.user.tipo);
       return res.status(201).json({
         success: true,
@@ -63,6 +64,7 @@ class CampaignController {
 
   async update(req, res, next) {
     try {
+      console.log('[CampaignController.update] req.params.id:', req.params.id, 'req.body:', JSON.stringify(req.body, null, 2));
       const campaign = await campaignService.update(
         req.params.id,
         req.body,

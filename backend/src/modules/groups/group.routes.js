@@ -7,8 +7,8 @@ const groupController = new GroupController();
 
 router.use(authMiddleware);
 
-// Colaboradores de um gestor (apenas admin)
-router.get('/gestor/:gestorId/colaboradores', isAdminMiddleware, (req, res, next) =>
+// Colaboradores de um gestor: admin ou o próprio gestor podem consultar
+router.get('/gestor/:gestorId/colaboradores', isGestorOrAdminMiddleware, (req, res, next) =>
   groupController.getColaboradores(req, res, next)
 );
 

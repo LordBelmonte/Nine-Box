@@ -110,18 +110,33 @@
     line-height: 1.5;
   }
 
-  /* ── Step label (critério X de Y) ── */
-  .criterio-step-info {
-    text-align: center;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-muted);
-    letter-spacing: .5px;
-    text-transform: uppercase;
-    margin-bottom: 20px;
+  .competencias-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
   }
 
   /* ── Pergunta do critério ── */
+  .criterio-block {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    border-radius: 12px;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+
+  .criterio-block:first-of-type {
+    margin-top: 20px;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .criterio-block.criterio-erro {
+    border: 2px solid #ef4444;
+    padding: 16px;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+  }
+
   .criterio-pergunta {
     text-align: center;
     font-size: 18px;
@@ -207,122 +222,27 @@
   .nota-btn.sel-4 { border-color: #10b981; background: rgba(16,185,129,.05); }
   .nota-btn.sel-4 .nota-badge { background: #10b981; color: white; box-shadow: 0 4px 12px rgba(16,185,129,0.4); }
 
-  /* ── Tela de observações ── */
-  .obs-desc {
-    text-align: center;
-    font-size: 14px;
-    color: var(--text-muted);
-    margin-bottom: 16px;
-  }
-
-  .observacoes-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 8px;
+  .btn-finalizar-avaliacao {
     display: flex;
     align-items: center;
-    gap: 6px;
-  }
-
-  .observacoes-label i { color: var(--primary); }
-
-  .observacoes-container textarea {
-    width: 100%;
-    height: 100px;
-    padding: 10px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 13px;
-    resize: vertical;
-    background: var(--bg);
-    color: var(--text);
-    transition: border-color 0.2s;
-    box-sizing: border-box;
-  }
-
-  .observacoes-container textarea:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(99,102,241,.1);
-  }
-
-  /* ── Paginação (por competência) ── */
-  .pagination-container {
-    display: flex;
     justify-content: center;
     gap: 8px;
-    margin-top: 24px;
-    flex-wrap: wrap;
-  }
-
-  .page-number {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    transition: all 0.2s ease;
-  }
-
-  .page-number:hover { border-color: var(--primary); color: var(--primary); }
-
-  .page-number.active {
-    background: linear-gradient(135deg, var(--primary), #6366f1);
-    color: white;
-    border-color: var(--primary);
-  }
-
-  .page-number.done { border-color: #10b981; color: #10b981; }
-  .page-number.done.active { background: #10b981; border-color: #10b981; color: white; }
-
-  /* ── Botões nav ── */
-  .buttons-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 24px;
-  }
-
-  .btn-voltar, .btn-proximo {
-    padding: 10px 24px;
+    margin: 32px auto 40px;
+    padding: 12px 32px;
     border: none;
     border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .btn-voltar {
-    background: white;
-    color: var(--primary);
-    border: 1.5px solid var(--primary);
-  }
-
-  .btn-voltar:hover {
-    background: var(--primary);
-    color: white;
-    transform: translateY(-1px);
-  }
-
-  .btn-proximo {
     background: linear-gradient(135deg, var(--primary), #6366f1);
     color: white;
   }
 
-  .btn-proximo:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,.4); }
-  .btn-proximo:disabled { background: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-finalizar-avaliacao:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(99,102,241,.4);
+  }
 
   /* ── Modal ── */
   .modal-overlay {
@@ -378,6 +298,7 @@
     <div class="avaliacao-header">
       <h2 id="campanha-nome">Carregando...</h2>
       <p>Avaliação de competências 180°</p>
+      <p id="colaborador-atual-info" style="color: var(--primary); font-weight: 600; margin-top: 12px; display: none;"></p>
     </div>
 
     <div class="progress-bar">
@@ -387,16 +308,9 @@
 
     <div id="competencias-content"></div>
 
-    <div class="pagination-container" id="pagination-container"></div>
-
-    <div class="buttons-container">
-      <button class="btn-voltar" id="btn-voltar">
-        <i class="fa-solid fa-arrow-left"></i> Voltar
-      </button>
-      <button class="btn-proximo" id="btn-proximo">
-        Próximo <i class="fa-solid fa-arrow-right"></i>
-      </button>
-    </div>
+    <button class="btn-finalizar-avaliacao" id="btn-finalizar-avaliacao">
+      Finalizar Avaliação <i class="fa-solid fa-check"></i>
+    </button>
   </div>
 </main>
 
@@ -494,186 +408,125 @@
 
   // ── Estado ────────────────────────────────────────────────────────
   let competencies = [];
-  // steps: [{ type:'criterio', comp, idx } | { type:'obs', comp }]
-  let steps = [];
-  let currentStep = 0;
-  // respostas[compId] = { criterios: [1..4, ...], observacao: '' }
-  // Verifica se as respostas no localStorage pertencem ao usuário atual
+  const NOTAS = [
+    { val: 1, label: 'Ruim', desc: 'Não atende', sel: 'sel-1' },
+    { val: 2, label: 'Regular', desc: 'Atende parcialmente', sel: 'sel-2' },
+    { val: 3, label: 'Bom', desc: 'Atende bem', sel: 'sel-3' },
+    { val: 4, label: 'Excelente', desc: 'Supera expectativas', sel: 'sel-4' },
+  ];
+  // respostas[compId] = { criterios: [1..4, ...] }
   const storedData = JSON.parse(localStorage.getItem('respostas_avaliacao') || '{}');
   const storedUserId = localStorage.getItem('respostas_avaliacao_userId');
-  let respostas = (storedUserId === user.userId) ? storedData : {};
+  let respostas = (storedUserId === user.id) ? storedData : {};
 
-  function buildSteps() {
-    steps = [];
-    competencies.forEach(comp => {
-      (comp.criterios || []).forEach((_, idx) => {
-        steps.push({ type: 'criterio', comp, idx });
-      });
-      steps.push({ type: 'obs', comp });
-    });
-  }
-
-  // ── Render do step atual ──────────────────────────────────────────
-  function renderStep() {
+  function renderAllCompetencies() {
     const container = document.getElementById('competencias-content');
     container.innerHTML = '';
-    if (!steps.length) return;
+    if (!competencies.length) return;
 
-    const step = steps[currentStep];
-    const { comp } = step;
-    const compId = comp.id;
+    const list = document.createElement('div');
+    list.className = 'competencias-list';
 
-    const card = document.createElement('div');
-    card.className = 'competencia-card';
+    competencies.forEach(comp => {
+      const compId = comp.id;
+      const card = document.createElement('div');
+      card.className = 'competencia-card';
 
-    if (step.type === 'criterio') {
-      const { idx } = step;
-      const criterioTexto = comp.criterios[idx];
-      const valorSalvo = respostas[compId]?.criterios?.[idx] ?? null;
-
-      // Rótulos das notas vêm da competência cadastrada
-      const notas = [
-        { val: 1, label: 'Ruim', desc: 'Não atende', sel: 'sel-1' },
-        { val: 2, label: 'Regular', desc: 'Atende parcialmente', sel: 'sel-2' },
-        { val: 3, label: 'Bom', desc: 'Atende bem', sel: 'sel-3' },
-        { val: 4, label: 'Excelente', desc: 'Supera expectativas', sel: 'sel-4' },
-      ];
+      const criteriosHtml = (comp.criterios || []).map((criterioTexto, idx) => {
+        const valorSalvo = respostas[compId]?.criterios?.[idx] ?? null;
+        return `
+          <div class="criterio-block" data-comp-id="${compId}" data-crit-idx="${idx}">
+            <div class="criterio-pergunta">${criterioTexto}</div>
+            <div class="notas-grid">
+              ${NOTAS.map(n => `
+                <label class="nota-btn ${valorSalvo === n.val ? n.sel : ''}" data-val="${n.val}">
+                  <input type="radio" name="nota_${compId}_${idx}" value="${n.val}" ${valorSalvo === n.val ? 'checked' : ''}>
+                  <span class="nota-badge">${n.val}</span>
+                  <span class="nota-label">${n.label}</span>
+                  <span class="nota-desc">${n.desc}</span>
+                </label>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
 
       card.innerHTML = `
         <div class="competencia-titulo">${comp.nome}</div>
         <div class="competencia-descricao">${comp.descricao || ''}</div>
-        <div class="criterio-step-info">Critério ${idx + 1} de ${comp.criterios.length}</div>
-        <div class="criterio-pergunta">${criterioTexto}</div>
-        <div class="notas-grid">
-          ${notas.map(n => `
-            <label class="nota-btn ${valorSalvo === n.val ? n.sel : ''}" data-val="${n.val}">
-              <input type="radio" name="nota_step" value="${n.val}" ${valorSalvo === n.val ? 'checked' : ''}>
-              <span class="nota-badge">${n.val}</span>
-              <span class="nota-label">${n.label}</span>
-              <span class="nota-desc">${n.desc}</span>
-            </label>
-          `).join('')}
-        </div>
+        ${criteriosHtml}
       `;
 
-      container.appendChild(card);
+      card.querySelectorAll('.criterio-block').forEach(block => {
+        const idx = parseInt(block.dataset.critIdx, 10);
+        block.querySelectorAll('input[type="radio"]').forEach(input => {
+          input.addEventListener('change', e => {
+            const val = parseInt(e.target.value, 10);
+            if (!respostas[compId]) respostas[compId] = { criterios: [] };
+            respostas[compId].criterios[idx] = val;
+            localStorage.setItem('respostas_avaliacao', JSON.stringify(respostas));
+            localStorage.setItem('respostas_avaliacao_userId', user.id);
 
-      card.querySelectorAll('input[name="nota_step"]').forEach(input => {
-        input.addEventListener('change', e => {
-          const val = parseInt(e.target.value);
-          if (!respostas[compId]) respostas[compId] = { criterios: [], observacao: '' };
-          respostas[compId].criterios[idx] = val;
-          localStorage.setItem('respostas_avaliacao', JSON.stringify(respostas));
-          localStorage.setItem('respostas_avaliacao_userId', user.userId);
+            block.querySelectorAll('.nota-btn').forEach(btn => {
+              const bVal = parseInt(btn.dataset.val, 10);
+              const nInfo = NOTAS.find(n => n.val === bVal);
+              btn.className = 'nota-btn' + (bVal === val ? ' ' + nInfo.sel : '');
+            });
 
-          // Visual
-          card.querySelectorAll('.nota-btn').forEach(btn => {
-            const bVal = parseInt(btn.dataset.val);
-            const nInfo = notas.find(n => n.val === bVal);
-            btn.className = 'nota-btn' + (bVal === val ? ' ' + nInfo.sel : '');
+            block.classList.remove('criterio-erro');
+            updateProgress();
           });
-
-          updateProgress();
-          // Avança automaticamente após 320ms
-          setTimeout(() => {
-            if (currentStep < steps.length - 1) { currentStep++; renderStep(); }
-          }, 320);
         });
       });
 
-    } else {
-      // tela de observações
-      const obs = respostas[compId]?.observacao || '';
-      card.innerHTML = `
-        <div class="competencia-titulo">${comp.nome}</div>
-        <p class="obs-desc">Deseja adicionar alguma observação sobre esta competência? (opcional)</p>
-        <div class="observacoes-container">
-          <div class="observacoes-label"><i class="fa-solid fa-comment-dots"></i> Observações</div>
-          <textarea id="obs_${compId}" placeholder="Adicione suas observações aqui..." rows="4">${obs}</textarea>
-        </div>
-      `;
-      container.appendChild(card);
+      list.appendChild(card);
+    });
 
-      card.querySelector(`#obs_${compId}`).addEventListener('input', e => {
-        if (!respostas[compId]) respostas[compId] = { criterios: [], observacao: '' };
-        respostas[compId].observacao = e.target.value;
-        localStorage.setItem('respostas_avaliacao', JSON.stringify(respostas));
-        localStorage.setItem('respostas_avaliacao_userId', user.userId);
-      });
-    }
-
-    updateNavButtons();
+    container.appendChild(list);
     updateProgress();
-    renderPagination();
+  }
+
+  function findFirstUnanswered() {
+    for (const comp of competencies) {
+      for (let idx = 0; idx < (comp.criterios?.length || 0); idx++) {
+        if (respostas[comp.id]?.criterios?.[idx] == null) {
+          return { compId: comp.id, idx };
+        }
+      }
+    }
+    return null;
+  }
+
+  function highlightUnanswered({ compId, idx }) {
+    const el = document.querySelector(`.criterio-block[data-comp-id="${compId}"][data-crit-idx="${idx}"]`);
+    if (!el) return;
+    el.classList.add('criterio-erro');
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => el.classList.remove('criterio-erro'), 3000);
   }
 
   // ── Progresso ─────────────────────────────────────────────────────
   function updateProgress() {
     const totalCrit = competencies.reduce((s, c) => s + (c.criterios?.length || 0), 0);
-    // Conta quantos critérios já foram passados (incluindo o atual)
-    let currentCrit = 0;
-    for (let i = 0; i <= currentStep; i++) {
-      if (steps[i] && steps[i].type === 'criterio') {
-        currentCrit++;
-      }
-    }
-    const pct = totalCrit > 0 ? (currentCrit / totalCrit) * 100 : 0;
-    document.getElementById('progress-fill').style.width = `${pct}%`;
-    document.getElementById('progress-text').textContent = `${currentCrit} de ${totalCrit} critérios`;
-  }
-
-  // ── Botões ────────────────────────────────────────────────────────
-  function updateNavButtons() {
-    const isLast = currentStep === steps.length - 1;
-    const btnProximo = document.getElementById('btn-proximo');
-    btnProximo.innerHTML = isLast
-      ? 'Finalizar <i class="fa-solid fa-check"></i>'
-      : 'Próximo <i class="fa-solid fa-arrow-right"></i>';
-  }
-
-  document.getElementById('btn-proximo').addEventListener('click', () => {
-    if (currentStep < steps.length - 1) {
-      currentStep++;
-      renderStep();
-    } else {
-      const faltando = steps.findIndex(s =>
-        s.type === 'criterio' && respostas[s.comp.id]?.criterios?.[s.idx] == null
-      );
-      if (faltando >= 0) {
-        currentStep = faltando;
-        renderStep();
-        return;
-      }
-      document.getElementById('modal-finalizar').classList.add('show');
-    }
-  });
-
-  document.getElementById('btn-voltar').addEventListener('click', () => {
-    if (currentStep > 0) { currentStep--; renderStep(); }
-    else mostrarModalSaida('avaliacao-orientacoes.html');
-  });
-
-  // ── Paginação (bolinhas por critério) ──────────────────────────
-  function renderPagination() {
-    const container = document.getElementById('pagination-container');
-    container.innerHTML = '';
-    steps.forEach((step, i) => {
-      // Só mostra paginação para critérios, não para observações
-      if (step.type === 'obs') return;
-
-      const dot = document.createElement('div');
-      const isCurrent = currentStep === i;
-      const isDone = respostas[step.comp.id]?.criterios?.[step.idx] != null;
-      dot.className = 'page-number' + (isCurrent ? ' active' : '') + (isDone ? ' done' : '');
-      dot.textContent = i + 1;
-      dot.title = `${step.comp.nome} - Critério ${step.idx + 1}`;
-      dot.addEventListener('click', () => {
-        currentStep = i;
-        renderStep();
+    let answered = 0;
+    competencies.forEach(comp => {
+      (comp.criterios || []).forEach((_, idx) => {
+        if (respostas[comp.id]?.criterios?.[idx] != null) answered++;
       });
-      container.appendChild(dot);
     });
+    const pct = totalCrit > 0 ? (answered / totalCrit) * 100 : 0;
+    document.getElementById('progress-fill').style.width = `${pct}%`;
+    document.getElementById('progress-text').textContent = `${answered} de ${totalCrit} critérios respondidos`;
   }
+
+  document.getElementById('btn-finalizar-avaliacao').addEventListener('click', () => {
+    const missing = findFirstUnanswered();
+    if (missing) {
+      highlightUnanswered(missing);
+      return;
+    }
+    document.getElementById('modal-finalizar').classList.add('show');
+  });
 
   // ── Modal finalizar ───────────────────────────────────────────────
   document.getElementById('btn-cancelar-finalizar').addEventListener('click', () => {
@@ -701,21 +554,48 @@
         if (!campaign.gestores?.length) throw new Error('Nenhum gestor associado à campanha');
         avaliadoId = campaign.gestores[0].gestorId;
       } else {
-        avaliadoId = user.userId;
+        // Usar colaborador atual da fila
+        const colaboradorAtual = window.colaboradorAtual;
+        if (!colaboradorAtual) {
+          throw new Error('Colaborador a ser avaliado não foi definido. Volte e selecione novamente.');
+        }
+        avaliadoId = colaboradorAtual.id;
       }
 
       const payload = {
         campaignId,
         avaliadoId,
         criterios,
-        comentario: Object.values(respostas).map(r => r.observacao).filter(Boolean).join('; ') || null,
+        comentario: null,
         anonima: true
       };
 
       await evaluationsApi.create(payload);
       localStorage.removeItem('respostas_avaliacao');
       localStorage.removeItem('respostas_avaliacao_userId');
+      
+      // ── Gerenciar fila: remover primeiro colaborador e redirecionar ──
+      const filaRestante = window.filaRestante || [];
+      if (filaRestante.length > 0) {
+        // Remover o primeiro colaborador (já foi avaliado)
+        filaRestante.shift();
+        if (filaRestante.length > 0) {
+          // Ainda há colaboradores pendentes: salvar fila atualizada e redirecionar para sucesso
+          localStorage.setItem('colaboradoresFila', JSON.stringify(filaRestante));
+          localStorage.setItem('proxColaborador', JSON.stringify(filaRestante[0]));
+          avaliacaoConcluida = true;
+          window.location.href = 'avaliacao-sucesso.html';
+          return;
+        }
+        // Fila vazia: limpar tudo e redirecionar para agradecimentos
+        localStorage.removeItem('colaboradoresFila');
+        localStorage.removeItem('proxColaborador');
+        localStorage.removeItem('campaignId');
+        localStorage.removeItem('colaboradoresTotal');
+      }
+      
       localStorage.removeItem('campaignId');
+      localStorage.removeItem('avaliadoId');
       avaliacaoConcluida = true;
       window.location.href = 'avaliacao-agradecimentos.html';
     } catch (error) {
@@ -723,6 +603,12 @@
       btn.disabled = false;
       btn.textContent = 'Sim, Finalizar';
       document.getElementById('modal-finalizar').classList.remove('show');
+      // Se erro informado pelo fluxo de seleção de avaliado, redirecionar para lista
+      if (error && error.message === 'Colaborador a ser avaliado não foi definido. Volte e selecione novamente.') {
+        alert(error.message);
+        window.location.href = 'avaliacoes.html';
+        return;
+      }
       alert('Erro ao enviar avaliação. Tente novamente.');
     }
   });
@@ -755,10 +641,30 @@
       document.getElementById('campanha-nome').textContent = campaign.nome;
       window.currentCampaign = campaign;
 
+      // ── Gerenciar fila de colaboradores para gestor ──
+      let colaboradorAtual = null;
+      let filaRestante = [];
+      if (campaign.tipoAlvo !== 'gestor') {
+        filaRestante = JSON.parse(localStorage.getItem('colaboradoresFila') || '[]');
+        if (!filaRestante.length) {
+          // não há fila válida - volta pra avaliações
+          alert('Nenhum colaborador pendente encontrado. Volte e selecione a campanha novamente.');
+          window.location.href = 'avaliacoes.html';
+          return;
+        }
+        colaboradorAtual = filaRestante[0];
+        // Mostrar info do colaborador atual
+        const totalColab = filaRestante.length;
+        const infoEl = document.getElementById('colaborador-atual-info');
+        infoEl.textContent = `Avaliando: ${colaboradorAtual.nome} (${totalColab - (filaRestante.length - 1)} de ${totalColab})`;
+        infoEl.style.display = 'block';
+      }
+      window.colaboradorAtual = colaboradorAtual;
+      window.filaRestante = filaRestante;
+
       if (campaign.competencias?.length) {
         competencies = campaign.competencias.map(cc => cc.competency);
-        buildSteps();
-        renderStep();
+        renderAllCompetencies();
       } else {
         document.getElementById('competencias-content').innerHTML = `
           <div class="empty-state">

@@ -1000,6 +1000,9 @@ export const campaignsApi = {
 
   getProgress: (campaignId, gestorId) =>
     api.get(`/campaigns/${campaignId}/progresso${gestorId ? '/' + gestorId : ''}`),
+  
+  getColaboradoresNaoAvaliados: (campaignId, gestorId) =>
+    api.get(`/campaigns/${campaignId}/colaboradores-nao-avaliados/${gestorId}`),
 };
 
 // =============================================

@@ -1,10 +1,8 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../config/database.js';
 
 class CampaignCompetencyRepository {
-  async create(data) {
-    return await prisma.campaignCompetency.create({ data });
+  async create(data, tx = prisma) {
+    return await tx.campaignCompetency.create({ data });
   }
 
   async findByCampaignId(campaignId) {

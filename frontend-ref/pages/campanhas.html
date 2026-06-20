@@ -33,6 +33,9 @@
     .gestor-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1.5px solid var(--border);border-radius:100px;padding:6px 14px;font-size:12px;cursor:pointer;transition:all .15s;user-select:none}
     .gestor-chip.selected{background:#ede9fe;border-color:#7c3aed;color:#5b21b6;font-weight:600}
     .gestor-chip:hover:not(.selected){border-color:var(--primary)}
+    .colaborador-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1.5px solid var(--border);border-radius:100px;padding:6px 14px;font-size:12px;cursor:pointer;transition:all .15s;user-select:none}
+    .colaborador-chip.selected{background:#dbeafe;border-color:#0284c7;color:#075985;font-weight:600}
+    .colaborador-chip:hover:not(.selected){border-color:var(--primary)}
     .filtros-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
     .filtro-btn{padding:6px 16px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
     .filtro-btn.active{background:var(--primary);color:white;border-color:var(--primary)}
@@ -478,6 +481,7 @@
         }
       }
     }
+    console.log('[abrirFormulario] colaboradoresPorGestor:', colaboradoresPorGestor);
 
     document.getElementById('form-titulo').textContent = campanha ? 'Editar Campanha' : 'Nova Campanha';
     document.getElementById('form-subtitulo').textContent = campanha ? campanha.nome : 'Selecione as competencias e responsaveis';
@@ -501,6 +505,7 @@
     document.getElementById('tela-form').style.display = 'none';
     document.getElementById('tela-lista').style.display = 'block';
     editandoId = null; competenciasSelecionadas = new Set(); gestoresSelecionados = new Set(); colaboradoresPorGestor = {};
+    console.log('[voltarParaLista] formulário fechado, estado resetado');
   };
 
   window.atualizarTextoGestores = function() {
@@ -521,7 +526,8 @@
     } else if (alvo === 'todos') {
       titulo.textContent = 'Gestores Participantes';
       descricao.textContent = 'Selecione quais gestores participarão da campanha. Eles poderão avaliar seus subordinados e também serão avaliados por eles.';
-      colaboradoresSection.style.display = 'none';
+      colaboradoresSection.style.display = 'block';
+      renderColaboradoresPorGestor();
     }
   };
 
@@ -548,29 +554,46 @@
       const gestor = gestores.find(g => g.id === gestorId);
       if (!gestor) return '';
 
-      const colaboradoresSelecionadosIds = colaboradoresPorGestor[gestorId] || [];
-      const colaboradoresOptions = colaboradores.map(c => 
-        `<option value="${c.id}" ${colaboradoresSelecionadosIds.includes(c.id) ? 'selected' : ''}>${c.nome}</option>`
-      ).join('');
+      const colaboradoresSelecionados = colaboradoresPorGestor[gestorId] instanceof Set ? colaboradoresPorGestor[gestorId] : new Set();
+      const chipsHtml = colaboradores.map(c => {
+        const isSelected = colaboradoresSelecionados.has(c.id);
+        return `
+          <div class="colaborador-chip${isSelected ? ' selected' : ''}" onclick="toggleColaboradorGestor('${gestorId}', '${c.id}')"
+            id="colab-chip-${gestorId}-${c.id}" title="${c.nome}">
+            <i class="fa-solid fa-user" style="font-size:10px"></i>
+            ${c.nome}
+          </div>
+        `;
+      }).join('');
 
       return `
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px">
-          <label style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;display:block">
+          <label style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;display:block">
             ${gestor.nome} - Colaboradores a Avaliar
           </label>
-          <select multiple style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--surface);color:var(--text);min-height:120px"
-            onchange="atualizarColaboradoresGestor('${gestorId}', this)">
-            ${colaboradoresOptions}
-          </select>
-          <p style="font-size:11px;color:var(--text-muted);margin-top:4px">Segure Ctrl para selecionar múltiplos</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            ${chipsHtml}
+          </div>
         </div>
       `;
     }).join('');
   }
 
-  window.atualizarColaboradoresGestor = function(gestorId, select) {
-    const selectedOptions = Array.from(select.selectedOptions).map(opt => opt.value);
-    colaboradoresPorGestor[gestorId] = new Set(selectedOptions);
+  window.toggleColaboradorGestor = function(gestorId, colaboradorId) {
+    if (!colaboradoresPorGestor[gestorId]) {
+      colaboradoresPorGestor[gestorId] = new Set();
+    }
+    const set = colaboradoresPorGestor[gestorId];
+    if (set.has(colaboradorId)) {
+      set.delete(colaboradorId);
+    } else {
+      set.add(colaboradorId);
+    }
+    const chip = document.getElementById(`colab-chip-${gestorId}-${colaboradorId}`);
+    if (chip) {
+      chip.classList.toggle('selected');
+    }
+    console.log('[toggleColaboradorGestor] gestorId:', gestorId, 'colaboradorId:', colaboradorId, 'novoEstado:', set);
   };
 
   // ─── COMPETENCIAS CHIPS ─────────────────────────────────────────────────────────
@@ -812,6 +835,14 @@
   // ─── SALVAR ───────────────────────────────────────────────────────────────────
 
   window.salvarCampanha = async function() {
+    console.log('[salvarCampanha] chamada iniciada');
+    
+    const btn = document.getElementById('btn-salvar');
+    if (btn.disabled) {
+      console.log('[salvarCampanha] botão já desabilitado, ignorando clique duplicado');
+      return;
+    }
+
     const nome     = document.getElementById('f-nome').value.trim();
     const descricao = document.getElementById('f-descricao').value.trim();
     const inicio   = document.getElementById('f-inicio').value;
@@ -826,6 +857,28 @@
     // Valida competencias
     if (!competenciasSelecionadas.size) { showToast('Selecione pelo menos 1 competencia de avaliacao.', 'error'); return; }
 
+    const gestorIds = Array.from(gestoresSelecionados);
+    if (!gestorIds.length) {
+      showToast('Selecione pelo menos um gestor.', 'error');
+      return;
+    }
+
+    const gestorColaboradoresPayload = {};
+    for (const gestorId of gestorIds) {
+      const colaboradoresSet = colaboradoresPorGestor[gestorId];
+      gestorColaboradoresPayload[gestorId] = colaboradoresSet instanceof Set ? Array.from(colaboradoresSet) : [];
+    }
+
+    if (tipoAlvo !== 'gestor') {
+      for (const gestorId of gestorIds) {
+        if (!gestorColaboradoresPayload[gestorId] || gestorColaboradoresPayload[gestorId].length === 0) {
+          const gestor = gestores.find(g => g.id === gestorId);
+          showToast(`Gestor ${gestor?.nome || gestorId} deve possuir pelo menos um colaborador.`, 'error');
+          return;
+        }
+      }
+    }
+
     const payload = {
       nome,
       descricao: descricao || null,
@@ -833,31 +886,36 @@
       dataFim: fim,
       tipoAlvo,
       competencyIds: Array.from(competenciasSelecionadas),
-      gestorIds: Array.from(gestoresSelecionados),
-      gestorColaboradores: colaboradoresPorGestor
+      gestorIds,
+      gestorColaboradores: gestorColaboradoresPayload
     };
+    
+    console.log('[salvarCampanha] payload:', payload);
 
-    const btn = document.getElementById('btn-salvar');
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
 
     try {
       if (editandoId) {
+        console.log('[salvarCampanha] atualizando campanha:', editandoId);
         await campaignsApi.update(editandoId, payload);
         showToast('Campanha atualizada com sucesso!', 'success');
       } else {
+        console.log('[salvarCampanha] criando nova campanha');
         await campaignsApi.create(payload);
         showToast('Campanha criada com sucesso!', 'success');
       }
       voltarParaLista();
       await carregarCampanhas();
     } catch (e) {
+      console.error('[salvarCampanha] erro:', e);
       showToast(e.message || 'Erro ao salvar campanha.', 'error');
     } finally {
       btn.disabled = false;
       btn.innerHTML = '<i class="fa-solid fa-save"></i> <span id="btn-salvar-txt">' + (editandoId ? 'Salvar Alteracoes' : 'Criar Campanha') + '</span>';
     }
   };
+  
 
   // ─── EDITAR ───────────────────────────────────────────────────────────────────
 

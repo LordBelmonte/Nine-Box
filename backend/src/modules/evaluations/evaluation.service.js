@@ -16,7 +16,7 @@ class EvaluationService {
 
     console.log('[DEBUG] create evaluation - userId:', userId, 'userTipo:', userTipo, 'data:', data);
 
-    // Verifica campanha
+    // Validação de negócio: campanha e relação entre avaliador/avaliado.
     const campaign = await this.campaignRepository.findById(campaignId);
     if (!campaign) throw new AppError('Campanha não encontrada', 404);
     if (campaign.status !== 'ativa') {
@@ -41,7 +41,7 @@ class EvaluationService {
       if (userTipo !== 'gestor' && userTipo !== 'admin') {
         throw new AppError('Sem permissão para avaliar colaboradores', 403);
       }
-      // Gestor só pode avaliar colaboradores que o admin definiu para ele nesta campanha
+      // Gestor só pode avaliar colaboradores do seu próprio grupo na campanha
       if (userTipo === 'gestor') {
         const todosColaboradoresPermitidos = await this.campaignRepository.getColaboradoresDoGestorNaCampanha(campaignId, userId);
         const permitido = todosColaboradoresPermitidos.some(c => c.id === avaliadoId);
@@ -122,9 +122,10 @@ class EvaluationService {
   }
 
   async findAll(filters, userId, userTipo) {
-    // Colaborador vê avaliações que fez (para gestores) e que recebeu
+    // Regras de leitura: colaboradores e gestores podem consultar apenas seus próprios dados.
+    // Se nenhum filtro for informado, retornamos avaliações próprias por padrão.
     if (userTipo === 'colaborador') {
-      // Se não especificar filtro, mostra ambas
+      // Se não especificar filtro, mostra ambas as avaliações feitas e recebidas
       if (!filters.avaliadoId && !filters.avaliadorId) {
         const [feitas, recebidas] = await Promise.all([
           this.evaluationRepository.findAll({ ...filters, avaliadorId: userId }),
@@ -159,12 +160,13 @@ class EvaluationService {
   }
 
   async findByAvaliado(avaliadoId, pagination, userId, userTipo) {
-    // Colaborador só pode ver as próprias avaliações recebidas
+    // Leitura de avaliações recebidas:
+    // - colaborador vê apenas as próprias avaliações recebidas.
+    // - gestor vê apenas as próprias avaliações recebidas.
     if (userTipo === 'colaborador' && avaliadoId !== userId) {
       throw new AppError('Sem permissão', 403);
     }
 
-    // Gestor só pode ver avaliações recebidas se for sobre ele mesmo
     if (userTipo === 'gestor' && avaliadoId !== userId) {
       throw new AppError('Sem permissão', 403);
     }
@@ -175,12 +177,13 @@ class EvaluationService {
   }
 
   async findByAvaliador(avaliadorId, pagination, userId, userTipo) {
-    // Colaborador só pode ver as próprias avaliações feitas
+    // Leitura de avaliações feitas:
+    // - colaborador vê apenas as avaliações que ele fez.
+    // - gestor vê apenas as avaliações que ele fez.
     if (userTipo === 'colaborador' && avaliadorId !== userId) {
       throw new AppError('Sem permissão', 403);
     }
 
-    // Gestor só pode ver as próprias avaliações feitas
     if (userTipo === 'gestor' && avaliadorId !== userId) {
       throw new AppError('Sem permissão', 403);
     }
@@ -207,7 +210,9 @@ class EvaluationService {
     } else if (campaign.tipoAlvo === 'gestor') {
       // Campanha para avaliar gestores (colaborador → gestor)
       if (userTipo === 'gestor') {
-        throw new AppError('Sem permissão', 403);
+        // O gestor avaliado pode ver as avaliações que recebeu nesta campanha.
+        const evaluations = await this.evaluationRepository.findByCampaignAndAvaliado(campaignId, userId);
+        return evaluations.map(e => this._sanitize(e, userId, userTipo));
       }
       if (userTipo === 'colaborador') {
         // Colaborador só vê as avaliações que ele fez nessa campanha

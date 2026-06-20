@@ -5,6 +5,7 @@ const evaluationRepository = new EvaluationRepository();
 const evaluationService = new EvaluationService(evaluationRepository);
 
 class EvaluationController {
+  // Controller de avaliações: recebe req/res e delega para o service.
   async create(req, res, next) {
     try {
       const evaluation = await evaluationService.create(

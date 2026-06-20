@@ -9,6 +9,18 @@ const router = express.Router();
 const evaluationController = new EvaluationController();
 const dashboardController = new DashboardController();
 
+/*
+  Endpoints de avaliação (MVC):
+  - GET  /api/evaluations/dashboard/gestor        -> dashboard de gestor
+  - GET  /api/evaluations/dashboard/colaborador   -> dashboard de colaborador
+  - GET  /api/evaluations/dashboard/admin         -> dashboard de admin
+  - GET  /api/evaluations/avaliado/:avaliadoId    -> leituras de avaliações recebidas
+  - GET  /api/evaluations/avaliador/:avaliadorId  -> leituras de avaliações feitas
+  - GET  /api/evaluations/campanha/:campaignId    -> leituras por campanha
+  - POST /api/evaluations/                        -> criar avaliação
+  - PUT  /api/evaluations/:id                     -> atualizar avaliação
+  - DELETE /api/evaluations/:id                  -> excluir avaliação
+*/
 router.use(authMiddleware);
 
 // Rotas de Dashboard

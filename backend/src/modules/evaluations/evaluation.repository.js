@@ -108,6 +108,14 @@ class EvaluationRepository {
     });
   }
 
+  async findByCampaignAndAvaliado(campaignId, avaliadoId) {
+    return prisma.evaluation.findMany({
+      where: { campaignId, avaliadoId },
+      include: defaultInclude,
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
   async findOne(campaignId, avaliadorId, avaliadoId) {
     return prisma.evaluation.findUnique({
       where: { campaignId_avaliadorId_avaliadoId: { campaignId, avaliadorId, avaliadoId } }

@@ -58,6 +58,19 @@ const createCampaignSchema = Joi.object({
     .messages({
       'string.guid': 'IDs de gestores devem ser UUIDs válidos'
     })
+  ,
+  gestorColaboradores: Joi.object()
+    .pattern(
+      Joi.string().uuid({ version: 'uuidv4' }),
+      Joi.array().items(Joi.string().uuid({ version: 'uuidv4' })).min(1)
+    )
+    .optional()
+    .default({})
+    .messages({
+      'object.base': 'gestorColaboradores deve ser um objeto',
+      'string.guid': 'IDs devem ser UUIDs válidos',
+      'array.min': 'Cada gestor deve possuir pelo menos 1 colaborador'
+    })
 });
 
 const updateCampaignSchema = Joi.object({
@@ -68,6 +81,18 @@ const updateCampaignSchema = Joi.object({
   tipoAlvo: Joi.string().valid('colaborador', 'gestor', 'todos').optional(),
   competencyIds: Joi.array().items(Joi.string().uuid()).min(1).max(20).optional(),
   gestorIds: Joi.array().items(Joi.string().uuid()).optional()
+  ,
+  gestorColaboradores: Joi.object()
+    .pattern(
+      Joi.string().uuid(),
+      Joi.array().items(Joi.string().uuid())
+    )
+    .optional()
+    .default({})
+    .messages({
+      'object.base': 'gestorColaboradores deve ser um objeto',
+      'string.guid': 'IDs devem ser UUIDs válidos'
+    })
 }).min(1);
 
 const updateStatusSchema = Joi.object({

@@ -31,7 +31,7 @@ router.get('/:id/gestores', isAdminMiddleware, (req, res, next) =>
 );
 
 // Listar colaboradores não avaliados ainda nesta campanha por um gestor (apenas admin)
-router.get('/:id/colaboradores-nao-avaliados/:gestorId', isAdminMiddleware, (req, res, next) =>
+router.get('/:id/colaboradores-nao-avaliados/:gestorId', isGestorOrAdminMiddleware, (req, res, next) =>
   campaignController.getColaboradoresNaoAvaliados(req, res, next)
 );
 

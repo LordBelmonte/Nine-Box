@@ -3,7 +3,9 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { errorHandler } from './middlewares/errorHandler.js';
 
-// Rotas
+// Rotas do aplicativo
+// MVC: routes apenas roteiam requests, controllers recebem/retornam respostas,
+// services encapsulam regras de negócio e repositories acessam o banco de dados.
 import userRoutes from './modules/users/user.routes.js';
 import evaluationRoutes from './modules/evaluations/evaluation.routes.js';
 import competencyRoutes from './modules/competencies/competency.routes.js';

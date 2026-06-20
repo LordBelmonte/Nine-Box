@@ -110,6 +110,8 @@
   function finalizar() {
     localStorage.removeItem('campaignId');
     localStorage.removeItem('respostas_avaliacao');
+    localStorage.removeItem('respostas_avaliacao_userId');
+    localStorage.removeItem('colaboradoresTotal');
     
     // Se for colaborador, fazer logout e redirecionar para login
     if (isColaborador()) {

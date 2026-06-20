@@ -266,12 +266,14 @@
 <script type="module">
   import { requireAuth, getUser, isGestor, isAdmin, isColaborador, sairDaConta, toggleUserMenu } from '../js/auth.js';
   import { campaignsApi } from '../js/api.js';
+  import { showToast } from '../js/components/toast.js';
   import '../js/navbar.js';
 
   requireAuth();
 
   const user = getUser();
   let avaliacaoSelecionada = null;
+  let loadedCampaigns = [];
 
   // Adicionar classe colaborador-mode ao body se for colaborador
   // Adicionar classe gestor-mode ao body se for gestor
@@ -298,6 +300,8 @@
       }
 
       const campaigns = response.data || [];
+      // Guardar campanhas carregadas para uso posterior
+      loadedCampaigns = campaigns;
       console.log('Campanhas:', campaigns);
       
       if (campaigns.length === 0) {
@@ -332,21 +336,73 @@
     }
   };
 
+  const defaultModalText = 'A avaliação deve ser realizada com calma, e após iniciada você terá que responder a todas as perguntas. Deseja começar?';
+
   window.abrirModal = function() {
     if (avaliacaoSelecionada) {
-      document.getElementById('modal-confirmar').classList.add('open');
+      const modal = document.getElementById('modal-confirmar');
+      const modalTextEl = modal.querySelector('.modal-texto');
+      // Restaurar texto padrão ao abrir modal
+      modalTextEl.textContent = defaultModalText;
+      modal.classList.add('open');
     }
   };
 
   window.fecharModal = function() {
-    document.getElementById('modal-confirmar').classList.remove('open');
+    const modal = document.getElementById('modal-confirmar');
+    const modalTextEl = modal.querySelector('.modal-texto');
+    // Restaurar texto padrão ao fechar
+    modalTextEl.textContent = defaultModalText;
+    modal.classList.remove('open');
   };
 
-  window.confirmarAvaliacao = function() {
-    if (avaliacaoSelecionada) {
-      localStorage.setItem('campaignId', avaliacaoSelecionada);
-      window.location.href = 'avaliacao-orientacoes.html';
+  window.confirmarAvaliacao = async function() {
+    if (!avaliacaoSelecionada) return;
+
+    const campaign = (loadedCampaigns || []).find(c => c.id === avaliacaoSelecionada) || null;
+    if (!campaign) return;
+
+    const modal = document.getElementById('modal-confirmar');
+    const modalTextEl = modal.querySelector('.modal-texto');
+
+    // Se for gestor e campanha alvo for colaborador/todos, carregar colaboradores pendentes
+    if (isGestor() && (campaign.tipoAlvo === 'colaborador' || campaign.tipoAlvo === 'todos')) {
+      try {
+        const res = await campaignsApi.getColaboradoresNaoAvaliados(campaign.id, getUser().id);
+        const colaboradores = res.data || [];
+        if (!colaboradores || colaboradores.length === 0) {
+          showToast('Você já avaliou todos os colaboradores desta campanha.', 'info');
+          modalTextEl.textContent = defaultModalText;
+          modal.classList.remove('open');
+          return;
+        }
+
+        // Mostrar mensagem com a quantidade e preparar fila
+        const qtd = colaboradores.length;
+        modalTextEl.innerHTML = `Você vai avaliar <strong>${qtd}</strong> colaborador${qtd > 1 ? 'es' : ''} desta campanha, <strong>um por vez, em sequência</strong>. Deseja continuar?`;
+        
+        // Armazenar a fila de colaboradores para o fluxo de avaliação
+        const filaProcessada = colaboradores.map(c => ({ id: c.id, nome: c.nome }));
+        localStorage.setItem('campaignId', avaliacaoSelecionada);
+        localStorage.setItem('colaboradoresFila', JSON.stringify(filaProcessada));
+        localStorage.setItem('colaboradoresTotal', String(filaProcessada.length));
+        
+        // Redirecionar após breve delay para o usuário ver a mensagem
+        setTimeout(() => {
+          window.location.href = 'avaliacao-orientacoes.html';
+        }, 500);
+      } catch (e) {
+        console.error('Erro ao buscar colaboradores:', e);
+        showToast('Erro ao carregar colaboradores para avaliação.', 'error');
+        modalTextEl.textContent = defaultModalText;
+        modal.classList.remove('open');
+      }
+      return;
     }
+
+    // Fluxo padrão para não-gestor ou campanhas que não necessitam de fila
+    localStorage.setItem('campaignId', avaliacaoSelecionada);
+    window.location.href = 'avaliacao-orientacoes.html';
   };
 
   window.toggleUserMenu = toggleUserMenu;

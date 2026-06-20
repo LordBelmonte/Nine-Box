@@ -1,4 +1,5 @@
 import { AppError } from '../../utils/errors.js';
+import { prisma } from '../../config/database.js';
 import { UserRepository } from '../users/user.repository.js';
 import { CampaignCompetencyRepository } from './campaignCompetency.repository.js';
 import { EvaluationRepository } from '../evaluations/evaluation.repository.js';
@@ -21,33 +22,68 @@ class CampaignService {
     this._validateCompetencyIds(data.competencyIds);
     this._validateDatas(data.dataInicio, data.dataFim);
 
-    // Valida gestores se fornecidos
-    if (data.gestorIds && data.gestorIds.length > 0) {
-      await this._validateGestores(data.gestorIds);
-    }
+    console.log('[CampaignService.create] payload:', {
+      nome: data.nome,
+      tipoAlvo: data.tipoAlvo,
+      gestorIds: data.gestorIds,
+      gestorColaboradores: data.gestorColaboradores
+    });
 
     const tiposAlvo = ['colaborador', 'gestor', 'todos'];
     if (!tiposAlvo.includes(data.tipoAlvo)) {
       throw new AppError('tipoAlvo deve ser: colaborador, gestor ou todos', 400);
     }
 
-    // Cria a campanha sem competencyIds e criterios
-    const { competencyIds, gestorIds, gestorColaboradores, ...campaignData } = data;
-    const campaign = await this.campaignRepository.create({
-      ...campaignData,
-      gestorIds,
-      gestorColaboradores
-    });
+    if (!data.gestorIds || data.gestorIds.length === 0) {
+      throw new AppError('A campanha deve possuir pelo menos um gestor.', 400);
+    }
 
-    // Associa as competências à campanha
-    if (competencyIds && competencyIds.length > 0) {
-      for (const competencyId of competencyIds) {
-        await this.campaignCompetencyRepository.create({
-          campaignId: campaign.id,
-          competencyId
-        });
+    if (data.tipoAlvo !== 'gestor') {
+      if (!data.gestorColaboradores) {
+        console.error('[CampaignService.create] gestorColaboradores é null/undefined');
+        throw new AppError('É obrigatório informar os colaboradores por gestor.', 400);
+      }
+
+      for (const gestorId of data.gestorIds) {
+        const colaboradorIds = data.gestorColaboradores[gestorId];
+        console.log('[CampaignService.create] validando gestorId:', gestorId, 'colaboradorIds:', colaboradorIds, 'isArray:', Array.isArray(colaboradorIds));
+
+        if (!Array.isArray(colaboradorIds)) {
+          console.error('[CampaignService.create] colaboradorIds não é um array para gestorId:', gestorId, 'tipo:', typeof colaboradorIds);
+          throw new AppError(
+            `Gestor ${gestorId} não possui colaboradores vinculados.`,
+            400
+          );
+        }
+
+        if (colaboradorIds.length === 0) {
+          throw new AppError(
+            `Gestor ${gestorId} deve possuir pelo menos um colaborador.`,
+            400
+          );
+        }
       }
     }
+
+    const { competencyIds, gestorIds, gestorColaboradores, ...campaignData } = data;
+    const uniqueGestorIds = [...new Set(gestorIds)];
+    const campaign = await prisma.$transaction(async (tx) => {
+      const createdCampaign = await this.campaignRepository.create({
+        ...campaignData,
+        gestorIds: uniqueGestorIds,
+        gestorColaboradores
+      }, tx);
+
+      if (competencyIds && competencyIds.length > 0) {
+        for (const competencyId of competencyIds) {
+          await tx.campaignCompetency.create({
+            data: { campaignId: createdCampaign.id, competencyId }
+          });
+        }
+      }
+
+      return createdCampaign;
+    });
 
     return campaign;
   }
@@ -319,10 +355,12 @@ class CampaignService {
     try {
       // Busca campanhas ativas onde o gestor é responsável
       const campaigns = await this.campaignRepository.findActiveForGestor(userId);
+      console.log('[CampaignService.getPendingCampaignsForGestor] userId:', userId, 'userTipo:', userTipo, 'activeCampaigns:', campaigns.length);
 
-      // Filtra campanhas onde gestores avaliam colaboradores (tipoAlvo: colaborador)
-      // Gestores não podem avaliar em campanhas tipoAlvo: gestor
+      // Filtra campanhas onde gestores devem responder avaliações.
+      // Manter apenas campanhas com colaboradores atribuídos ou candidatos.
       const filteredCampaigns = campaigns.filter(c => c.tipoAlvo === 'colaborador' || c.tipoAlvo === 'todos');
+      console.log('[CampaignService.getPendingCampaignsForGestor] filteredCampaigns:', filteredCampaigns.map(c => ({ id: c.id, tipoAlvo: c.tipoAlvo })));
 
       // Para cada campanha, verifica se o gestor ainda tem colaboradores para avaliar
       const campaignsPendentes = [];
@@ -331,6 +369,7 @@ class CampaignService {
         try {
           // Busca colaboradores que o gestor deve avaliar nesta campanha
           const colaboradoresNaoAvaliados = await this.campaignRepository.getColaboradoresNaoAvaliados(campaign.id, userId);
+          console.log('[CampaignService.getPendingCampaignsForGestor] campaignId:', campaign.id, 'colaboradoresNaoAvaliados:', colaboradoresNaoAvaliados.length);
 
           if (colaboradoresNaoAvaliados.length > 0) {
             campaignsPendentes.push(campaign);
@@ -341,6 +380,7 @@ class CampaignService {
         }
       }
 
+      console.log('[CampaignService.getPendingCampaignsForGestor] campaignsPendentes:', campaignsPendentes.length);
       return campaignsPendentes;
     } catch (error) {
       console.error('Erro em getPendingCampaignsForGestor:', error);
