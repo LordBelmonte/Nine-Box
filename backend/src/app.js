@@ -18,11 +18,8 @@ import nineBoxRoutes from './modules/ninebox/ninebox.routes.js';
 import reportsRoutes from './modules/reports/reports.routes.js';
 import exportRoutes from './modules/reports/export.routes.js';
 import campaignRoutes from './modules/campaigns/campaign.routes.js';
-import campaignWizardRoutes from './modules/campaigns/campaign.wizard.routes.js';
 import groupRoutes from './modules/groups/group.routes.js';
-import templateRoutes from './modules/templates/template.routes.js';
 import passwordResetRoutes from './modules/auth/password-reset.routes.js';
-import notificationRoutes from './modules/notifications/notification.routes.js';
 import auditRoutes from './modules/audit/audit.routes.js';
 
 const app = express();
@@ -98,11 +95,8 @@ app.use('/api/ninebox', nineBoxRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/campaigns', campaignRoutes);
-app.use('/api/campaigns/wizard', campaignWizardRoutes);
 app.use('/api/groups', groupRoutes);
-app.use('/api/templates', templateRoutes);
 app.use('/api/password-reset', passwordResetRoutes);
-app.use('/api/notifications', notificationRoutes);
 app.use('/api/audit', auditRoutes);
 
 // Error handler (sempre por último)

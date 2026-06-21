@@ -35,6 +35,11 @@ router.get('/:id/colaboradores-nao-avaliados/:gestorId', isGestorOrAdminMiddlewa
   campaignController.getColaboradoresNaoAvaliados(req, res, next)
 );
 
+// Listar gestores não avaliados ainda nesta campanha por um colaborador
+router.get('/:id/gestores-nao-avaliados/:colaboradorId', authMiddleware, (req, res, next) =>
+  campaignController.getGestoresNaoAvaliados(req, res, next)
+);
+
 // Listar campanhas pendentes para colaborador
 router.get('/colaborador/pendentes', authMiddleware, (req, res, next) =>
   campaignController.getPendingCampaignsForColaborador(req, res, next)

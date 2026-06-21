@@ -114,110 +114,112 @@ class CampaignRepository {
     const { gestorIds, gestorColaboradores, ...campaignData } = data;
     console.log('[CampaignRepository.update] campaignId:', id, 'gestorIds:', gestorIds, 'gestorColaboradores:', gestorColaboradores);
 
-    const currentCampaignGestores = await prisma.campaignGestor.findMany({
-      where: { campaignId: id }
-    });
-    const currentGestorIds = currentCampaignGestores.map(g => g.gestorId);
+    return prisma.$transaction(async (tx) => {
+      const currentCampaignGestores = await tx.campaignGestor.findMany({
+        where: { campaignId: id }
+      });
+      const currentGestorIds = currentCampaignGestores.map(g => g.gestorId);
 
-    let removedGestorIds = [];
-    let addedGestorIds = [];
-    let newGestorIds = [];
+      let removedGestorIds = [];
+      let addedGestorIds = [];
+      let newGestorIds = [];
 
-    if (gestorIds !== undefined) {
-      newGestorIds = [...new Set(gestorIds)];
-      removedGestorIds = currentGestorIds.filter(currentId => !newGestorIds.includes(currentId));
-      addedGestorIds = newGestorIds.filter(newId => !currentGestorIds.includes(newId));
+      if (gestorIds !== undefined) {
+        newGestorIds = [...new Set(gestorIds)];
+        removedGestorIds = currentGestorIds.filter(currentId => !newGestorIds.includes(currentId));
+        addedGestorIds = newGestorIds.filter(newId => !currentGestorIds.includes(newId));
 
-      if (removedGestorIds.length > 0) {
-        const removedCampaignGestorIds = currentCampaignGestores
-          .filter(g => removedGestorIds.includes(g.gestorId))
-          .map(g => g.id);
+        if (removedGestorIds.length > 0) {
+          const removedCampaignGestorIds = currentCampaignGestores
+            .filter(g => removedGestorIds.includes(g.gestorId))
+            .map(g => g.id);
 
-        await prisma.campaignGestorColaborador.deleteMany({
-          where: { campaignGestorId: { in: removedCampaignGestorIds } }
-        });
-        await prisma.campaignGestor.deleteMany({
-          where: {
-            campaignId: id,
-            gestorId: { in: removedGestorIds }
-          }
-        });
-      }
-
-      if (addedGestorIds.length > 0) {
-        await prisma.campaignGestor.createMany({
-          data: addedGestorIds.map(gestorId => ({ campaignId: id, gestorId }))
-        });
-      }
-    }
-
-    if (gestorColaboradores !== undefined) {
-      for (const [gestorId, colaboradorIds] of Object.entries(gestorColaboradores)) {
-        const campaignGestor = await prisma.campaignGestor.upsert({
-          where: { campaignId_gestorId: { campaignId: id, gestorId } },
-          update: {},
-          create: { campaignId: id, gestorId }
-        });
-
-        const currentCollaborators = await prisma.campaignGestorColaborador.findMany({
-          where: { campaignGestorId: campaignGestor.id },
-          select: { colaboradorId: true }
-        });
-        const currentColaboradorIds = currentCollaborators.map(c => c.colaboradorId);
-        const newColaboradorIds = Array.isArray(colaboradorIds) ? [...new Set(colaboradorIds)] : [];
-
-        const removedColaboradorIds = currentColaboradorIds.filter(id => !newColaboradorIds.includes(id));
-        const addedColaboradorIds = newColaboradorIds.filter(id => !currentColaboradorIds.includes(id));
-
-        if (removedColaboradorIds.length > 0) {
-          await prisma.campaignGestorColaborador.deleteMany({
+          await tx.campaignGestorColaborador.deleteMany({
+            where: { campaignGestorId: { in: removedCampaignGestorIds } }
+          });
+          await tx.campaignGestor.deleteMany({
             where: {
-              campaignGestorId: campaignGestor.id,
-              colaboradorId: { in: removedColaboradorIds }
+              campaignId: id,
+              gestorId: { in: removedGestorIds }
             }
           });
         }
 
-        if (addedColaboradorIds.length > 0) {
-          await prisma.campaignGestorColaborador.createMany({
-            data: addedColaboradorIds.map(colaboradorId => ({
-              campaignGestorId: campaignGestor.id,
-              colaboradorId
-            }))
+        if (addedGestorIds.length > 0) {
+          await tx.campaignGestor.createMany({
+            data: addedGestorIds.map(gestorId => ({ campaignId: id, gestorId }))
           });
         }
       }
-    }
 
-    const updatedCampaign = await prisma.evaluationCampaign.update({
-      where: { id },
-      data: campaignData,
-      include: {
-        gestores: {
-          include: {
-            gestor: {
-              select: { id: true, nome: true, email: true, cargo: true, departamento: true }
-            },
-            colaboradoresAvaliaveis: {
-              include: {
-                colaborador: {
-                  select: { id: true, nome: true, email: true, cargo: true, departamento: true }
+      if (gestorColaboradores !== undefined) {
+        for (const [gestorId, colaboradorIds] of Object.entries(gestorColaboradores)) {
+          const campaignGestor = await tx.campaignGestor.upsert({
+            where: { campaignId_gestorId: { campaignId: id, gestorId } },
+            update: {},
+            create: { campaignId: id, gestorId }
+          });
+
+          const currentCollaborators = await tx.campaignGestorColaborador.findMany({
+            where: { campaignGestorId: campaignGestor.id },
+            select: { colaboradorId: true }
+          });
+          const currentColaboradorIds = currentCollaborators.map(c => c.colaboradorId);
+          const newColaboradorIds = Array.isArray(colaboradorIds) ? [...new Set(colaboradorIds)] : [];
+
+          const removedColaboradorIds = currentColaboradorIds.filter(cid => !newColaboradorIds.includes(cid));
+          const addedColaboradorIds = newColaboradorIds.filter(cid => !currentColaboradorIds.includes(cid));
+
+          if (removedColaboradorIds.length > 0) {
+            await tx.campaignGestorColaborador.deleteMany({
+              where: {
+                campaignGestorId: campaignGestor.id,
+                colaboradorId: { in: removedColaboradorIds }
+              }
+            });
+          }
+
+          if (addedColaboradorIds.length > 0) {
+            await tx.campaignGestorColaborador.createMany({
+              data: addedColaboradorIds.map(colaboradorId => ({
+                campaignGestorId: campaignGestor.id,
+                colaboradorId
+              }))
+            });
+          }
+        }
+      }
+
+      const updatedCampaign = await tx.evaluationCampaign.update({
+        where: { id },
+        data: campaignData,
+        include: {
+          gestores: {
+            include: {
+              gestor: {
+                select: { id: true, nome: true, email: true, cargo: true, departamento: true }
+              },
+              colaboradoresAvaliaveis: {
+                include: {
+                  colaborador: {
+                    select: { id: true, nome: true, email: true, cargo: true, departamento: true }
+                  }
                 }
               }
             }
-          }
-        },
-        competencias: {
-          include: {
-            competency: true
-          }
-        },
-        _count: { select: { avaliacoes: true } }
-      }
-    });
+          },
+          competencias: {
+            include: {
+              competency: true
+            }
+          },
+          _count: { select: { avaliacoes: true } }
+        }
+      });
 
-    console.log('[CampaignRepository.update] campaignId:', id, 'removedGestorIds:', removedGestorIds, 'addedGestorIds:', addedGestorIds, 'currentGestorCount:', currentGestorIds.length, 'newGestorCount:', newGestorIds.length);
-    return updatedCampaign;
+      console.log('[CampaignRepository.update] campaignId:', id, 'removedGestorIds:', removedGestorIds, 'addedGestorIds:', addedGestorIds, 'currentGestorCount:', currentGestorIds.length, 'newGestorCount:', newGestorIds.length);
+      return updatedCampaign;
+    });
   }
 
   async delete(id) {
@@ -376,6 +378,46 @@ class CampaignRepository {
     });
 
     console.log('[CampaignRepository.getColaboradoresNaoAvaliados] campaignId:', campaignId, 'gestorId:', gestorId, 'resultCount:', naoAvaliados.length);
+    return naoAvaliados;
+  }
+
+  // Simétrico a getColaboradoresNaoAvaliados.
+  // Retorna gestores que o colaborador ainda não avaliou nesta campanha,
+  // usando CampaignGestorColaborador como única fonte de verdade.
+  async getGestoresNaoAvaliados(campaignId, colaboradorId) {
+    // Encontra todos os CampaignGestor em que este colaborador está na lista explícita
+    const campaignGestores = await prisma.campaignGestor.findMany({
+      where: {
+        campaignId,
+        colaboradoresAvaliaveis: { some: { colaboradorId } }
+      },
+      select: { gestorId: true }
+    });
+
+    const gestorIds = campaignGestores.map(cg => cg.gestorId);
+    if (gestorIds.length === 0) return [];
+
+    const where = {
+      id: { in: gestorIds },
+      avaliacoesRecebidas: {
+        none: { campaignId, avaliadorId: colaboradorId }
+      }
+    };
+
+    console.log('[CampaignRepository.getGestoresNaoAvaliados] campaignId:', campaignId, 'colaboradorId:', colaboradorId, 'gestorIds:', gestorIds);
+
+    const naoAvaliados = await prisma.user.findMany({
+      where,
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        cargo: true,
+        departamento: true
+      }
+    });
+
+    console.log('[CampaignRepository.getGestoresNaoAvaliados] resultCount:', naoAvaliados.length);
     return naoAvaliados;
   }
 

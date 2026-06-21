@@ -1003,6 +1003,9 @@ export const campaignsApi = {
   
   getColaboradoresNaoAvaliados: (campaignId, gestorId) =>
     api.get(`/campaigns/${campaignId}/colaboradores-nao-avaliados/${gestorId}`),
+
+  getGestoresNaoAvaliados: (campaignId, colaboradorId) =>
+    api.get(`/campaigns/${campaignId}/gestores-nao-avaliados/${colaboradorId}`),
 };
 
 // =============================================

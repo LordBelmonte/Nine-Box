@@ -220,12 +220,9 @@
   import { usersApi } from '../js/api.js';
   import { validateCadastroForm } from '../js/validators.js';
   import { showToast } from '../js/components/toast.js';
-
-  requireAdmin();
   import '../js/navbar.js';
 
-  // Apenas admin pode cadastrar
-  requireRole('admin');
+  requireAdmin();
 
   // Carregar gestores para o select
   async function carregarGestores() {

@@ -149,6 +149,20 @@ class CampaignController {
     }
   }
 
+  async getGestoresNaoAvaliados(req, res, next) {
+    try {
+      const gestores = await campaignService.getGestoresNaoAvaliados(
+        req.params.id,
+        req.params.colaboradorId,
+        req.user.userId,
+        req.user.tipo
+      );
+      return res.json({ success: true, data: gestores });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getPendingCampaignsForColaborador(req, res, next) {
     try {
       const campaigns = await campaignService.getPendingCampaignsForColaborador(

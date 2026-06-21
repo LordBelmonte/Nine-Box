@@ -165,7 +165,7 @@
 
       <div class="botoes-container">
         <button class="btn-finalizar" id="btn-proximo-colaborador">
-          <i class="fa-solid fa-arrow-right"></i> Próximo Colaborador
+          <i class="fa-solid fa-arrow-right"></i> Próximo
         </button>
         <button class="btn-cancelar" id="btn-cancelar-fila">
           <i class="fa-solid fa-xmark"></i> Cancelar
@@ -188,43 +188,64 @@
     if (header) header.style.display = 'none';
   }
 
-  const filaRestante = JSON.parse(localStorage.getItem('colaboradoresFila') || '[]');
-  const proxColaborador = localStorage.getItem('proxColaborador') ? JSON.parse(localStorage.getItem('proxColaborador')) : null;
-
-  const totalGeral = parseInt(localStorage.getItem('colaboradoresTotal'), 10) || (filaRestante.length + 1);
-  const avaliadosAte = totalGeral - filaRestante.length;
-  const percentual = totalGeral > 0 ? (avaliadosAte / totalGeral) * 100 : 0;
-
-  if (proxColaborador) {
-    document.getElementById('proximo-colaborador').textContent = proxColaborador.nome;
-  } else {
-    document.getElementById('proximo-colaborador').textContent = 'Nenhum';
+  // ── Detecta qual fila está ativa (colaboradores ou gestores) ──────
+  function detectarFila() {
+    const filaCol = localStorage.getItem('colaboradoresFila');
+    const filaGes = localStorage.getItem('gestoresFila');
+    if (filaCol !== null) {
+      return { chave: 'colaboradoresFila', chaveTotal: 'colaboradoresTotal',
+               fila: JSON.parse(filaCol) };
+    }
+    if (filaGes !== null) {
+      return { chave: 'gestoresFila', chaveTotal: 'gestoresTotal',
+               fila: JSON.parse(filaGes) };
+    }
+    return null;
   }
 
+  function limparTodasAsFilas() {
+    ['colaboradoresFila','colaboradoresTotal','gestoresFila','gestoresTotal',
+     'campaignId','avaliadoId'].forEach(k => localStorage.removeItem(k));
+  }
+
+  const filaInfo = detectarFila();
+  const filaRestante = filaInfo ? filaInfo.fila : [];
+  const proxItem     = filaRestante.length > 0 ? filaRestante[0] : null;
+  const totalGeral   = filaInfo
+    ? (parseInt(localStorage.getItem(filaInfo.chaveTotal), 10) || filaRestante.length + 1)
+    : 0;
+  // Quantos já foram avaliados = total - restantes na fila
+  const avaliadosAte = totalGeral - filaRestante.length;
+  const percentual   = totalGeral > 0 ? (avaliadosAte / totalGeral) * 100 : 0;
+
+  // Exibe nome do próximo
+  document.getElementById('proximo-colaborador').textContent =
+    proxItem ? proxItem.nome : 'Nenhum';
+
+  // Exibe progresso genérico
   const progressEl = document.getElementById('progress-info');
   if (totalGeral > 0) {
     progressEl.innerHTML = `
-      ${avaliadosAte} de ${totalGeral} colaboradores avaliados
+      ${avaliadosAte} de ${totalGeral} avaliados
       <div class="progress-bar-mini">
         <div class="progress-fill-mini" style="width: ${percentual}%;"></div>
       </div>
     `;
   }
 
+  // Botão "Próximo" — redireciona para orientações se ainda há fila
   document.getElementById('btn-proximo-colaborador').addEventListener('click', () => {
     if (filaRestante.length > 0) {
       window.location.href = 'avaliacao-orientacoes.html';
     } else {
-      alert('Nenhum colaborador pendente.');
+      alert('Nenhum item pendente.');
       window.location.href = 'avaliacoes.html';
     }
   });
 
+  // Botão "Cancelar" — limpa tudo e volta para avaliações
   document.getElementById('btn-cancelar-fila').addEventListener('click', () => {
-    localStorage.removeItem('colaboradoresFila');
-    localStorage.removeItem('proxColaborador');
-    localStorage.removeItem('campaignId');
-    localStorage.removeItem('colaboradoresTotal');
+    limparTodasAsFilas();
     window.location.href = 'avaliacoes.html';
   });
 

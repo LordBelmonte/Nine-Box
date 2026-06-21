@@ -58,27 +58,30 @@ class EvaluationService {
       if (userTipo !== 'colaborador' && userTipo !== 'admin') {
         throw new AppError('Sem permissão para avaliar gestores', 403);
       }
-      // Se colaborador está avaliando gestor, verificar se é subordinado dele
+      // Colaborador só pode avaliar gestores para os quais está explicitamente vinculado na campanha
       if (userTipo === 'colaborador') {
-        const isSubordinado = await this.groupRepository.exists(avaliadoId, userId);
-        if (!isSubordinado) {
-          throw new AppError('Você só pode avaliar gestores que são seus responsáveis diretos', 403);
+        const todosColaboradoresDoGestor = await this.campaignRepository.getColaboradoresDoGestorNaCampanha(campaignId, avaliadoId);
+        const permitido = todosColaboradoresDoGestor.some(c => c.id === userId);
+        if (!permitido) {
+          throw new AppError('Você não tem permissão para avaliar este gestor nesta campanha', 403);
         }
       }
     } else if (campaign.tipoAlvo === 'todos') {
-      // Campanha para avaliar todos (bidirecional)
-      // Se colaborador está avaliando gestor, verificar se é subordinado dele
+      // Campanha bidirecional
       if (userTipo === 'colaborador' && avaliado.tipo === 'gestor') {
-        const isSubordinado = await this.groupRepository.exists(avaliadoId, userId);
-        if (!isSubordinado) {
-          throw new AppError('Você só pode avaliar gestores que são seus responsáveis diretos', 403);
+        // Colaborador avaliando gestor: verifica CampaignGestorColaborador
+        const todosColaboradoresDoGestor = await this.campaignRepository.getColaboradoresDoGestorNaCampanha(campaignId, avaliadoId);
+        const permitido = todosColaboradoresDoGestor.some(c => c.id === userId);
+        if (!permitido) {
+          throw new AppError('Você não tem permissão para avaliar este gestor nesta campanha', 403);
         }
       }
-      // Se gestor está avaliando colaborador, verificar se colaborador é subordinado dele
       if (userTipo === 'gestor' && avaliado.tipo === 'colaborador') {
-        const isSubordinado = await this.groupRepository.exists(userId, avaliadoId);
-        if (!isSubordinado) {
-          throw new AppError('Você só pode avaliar colaboradores que são seus subordinados diretos', 403);
+        // Gestor avaliando colaborador: verifica CampaignGestorColaborador (mesma lógica de tipoAlvo: colaborador)
+        const todosColaboradoresPermitidos = await this.campaignRepository.getColaboradoresDoGestorNaCampanha(campaignId, userId);
+        const permitido = todosColaboradoresPermitidos.some(c => c.id === avaliadoId);
+        if (!permitido) {
+          throw new AppError('Você não tem permissão para avaliar este colaborador nesta campanha', 403);
         }
       }
     }

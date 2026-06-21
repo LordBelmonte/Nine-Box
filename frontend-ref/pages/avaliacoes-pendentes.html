@@ -246,7 +246,7 @@
 </div>
 
 <script type="module">
-  import { requireAuth, getUser, isGestor } from '../js/auth.js';
+  import { requireAuth, getUser } from '../js/auth.js';
   import { campaignsApi } from '../js/api.js';
   import { showToast } from '../js/components/toast.js';
   import '../js/navbar.js';
@@ -317,7 +317,6 @@
           rows.forEach(r => r.classList.remove('selected'));
           row.classList.add('selected');
           selectedCampaign.id = row.dataset.id;
-          // localizar objeto de campanha
           selectedCampaign.campaign = loadedCampaigns.find(c => c.id === selectedCampaign.id) || null;
           document.getElementById('btn-iniciar').disabled = false;
         });
@@ -345,52 +344,43 @@
     const campaign = selectedCampaign.campaign || loadedCampaigns.find(c => c.id === selectedCampaign.id);
     if (!campaign) return showToast('Campanha não encontrada', 'error');
 
-    // Se for gestor e campanha for de colaboradores ou todos, carregar colaboradores pendentes
-    if (isGestor() && (campaign.tipoAlvo === 'colaborador' || campaign.tipoAlvo === 'todos')) {
-      try {
-        const res = await campaignsApi.getColaboradoresNaoAvaliados(campaign.id, getUser().id);
-        const colaboradores = res.data || [];
-        if (!colaboradores || colaboradores.length === 0) {
-          showToast('Você já avaliou todos os colaboradores desta campanha.');
-          return;
-        }
-
-        // Construir select
-        const options = colaboradores.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-        modalTextEl.innerHTML = `Selecione o colaborador a ser avaliado:<br><select id="modal-select-colaborador" style="margin-top:10px;padding:8px;width:100%">${options}</select>`;
-        modalConfirm.classList.add('show');
-      } catch (e) {
-        console.error('Erro ao buscar colaboradores:', e);
-        showToast('Erro ao carregar colaboradores para avaliação.', 'error');
-      }
-    } else {
-      // fluxo padrão
-      modalTextEl.textContent = defaultModalText;
-      modalConfirm.classList.add('show');
-    }
+    // Fluxo do colaborador: busca fila de gestores via CampaignGestorColaborador
+    modalTextEl.textContent = defaultModalText;
+    modalConfirm.classList.add('show');
   });
 
   // Modal cancelar
   document.getElementById('btn-cancelar').addEventListener('click', () => {
-    // resetar texto
     modalTextEl.textContent = defaultModalText;
     modalConfirm.classList.remove('show');
   });
 
-  // Modal confirmar
-  document.getElementById('btn-confirmar').addEventListener('click', () => {
+  // Modal confirmar — monta fila de gestores e redireciona para orientações
+  document.getElementById('btn-confirmar').addEventListener('click', async () => {
     const campaignId = selectedCampaign.id;
-    const select = document.getElementById('modal-select-colaborador');
-    if (select) {
-      const escolhido = select.value;
-      if (!escolhido) { showToast('Selecione um colaborador para prosseguir.', 'error'); return; }
+    if (!campaignId) return;
+
+    try {
+      const res = await campaignsApi.getGestoresNaoAvaliados(campaignId, user.id);
+      const gestores = res.data || [];
+
+      if (!gestores || gestores.length === 0) {
+        showToast('Você já avaliou todos os gestores desta campanha.', 'info');
+        modalConfirm.classList.remove('show');
+        return;
+      }
+
+      // Salvar fila de gestores no localStorage
       localStorage.setItem('campaignId', campaignId);
-      localStorage.setItem('avaliadoId', escolhido);
-      window.location.href = 'responder-avaliacao.html';
-    } else {
-      // padrão
-      localStorage.setItem('campaignId', campaignId);
-      window.location.href = 'responder-avaliacao.html';
+      localStorage.setItem('gestoresFila', JSON.stringify(gestores.map(g => ({ id: g.id, nome: g.nome }))));
+      localStorage.setItem('gestoresTotal', String(gestores.length));
+
+      modalConfirm.classList.remove('show');
+      window.location.href = 'avaliacao-orientacoes.html';
+    } catch (e) {
+      console.error('Erro ao buscar gestores pendentes:', e);
+      showToast('Erro ao carregar gestores para avaliação.', 'error');
+      modalConfirm.classList.remove('show');
     }
   });
 

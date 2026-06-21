@@ -316,48 +316,18 @@ class CampaignService {
         try {
           // Para tipoAlvo: gestor, colaborador avalia gestor
           if (campaign.tipoAlvo === 'gestor') {
-            // Verifica se o colaborador já respondeu a esta campanha como avaliador
-            const avaliacoesFeitas = await this.evaluationRepository.findByCampaignAndAvaliador(campaign.id, userId);
-
-            if (avaliacoesFeitas.length === 0) {
-              // Verifica se o colaborador é subordinado de pelo menos um dos gestores responsáveis pela campanha
-              const gestoresResponsaveis = campaign.gestores || [];
-              let isSubordinadoDeAlgumGestor = false;
-              
-              for (const g of gestoresResponsaveis) {
-                const isSubordinado = await this.groupRepository.exists(g.gestorId, userId);
-                if (isSubordinado) {
-                  isSubordinadoDeAlgumGestor = true;
-                  break;
-                }
-              }
-              
-              if (isSubordinadoDeAlgumGestor) {
-                campaignsPendentes.push(campaign);
-              }
+            // Usa CampaignGestorColaborador como fonte de verdade
+            const gestoresNaoAvaliados = await this.campaignRepository.getGestoresNaoAvaliados(campaign.id, userId);
+            if (gestoresNaoAvaliados.length > 0) {
+              campaignsPendentes.push(campaign);
             }
           }
-          // Para tipoAlvo: colaborador, colaborador é avaliado pelo gestor (não precisa fazer nada aqui)
-          // Para tipoAlvo: todos, colaborador pode avaliar gestores que são seus responsáveis
+          // Para tipoAlvo: todos, colaborador pode avaliar gestores que estão em CampaignGestorColaborador
           else if (campaign.tipoAlvo === 'todos') {
-            // Verifica se o colaborador já respondeu a esta campanha como avaliador
-            const avaliacoesFeitas = await this.evaluationRepository.findByCampaignAndAvaliador(campaign.id, userId);
-
-            if (avaliacoesFeitas.length === 0) {
-              const gestoresResponsaveis = campaign.gestores || [];
-              let isSubordinadoDeAlgumGestor = false;
-              
-              for (const g of gestoresResponsaveis) {
-                const isSubordinado = await this.groupRepository.exists(g.gestorId, userId);
-                if (isSubordinado) {
-                  isSubordinadoDeAlgumGestor = true;
-                  break;
-                }
-              }
-              
-              if (isSubordinadoDeAlgumGestor) {
-                campaignsPendentes.push(campaign);
-              }
+            // Usa CampaignGestorColaborador como fonte de verdade
+            const gestoresNaoAvaliados = await this.campaignRepository.getGestoresNaoAvaliados(campaign.id, userId);
+            if (gestoresNaoAvaliados.length > 0) {
+              campaignsPendentes.push(campaign);
             }
           }
         } catch (error) {
@@ -412,6 +382,25 @@ class CampaignService {
       console.error('Erro em getPendingCampaignsForGestor:', error);
       throw error;
     }
+  }
+
+  async getGestoresNaoAvaliados(campaignId, colaboradorId, userId, userTipo) {
+    // Gestor não tem acesso a este endpoint
+    if (userTipo === 'gestor') {
+      throw new AppError('Sem permissão', 403);
+    }
+
+    // Colaborador só pode ver seus próprios gestores pendentes
+    if (userTipo === 'colaborador' && colaboradorId !== userId) {
+      throw new AppError('Sem permissão para ver gestores de outro colaborador', 403);
+    }
+
+    const campaign = await this.campaignRepository.findById(campaignId);
+    if (!campaign) {
+      throw new AppError('Campanha não encontrada', 404);
+    }
+
+    return this.campaignRepository.getGestoresNaoAvaliados(campaignId, colaboradorId);
   }
 
   // --- Helpers privados ---

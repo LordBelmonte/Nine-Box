@@ -398,7 +398,6 @@
 
   document.getElementById('btn-confirmar-sair').addEventListener('click', () => {
     avaliacaoConcluida = true;
-    // NÃO limpa o localStorage - mantém a avaliação como "em aberto"
     if (window._saidaLogout) {
       import('../js/auth.js').then(m => m.sairDaConta());
     } else {
@@ -409,16 +408,36 @@
   // ── Estado ────────────────────────────────────────────────────────
   let competencies = [];
   const NOTAS = [
-    { val: 1, label: 'Ruim', desc: 'Não atende', sel: 'sel-1' },
-    { val: 2, label: 'Regular', desc: 'Atende parcialmente', sel: 'sel-2' },
-    { val: 3, label: 'Bom', desc: 'Atende bem', sel: 'sel-3' },
-    { val: 4, label: 'Excelente', desc: 'Supera expectativas', sel: 'sel-4' },
+    { val: 1, label: 'Ruim',     desc: 'Não atende',           sel: 'sel-1' },
+    { val: 2, label: 'Regular',  desc: 'Atende parcialmente',  sel: 'sel-2' },
+    { val: 3, label: 'Bom',      desc: 'Atende bem',           sel: 'sel-3' },
+    { val: 4, label: 'Excelente',desc: 'Supera expectativas',  sel: 'sel-4' },
   ];
-  // respostas[compId] = { criterios: [1..4, ...] }
-  const storedData = JSON.parse(localStorage.getItem('respostas_avaliacao') || '{}');
+  const storedData   = JSON.parse(localStorage.getItem('respostas_avaliacao') || '{}');
   const storedUserId = localStorage.getItem('respostas_avaliacao_userId');
   let respostas = (storedUserId === user.id) ? storedData : {};
 
+  // ── Helpers de fila genérica ──────────────────────────────────────
+  function detectarFila() {
+    const filaCol = localStorage.getItem('colaboradoresFila');
+    const filaGes = localStorage.getItem('gestoresFila');
+    if (filaCol !== null) {
+      return { chave: 'colaboradoresFila', chaveTotal: 'colaboradoresTotal',
+               fila: JSON.parse(filaCol) };
+    }
+    if (filaGes !== null) {
+      return { chave: 'gestoresFila', chaveTotal: 'gestoresTotal',
+               fila: JSON.parse(filaGes) };
+    }
+    return null;
+  }
+
+  function limparTodasAsFilas() {
+    ['colaboradoresFila','colaboradoresTotal','gestoresFila','gestoresTotal',
+     'campaignId','avaliadoId'].forEach(k => localStorage.removeItem(k));
+  }
+
+  // ── Render competências ───────────────────────────────────────────
   function renderAllCompetencies() {
     const container = document.getElementById('competencias-content');
     container.innerHTML = '';
@@ -489,9 +508,7 @@
   function findFirstUnanswered() {
     for (const comp of competencies) {
       for (let idx = 0; idx < (comp.criterios?.length || 0); idx++) {
-        if (respostas[comp.id]?.criterios?.[idx] == null) {
-          return { compId: comp.id, idx };
-        }
+        if (respostas[comp.id]?.criterios?.[idx] == null) return { compId: comp.id, idx };
       }
     }
     return null;
@@ -505,7 +522,6 @@
     setTimeout(() => el.classList.remove('criterio-erro'), 3000);
   }
 
-  // ── Progresso ─────────────────────────────────────────────────────
   function updateProgress() {
     const totalCrit = competencies.reduce((s, c) => s + (c.criterios?.length || 0), 0);
     let answered = 0;
@@ -521,14 +537,10 @@
 
   document.getElementById('btn-finalizar-avaliacao').addEventListener('click', () => {
     const missing = findFirstUnanswered();
-    if (missing) {
-      highlightUnanswered(missing);
-      return;
-    }
+    if (missing) { highlightUnanswered(missing); return; }
     document.getElementById('modal-finalizar').classList.add('show');
   });
 
-  // ── Modal finalizar ───────────────────────────────────────────────
   document.getElementById('btn-cancelar-finalizar').addEventListener('click', () => {
     document.getElementById('modal-finalizar').classList.remove('show');
   });
@@ -548,54 +560,28 @@
         }
       });
 
-      const campaign = window.currentCampaign;
-      let avaliadoId;
-      if (campaign.tipoAlvo === 'gestor') {
-        if (!campaign.gestores?.length) throw new Error('Nenhum gestor associado à campanha');
-        avaliadoId = campaign.gestores[0].gestorId;
-      } else {
-        // Usar colaborador atual da fila
-        const colaboradorAtual = window.colaboradorAtual;
-        if (!colaboradorAtual) {
-          throw new Error('Colaborador a ser avaliado não foi definido. Volte e selecione novamente.');
-        }
-        avaliadoId = colaboradorAtual.id;
+      // Determina avaliadoId a partir da fila ativa
+      const filaInfo = detectarFila();
+      if (!filaInfo || filaInfo.fila.length === 0) {
+        throw new Error('Nenhum item pendente na fila. Volte e selecione a campanha novamente.');
       }
+      const avaliadoId = filaInfo.fila[0].id;
 
-      const payload = {
-        campaignId,
-        avaliadoId,
-        criterios,
-        comentario: null,
-        anonima: true
-      };
-
-      await evaluationsApi.create(payload);
+      await evaluationsApi.create({ campaignId, avaliadoId, criterios, comentario: null, anonima: true });
       localStorage.removeItem('respostas_avaliacao');
       localStorage.removeItem('respostas_avaliacao_userId');
-      
-      // ── Gerenciar fila: remover primeiro colaborador e redirecionar ──
-      const filaRestante = window.filaRestante || [];
-      if (filaRestante.length > 0) {
-        // Remover o primeiro colaborador (já foi avaliado)
-        filaRestante.shift();
-        if (filaRestante.length > 0) {
-          // Ainda há colaboradores pendentes: salvar fila atualizada e redirecionar para sucesso
-          localStorage.setItem('colaboradoresFila', JSON.stringify(filaRestante));
-          localStorage.setItem('proxColaborador', JSON.stringify(filaRestante[0]));
-          avaliacaoConcluida = true;
-          window.location.href = 'avaliacao-sucesso.html';
-          return;
-        }
-        // Fila vazia: limpar tudo e redirecionar para agradecimentos
-        localStorage.removeItem('colaboradoresFila');
-        localStorage.removeItem('proxColaborador');
-        localStorage.removeItem('campaignId');
-        localStorage.removeItem('colaboradoresTotal');
+
+      // Avança fila: remove o primeiro item (já avaliado)
+      const filaAtualizada = filaInfo.fila.slice(1);
+      if (filaAtualizada.length > 0) {
+        localStorage.setItem(filaInfo.chave, JSON.stringify(filaAtualizada));
+        avaliacaoConcluida = true;
+        window.location.href = 'avaliacao-sucesso.html';
+        return;
       }
-      
-      localStorage.removeItem('campaignId');
-      localStorage.removeItem('avaliadoId');
+
+      // Fila esgotada: limpa tudo
+      limparTodasAsFilas();
       avaliacaoConcluida = true;
       window.location.href = 'avaliacao-agradecimentos.html';
     } catch (error) {
@@ -603,8 +589,7 @@
       btn.disabled = false;
       btn.textContent = 'Sim, Finalizar';
       document.getElementById('modal-finalizar').classList.remove('show');
-      // Se erro informado pelo fluxo de seleção de avaliado, redirecionar para lista
-      if (error && error.message === 'Colaborador a ser avaliado não foi definido. Volte e selecione novamente.') {
+      if (error?.message?.includes('pendente na fila')) {
         alert(error.message);
         window.location.href = 'avaliacoes.html';
         return;
@@ -621,8 +606,7 @@
 
       if (campaign.tipoAlvo === 'gestor' && user.tipo !== 'colaborador' && user.tipo !== 'admin') {
         document.getElementById('competencias-content').innerHTML = `
-          <div class="empty-state">
-            <i class="fa-solid fa-lock"></i>
+          <div class="empty-state"><i class="fa-solid fa-lock"></i>
             <h3>Acesso negado</h3>
             <p>Esta campanha é destinada apenas para colaboradores avaliarem gestores.</p>
           </div>`;
@@ -630,8 +614,7 @@
       }
       if (campaign.tipoAlvo === 'colaborador' && user.tipo !== 'gestor' && user.tipo !== 'admin') {
         document.getElementById('competencias-content').innerHTML = `
-          <div class="empty-state">
-            <i class="fa-solid fa-lock"></i>
+          <div class="empty-state"><i class="fa-solid fa-lock"></i>
             <h3>Acesso negado</h3>
             <p>Esta campanha é destinada apenas para gestores avaliarem colaboradores.</p>
           </div>`;
@@ -641,42 +624,44 @@
       document.getElementById('campanha-nome').textContent = campaign.nome;
       window.currentCampaign = campaign;
 
-      // ── Gerenciar fila de colaboradores para gestor ──
-      let colaboradorAtual = null;
-      let filaRestante = [];
-      if (campaign.tipoAlvo !== 'gestor') {
-        filaRestante = JSON.parse(localStorage.getItem('colaboradoresFila') || '[]');
-        if (!filaRestante.length) {
-          // não há fila válida - volta pra avaliações
-          alert('Nenhum colaborador pendente encontrado. Volte e selecione a campanha novamente.');
-          window.location.href = 'avaliacoes.html';
-          return;
-        }
-        colaboradorAtual = filaRestante[0];
-        // Mostrar info do colaborador atual
-        const totalColab = filaRestante.length;
-        const infoEl = document.getElementById('colaborador-atual-info');
-        infoEl.textContent = `Avaliando: ${colaboradorAtual.nome} (${totalColab - (filaRestante.length - 1)} de ${totalColab})`;
-        infoEl.style.display = 'block';
+      // Determina chave da fila conforme tipoAlvo + papel do usuário
+      let chave, chaveTotal;
+      if (campaign.tipoAlvo === 'gestor') {
+        chave = 'gestoresFila'; chaveTotal = 'gestoresTotal';
+      } else if (campaign.tipoAlvo === 'colaborador') {
+        chave = 'colaboradoresFila'; chaveTotal = 'colaboradoresTotal';
+      } else {
+        // 'todos'
+        if (isGestor()) { chave = 'colaboradoresFila'; chaveTotal = 'colaboradoresTotal'; }
+        else             { chave = 'gestoresFila';      chaveTotal = 'gestoresTotal'; }
       }
-      window.colaboradorAtual = colaboradorAtual;
-      window.filaRestante = filaRestante;
+
+      const fila = JSON.parse(localStorage.getItem(chave) || '[]');
+      if (!fila.length) {
+        alert('Nenhum item pendente encontrado. Volte e selecione a campanha novamente.');
+        window.location.href = 'avaliacoes.html';
+        return;
+      }
+
+      const totalFila    = parseInt(localStorage.getItem(chaveTotal), 10) || fila.length;
+      const posicaoAtual = totalFila - fila.length + 1;
+      const infoEl       = document.getElementById('colaborador-atual-info');
+      infoEl.textContent = `Avaliando: ${fila[0].nome} (${posicaoAtual} de ${totalFila})`;
+      infoEl.style.display = 'block';
 
       if (campaign.competencias?.length) {
         competencies = campaign.competencias.map(cc => cc.competency);
         renderAllCompetencies();
       } else {
         document.getElementById('competencias-content').innerHTML = `
-          <div class="empty-state">
-            <i class="fa-solid fa-clipboard-list"></i>
+          <div class="empty-state"><i class="fa-solid fa-clipboard-list"></i>
             <h3>Nenhuma competência associada</h3>
             <p>Esta campanha não possui competências associadas.</p>
           </div>`;
       }
     } catch {
       document.getElementById('competencias-content').innerHTML = `
-        <div class="empty-state">
-          <i class="fa-solid fa-exclamation-circle"></i>
+        <div class="empty-state"><i class="fa-solid fa-exclamation-circle"></i>
           <h3>Erro ao carregar avaliação</h3>
           <p>Não foi possível carregar a avaliação. Tente novamente mais tarde.</p>
         </div>`;
