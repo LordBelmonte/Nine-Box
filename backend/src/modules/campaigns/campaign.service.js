@@ -153,6 +153,32 @@ class CampaignService {
       throw new AppError('Não é possível editar uma campanha finalizada', 400);
     }
 
+    // Valida vínculos gestor→colaborador quando gestorColaboradores é enviado no update.
+    // Usa tipoAlvo do payload se fornecido, caso contrário usa o da campanha existente.
+    if (data.gestorColaboradores) {
+      const tipoAlvoEfetivo = data.tipoAlvo ?? campaign.tipoAlvo;
+
+      if (tipoAlvoEfetivo !== 'gestor') {
+        // Determina quais gestorIds devem ser validados:
+        // se o update enviou gestorIds, usa esses; caso contrário usa os gestores já na campanha.
+        const gestorIdsParaValidar =
+          data.gestorIds && data.gestorIds.length > 0
+            ? data.gestorIds
+            : campaign.gestores.map(g => g.gestorId);
+
+        for (const gestorId of gestorIdsParaValidar) {
+          const colaboradorIds = data.gestorColaboradores[gestorId];
+
+          if (!Array.isArray(colaboradorIds) || colaboradorIds.length === 0) {
+            throw new AppError(
+              `Gestor ${gestorId} deve possuir pelo menos um colaborador.`,
+              400
+            );
+          }
+        }
+      }
+    }
+
     if (data.competencyIds) {
       this._validateCompetencyIds(data.competencyIds);
       // Remove associações antigas

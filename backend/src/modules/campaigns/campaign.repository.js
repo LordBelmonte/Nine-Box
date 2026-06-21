@@ -1,10 +1,7 @@
 import { prisma } from '../../config/database.js';
-import { GroupRepository } from '../groups/group.repository.js';
 
 class CampaignRepository {
-  constructor() {
-    this.groupRepository = new GroupRepository();
-  }
+  constructor() {}
 
   async create(data, tx = prisma) {
     const { gestorIds, gestorColaboradores, ...campaignData } = data;
@@ -345,13 +342,12 @@ class CampaignRepository {
       }
     });
 
-    // Usa colaboradores explícitos definidos para esta campanha; caso não existam, usa o grupo padrão do gestor
+    // Usa apenas os colaboradores definidos explicitamente para este gestor nesta campanha.
+    // Sem fallback: se não há vínculo explícito nesta campanha, não há colaboradores pendentes
+    // para este gestor — alinhado com getCampaignProgress() que segue a mesma regra estrita.
     let colaboradorIds = [];
     if (campaignGestor && campaignGestor.colaboradoresAvaliaveis.length > 0) {
       colaboradorIds = campaignGestor.colaboradoresAvaliaveis.map(c => c.colaboradorId);
-    } else {
-      const colaboradoresDoGrupo = await this.groupRepository.findColaboradoresByGestor(gestorId);
-      colaboradorIds = colaboradoresDoGrupo.map(c => c.id);
     }
 
     if (colaboradorIds.length === 0) {
