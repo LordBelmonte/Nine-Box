@@ -36,8 +36,8 @@
     .colaborador-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1.5px solid var(--border);border-radius:100px;padding:6px 14px;font-size:12px;cursor:pointer;transition:all .15s;user-select:none}
     .colaborador-chip.selected{background:#dbeafe;border-color:#0284c7;color:#075985;font-weight:600}
     .colaborador-chip:hover:not(.selected){border-color:var(--primary)}
-    .filtros-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-    .filtro-btn{padding:6px 16px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+    .filtros-bar{display:flex !important;flex-direction:row !important;flex-wrap:wrap !important;align-items:center;gap:8px;margin-bottom:20px}
+    .filtro-btn{display:inline-flex !important;width:auto !important;flex:0 0 auto !important;white-space:nowrap;padding:6px 16px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;margin-top:0 !important}
     .filtro-btn.active{background:var(--primary);color:white;border-color:var(--primary)}
     .btn-acao{padding:5px 12px;font-size:11px;border-radius:6px;cursor:pointer;font-weight:600;border:1.5px solid;transition:all .15s}
     .btn-acao.editar{background:#fef3c7;color:#92400e;border-color:#fde68a}
@@ -47,6 +47,8 @@
     .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1100;align-items:center;justify-content:center}
     .modal-overlay.show{display:flex}
     .comp-field select{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");background-repeat:no-repeat;background-position:right.7em top 50%;background-size:.65em auto;padding-right:2.5em}
+    .camp-card-acoes{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;gap:8px;margin-top:4px}
+    .btn-acao{display:inline-flex!important;align-items:center;gap:6px;width:auto!important;flex:0 0 auto!important;white-space:nowrap;padding:5px 12px;font-size:11px;border-radius:6px;cursor:pointer;font-weight:600;border:1.5px solid;transition:all .15s;margin-top:0!important}
   </style>
 </head>
 <body>
@@ -707,6 +709,15 @@
     } catch { container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Erro ao carregar competencias.</p>'; }
   }
 
+  const TIPO_COMP_LABELS = { desempenho: 'Desempenho', potencial: 'Potencial' };
+  const TIPO_COMP_CORES  = { desempenho: '#2563eb', potencial: '#7c3aed' };
+
+  function tipoBadge(tipo) {
+    const label = TIPO_COMP_LABELS[tipo] || tipo;
+    const cor   = TIPO_COMP_CORES[tipo] || '#64748b';
+    return `<span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700;background:${cor}1a;color:${cor};margin-left:4px;">${label}</span>`;
+  }
+
   function renderCompetenciasChips() {
     const container = document.getElementById('competencias-chips');
     
@@ -721,7 +732,7 @@
       '<div class="competencia-chip selected" onclick="toggleCompetencia(\'' + c.id + '\')" id="comp-chip-' + c.id + '">' +
         '<i class="fa-solid fa-clipboard-check" style="font-size:11px"></i>' +
         c.nome +
-        (c.tipo ? '<span style="font-size:10px;opacity:.7">(' + c.tipo + ')</span>' : '') +
+        tipoBadge(c.tipo) +
       '</div>'
     ).join('');
   }
@@ -754,7 +765,7 @@
           '<div class="competencia-item' + (competenciasModalSelecionadas.has(c.id) ? ' selected' : '') + '" onclick="toggleCompetenciaModal(\'' + c.id + '\')" id="modal-comp-' + c.id + '" style="padding:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--bg)' + (competenciasModalSelecionadas.has(c.id) ? ';background:rgba(59,130,246,0.1);border-color:var(--primary)' : '') + '">' +
             '<i class="fa-solid fa-clipboard-check" style="font-size:12px;color:var(--primary)"></i>' +
             '<div style="flex:1">' +
-              '<div style="font-size:13px;font-weight:600;color:var(--text)">' + c.nome + '</div>' +
+              '<div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:4px;">' + c.nome + tipoBadge(c.tipo) + '</div>' +
               '<div style="font-size:11px;color:var(--text-muted)">' + (c.descricao || '') + '</div>' +
             '</div>' +
             '<i class="fa-solid fa-check" style="font-size:14px;color:var(--primary);display:' + (competenciasModalSelecionadas.has(c.id) ? 'block' : 'none') + '"></i>' +

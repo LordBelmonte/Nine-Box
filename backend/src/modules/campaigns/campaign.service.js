@@ -105,8 +105,8 @@ class CampaignService {
       if (campaign.status !== 'ativa') {
         throw new AppError('Sem permissão para ver esta campanha', 403);
       }
-      // Colaborador pode ver campanhas tipoAlvo: gestor (para avaliar gestor)
-      if (campaign.tipoAlvo !== 'gestor') {
+      // Colaborador pode ver campanhas tipoAlvo: gestor ou todos
+      if (campaign.tipoAlvo !== 'gestor' && campaign.tipoAlvo !== 'todos') {
         throw new AppError('Sem permissão para ver esta campanha', 403);
       }
     }

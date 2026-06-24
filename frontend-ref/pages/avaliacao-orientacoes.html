@@ -126,30 +126,15 @@
       background: linear-gradient(135deg, var(--surface), rgba(99, 102, 241, 0.03));
       border: 2px solid var(--border);
       border-radius: 20px;
-      padding: 36px 40px;
+      padding: 28px 32px;
       margin-bottom: 40px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-      text-align: left;
-      position: relative;
-    }
-
-    .orientacoes-box::before {
-      content: '"';
-      position: absolute;
-      top: 20px;
-      left: 24px;
-      font-size: 48px;
-      color: var(--primary);
-      opacity: 0.15;
-      font-family: Georgia, serif;
-      line-height: 1;
     }
 
     .orientacoes-texto {
       color: var(--text);
       font-size: 17px;
       line-height: 1.7;
-      white-space: pre-wrap;
       position: relative;
       z-index: 1;
     }
@@ -343,19 +328,26 @@
 
       // Mostra competências da campanha
       if (campaign.competencias && campaign.competencias.length > 0) {
-        const competenciesHtml = campaign.competencies.map(cc => {
-          const comp = cc.competency;
-          const criteriosCount = comp.criterios ? comp.criterios.length : 0;
-          return `
-            <div style="margin-bottom: 16px; padding: 16px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border);">
-              <strong style="color: var(--primary); font-size: 15px;">${comp.nome}</strong>
-              ${comp.descricao ? `<p style="margin: 8px 0 0; font-size: 13px; color: var(--text-muted);">${comp.descricao}</p>` : ''}
-              <p style="margin: 8px 0 0; font-size: 12px; color: var(--text-muted);">
-                <i class="fa-solid fa-list-check"></i> ${criteriosCount} critério${criteriosCount !== 1 ? 's' : ''} para avaliar
-              </p>
-            </div>
-          `;
-        }).join('');
+        const competenciesHtml = `
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
+            ${campaign.competencias.map(cc => {
+              const comp = cc.competency;
+              const criteriosCount = comp.criterios ? comp.criterios.length : 0;
+              return `<div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:var(--bg);border-radius:10px;border:1px solid var(--border);">
+                <div style="flex-shrink:0;width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--primary),#6366f1);display:flex;align-items:center;justify-content:center;">
+                  <i class="fa-solid fa-clipboard-check" style="font-size:14px;color:white;"></i>
+                </div>
+                <div style="min-width:0;">
+                  <div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.3;">${comp.nome}</div>
+                  ${comp.descricao ? `<div style="font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.4;">${comp.descricao}</div>` : ''}
+                  <div style="font-size:11px;color:var(--primary);margin-top:4px;font-weight:600;">
+                    <i class="fa-solid fa-list-check"></i> ${criteriosCount} critério${criteriosCount !== 1 ? 's' : ''}
+                  </div>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        `;
         container.innerHTML = competenciesHtml;
       } else {
         container.textContent = 'Esta avaliação deve ser realizada com calma e atenção. Após iniciada, você terá que responder a todas as perguntas. Deseja começar?';

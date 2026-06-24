@@ -219,6 +219,9 @@ class CampaignRepository {
 
       console.log('[CampaignRepository.update] campaignId:', id, 'removedGestorIds:', removedGestorIds, 'addedGestorIds:', addedGestorIds, 'currentGestorCount:', currentGestorIds.length, 'newGestorCount:', newGestorIds.length);
       return updatedCampaign;
+    }, {
+      maxWait: 10000,
+      timeout: 20000
     });
   }
 
