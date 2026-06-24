@@ -188,9 +188,9 @@
     </div>
 
     <div class="form-section" id="colaboradores-por-gestor-section" style="display:none">
-      <div class="form-section-title"><i class="fa-solid fa-users"></i> Colaboradores a Avaliar por Gestor</div>
+      <div class="form-section-title"><i class="fa-solid fa-users"></i> Colaboradores Vinculados por Gestor</div>
       <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">
-        Para cada gestor responsavel, selecione quais colaboradores ele deve avaliar nesta campanha.
+        Para cada gestor responsável, selecione quais colaboradores estão vinculados a ele nesta campanha (eles avaliarão ou serão avaliados pelo gestor, dependendo do tipo da campanha).
       </p>
       <div id="colaboradores-por-gestor-container" style="display:flex;flex-direction:column;gap:16px">
         <!-- Será preenchido dinamicamente -->
@@ -260,9 +260,7 @@
             <select id="nova-competencia-tipo" required>
               <option value="">Selecione...</option>
               <option value="desempenho">Desempenho</option>
-              <option value="comportamento">Comportamento</option>
-              <option value="tecnica">Técnica</option>
-              <option value="lideranca">Liderança</option>
+              <option value="potencial">Potencial</option>
             </select>
           </div>
         </div>
@@ -276,9 +274,6 @@
         <div class="comp-criterios-section">
           <div class="comp-criterios-header">
             <h4>Critérios de Avaliação:</h4>
-            <button type="button" class="comp-btn-add-criterio" onclick="adicionarCriterioModal()">
-              <i class="fa-solid fa-plus"></i> Adicionar critério
-            </button>
           </div>
           <div class="comp-criterios-grid" id="nova-competencia-criterios">
             <!-- Critérios gerados dinamicamente -->
@@ -322,7 +317,7 @@
 
 <script type="module">
   import { requireAuth, getUser, isAdmin } from '../js/auth.js';
-  import { campaignsApi, usersApi, competenciesApi } from '../js/api.js';
+  import { campaignsApi, usersApi, competenciesApi, groupsApi } from '../js/api.js';
   import { showToast } from '../js/components/toast.js';
   import '../js/navbar.js';
 
@@ -332,7 +327,6 @@
   // Estado
   let campanhas = [];
   let gestores  = [];
-  let colaboradores = [];
   let competencias = [];
   let gestoresSelecionados = new Set();
   let colaboradoresPorGestor = {}; // { gestorId: Set(colaboradorId) }
@@ -340,6 +334,24 @@
   let editandoId = null;
   let filtroAtual = '';
   let criterioCount = 0;
+
+  // Cache de colaboradores do Grupo por gestor (evita múltiplas chamadas ao backend)
+  const colaboradoresPorGestorCache = {}; // { [gestorId]: [colaborador, ...] }
+
+  async function getColaboradoresDoGestor(gestorId) {
+    if (colaboradoresPorGestorCache[gestorId]) {
+      return colaboradoresPorGestorCache[gestorId];
+    }
+    try {
+      const res = await groupsApi.getColaboradores(gestorId);
+      const lista = res.data || [];
+      colaboradoresPorGestorCache[gestorId] = lista;
+      return lista;
+    } catch {
+      showToast('Erro ao carregar colaboradores do grupo deste gestor.', 'error');
+      return [];
+    }
+  }
 
   // ─── LISTA ────────────────────────────────────────────────────────────────────
 
@@ -373,6 +385,7 @@
       const btnAtivar   = c.status === 'planejamento' ? '<button class="btn-acao ativar" onclick="mudarStatus(\'' + c.id + '\',\'ativa\')"><i class="fa-solid fa-circle-play"></i> Ativar</button>' : '';
       const btnFinalizar = c.status === 'ativa' ? '<button class="btn-acao finalizar" onclick="mudarStatus(\'' + c.id + '\',\'finalizada\')"><i class="fa-solid fa-flag-checkered"></i> Finalizar</button>' : '';
       const btnEditar   = c.status !== 'finalizada' ? '<button class="btn-acao editar" onclick="editarCampanha(\'' + c.id + '\')"><i class="fa-solid fa-pen"></i> Editar</button>' : '';
+      const btnDuplicar = c.status === 'ativa' ? '<button class="btn-acao" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe" onclick="duplicarCampanha(\'' + c.id + '\',\'' + c.nome.replace(/'/g,"\\'") + '\')"><i class="fa-solid fa-copy"></i> Duplicar</button>' : '';
       const btnExcluir  = c.status !== 'ativa' ? '<button class="btn-acao excluir" onclick="excluirCampanha(\'' + c.id + '\',\'' + c.nome.replace(/'/g,"\\'") + '\')"><i class="fa-solid fa-trash"></i> Excluir</button>' : '';
 
       return '<div class="camp-card">' +
@@ -390,7 +403,7 @@
           '<span><i class="fa-solid fa-check-circle" style="color:#10b981"></i> ' + qtdAv + ' avaliacao(oes)</span>' +
         '</div>' +
         (compTags ? '<div class="camp-criterios-list">' + compTags + '</div>' : '') +
-        '<div class="camp-card-acoes">' + btnEditar + btnAtivar + btnFinalizar + btnExcluir + '</div>' +
+        '<div class="camp-card-acoes">' + btnEditar + btnAtivar + btnFinalizar + btnDuplicar + btnExcluir + '</div>' +
       '</div>';
     }).join('');
   }
@@ -465,6 +478,22 @@
     );
   };
 
+  // ─── DUPLICAR ─────────────────────────────────────────────────────────────────
+
+  window.duplicarCampanha = async function(id, nome) {
+    mostrarConfirmacao(
+      'Duplicar Campanha',
+      `Criar uma cópia de "${nome}"? A cópia será criada em status Planejamento com os mesmos gestores, colaboradores e competências.`,
+      async () => {
+        try {
+          await campaignsApi.duplicate(id);
+          showToast('Campanha duplicada com sucesso! A cópia está em Planejamento.', 'success');
+          await carregarCampanhas();
+        } catch (e) { showToast(e.message || 'Erro ao duplicar campanha.', 'error'); }
+      }
+    );
+  };
+
   // ─── FORMULARIO ───────────────────────────────────────────────────────────────
 
   window.abrirFormulario = async function(campanha) {
@@ -517,66 +546,110 @@
     if (alvo === 'colaborador') {
       titulo.textContent = 'Gestores Responsáveis';
       descricao.textContent = 'Selecione quais gestores poderão realizar avaliações nesta campanha.';
-      colaboradoresSection.style.display = 'block';
-      renderColaboradoresPorGestor();
     } else if (alvo === 'gestor') {
       titulo.textContent = 'Gestores a serem Avaliados';
-      descricao.textContent = 'Selecione quais gestores serão avaliados nesta campanha. Os colaboradores subordinados poderão avaliar seus respectivos gestores.';
-      colaboradoresSection.style.display = 'none';
+      descricao.textContent = 'Selecione quais gestores serão avaliados nesta campanha.';
     } else if (alvo === 'todos') {
       titulo.textContent = 'Gestores Participantes';
-      descricao.textContent = 'Selecione quais gestores participarão da campanha. Eles poderão avaliar seus subordinados e também serão avaliados por eles.';
+      descricao.textContent = 'Selecione quais gestores participarão da campanha.';
+    }
+
+    // A seção de colaboradores por gestor aparece SEMPRE que houver gestores selecionados,
+    // independente do tipoAlvo — CampaignGestorColaborador é a fonte de verdade para todos os tipos.
+    if (gestoresSelecionados.size > 0) {
       colaboradoresSection.style.display = 'block';
       renderColaboradoresPorGestor();
+    } else {
+      colaboradoresSection.style.display = 'none';
     }
   };
 
   // ─── COLABORADORES POR GESTOR ─────────────────────────────────────────────────────
 
-  async function carregarColaboradores() {
-    try {
-      const res = await usersApi.list({ tipo: 'colaborador', limit: 1000 });
-      colaboradores = res.data?.users || [];
-    } catch (error) {
-      console.error('Erro ao carregar colaboradores:', error);
-    }
-  }
-
-  function renderColaboradoresPorGestor() {
+  async function renderColaboradoresPorGestor() {
     const container = document.getElementById('colaboradores-por-gestor-container');
     if (!gestoresSelecionados.size) {
       container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Selecione gestores responsáveis primeiro.</p>';
       return;
     }
 
-    const gestoresSelecionadosArray = Array.from(gestoresSelecionados);
-    container.innerHTML = gestoresSelecionadosArray.map(gestorId => {
-      const gestor = gestores.find(g => g.id === gestorId);
-      if (!gestor) return '';
+    // Mostra loading enquanto carrega
+    container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)"><i class="fa-solid fa-spinner fa-spin"></i> Carregando colaboradores...</p>';
 
-      const colaboradoresSelecionados = colaboradoresPorGestor[gestorId] instanceof Set ? colaboradoresPorGestor[gestorId] : new Set();
-      const chipsHtml = colaboradores.map(c => {
+    const gestoresSelecionadosArray = Array.from(gestoresSelecionados);
+    const partes = [];
+
+    for (const gestorId of gestoresSelecionadosArray) {
+      const gestor = gestores.find(g => g.id === gestorId);
+      if (!gestor) continue;
+
+      const lista = await getColaboradoresDoGestor(gestorId);
+
+      if (lista.length === 0) {
+        partes.push(`
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px">
+            <label style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;display:block">
+              ${gestor.nome} — Colaboradores Vinculados
+            </label>
+            <p style="font-size:12px;color:var(--text-muted);margin:0">
+              <i class="fa-solid fa-circle-info" style="color:#f59e0b"></i>
+              Este gestor não possui colaboradores cadastrados no Grupo.
+              Cadastre colaboradores na tela
+              <a href="grupos.html" style="color:var(--primary);font-weight:600">Grupos</a>
+              antes de vinculá-los a esta campanha.
+            </p>
+          </div>
+        `);
+        continue;
+      }
+
+      const colaboradoresSelecionados = colaboradoresPorGestor[gestorId] instanceof Set
+        ? colaboradoresPorGestor[gestorId]
+        : new Set();
+
+      const chipsHtml = lista.map(c => {
         const isSelected = colaboradoresSelecionados.has(c.id);
         return `
-          <div class="colaborador-chip${isSelected ? ' selected' : ''}" onclick="toggleColaboradorGestor('${gestorId}', '${c.id}')"
-            id="colab-chip-${gestorId}-${c.id}" title="${c.nome}">
+          <div class="colaborador-chip${isSelected ? ' selected' : ''}"
+               onclick="toggleColaboradorGestor('${gestorId}', '${c.id}')"
+               id="colab-chip-${gestorId}-${c.id}" title="${c.nome}">
             <i class="fa-solid fa-user" style="font-size:10px"></i>
             ${c.nome}
           </div>
         `;
       }).join('');
 
-      return `
+      partes.push(`
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px">
-          <label style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;display:block">
-            ${gestor.nome} - Colaboradores a Avaliar
-          </label>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+            <label style="font-size:13px;font-weight:600;color:var(--text);margin:0">
+              ${gestor.nome} — Colaboradores Vinculados
+            </label>
+            <div style="display:flex;gap:6px">
+              <button type="button"
+                onclick="selecionarTodosGestor('${gestorId}')"
+                style="padding:3px 10px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;border:1.5px solid var(--primary);background:transparent;color:var(--primary);transition:all .15s"
+                onmouseover="this.style.background='var(--primary)';this.style.color='white'"
+                onmouseout="this.style.background='transparent';this.style.color='var(--primary)'">
+                Selecionar todos
+              </button>
+              <button type="button"
+                onclick="removerTodosGestor('${gestorId}')"
+                style="padding:3px 10px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);transition:all .15s"
+                onmouseover="this.style.borderColor='var(--danger)';this.style.color='var(--danger)'"
+                onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+                Remover todos
+              </button>
+            </div>
+          </div>
           <div style="display:flex;flex-wrap:wrap;gap:8px">
             ${chipsHtml}
           </div>
         </div>
-      `;
-    }).join('');
+      `);
+    }
+
+    container.innerHTML = partes.join('');
   }
 
   window.toggleColaboradorGestor = function(gestorId, colaboradorId) {
@@ -594,6 +667,27 @@
       chip.classList.toggle('selected');
     }
     console.log('[toggleColaboradorGestor] gestorId:', gestorId, 'colaboradorId:', colaboradorId, 'novoEstado:', set);
+  };
+
+  // Seleciona todos os colaboradores do grupo de um gestor específico
+  window.selecionarTodosGestor = async function(gestorId) {
+    const lista = await getColaboradoresDoGestor(gestorId);
+    colaboradoresPorGestor[gestorId] = new Set(lista.map(c => c.id));
+    // Atualiza chips visualmente sem re-renderizar tudo
+    lista.forEach(c => {
+      const chip = document.getElementById(`colab-chip-${gestorId}-${c.id}`);
+      if (chip) chip.classList.add('selected');
+    });
+  };
+
+  // Remove todos os colaboradores do grupo de um gestor específico
+  window.removerTodosGestor = async function(gestorId) {
+    const lista = await getColaboradoresDoGestor(gestorId);
+    colaboradoresPorGestor[gestorId] = new Set();
+    lista.forEach(c => {
+      const chip = document.getElementById(`colab-chip-${gestorId}-${c.id}`);
+      if (chip) chip.classList.remove('selected');
+    });
   };
 
   // ─── COMPETENCIAS CHIPS ─────────────────────────────────────────────────────────
@@ -713,36 +807,25 @@
     modal.classList.add('show');
     // Limpar formulário
     document.getElementById('formNovaCompetencia').reset();
-    // Limpar critérios
-    document.getElementById('nova-competencia-criterios').innerHTML = '';
+    // Inicializar sempre exatamente 4 critérios fixos (sem botão de remover)
+    const container = document.getElementById('nova-competencia-criterios');
+    container.innerHTML = '';
     criterioCount = 0;
+    for (let i = 1; i <= 4; i++) {
+      const div = document.createElement('div');
+      div.className = 'comp-criterio-item';
+      div.innerHTML = `
+        <div class="comp-criterio-label-row">
+          <label><i class="fa-solid fa-square-check"></i> Critério ${i}</label>
+        </div>
+        <textarea placeholder="Descreva o critério ${i}..." class="criterio-input" rows="2"></textarea>
+      `;
+      container.appendChild(div);
+    }
   };
 
   window.fecharModalCriarCompetencia = function() {
     document.getElementById('modal-criar-competencia').classList.remove('show');
-  };
-
-  window.adicionarCriterioModal = function() {
-    criterioCount++;
-    const container = document.getElementById('nova-competencia-criterios');
-    const criterioDiv = document.createElement('div');
-    criterioDiv.className = 'comp-criterio-item';
-    criterioDiv.id = 'criterio-' + criterioCount;
-    criterioDiv.innerHTML = `
-      <div class="comp-criterio-label-row">
-        <label><i class="fa-solid fa-circle-dot"></i> Critério ${criterioCount}</label>
-        <button type="button" class="comp-btn-rm-criterio" onclick="removerCriterioModal(${criterioCount})">
-          <i class="fa-solid fa-times"></i>
-        </button>
-      </div>
-      <textarea placeholder="Descreva o critério ${criterioCount}..." class="criterio-input" rows="2"></textarea>
-    `;
-    container.appendChild(criterioDiv);
-  };
-
-  window.removerCriterioModal = function(id) {
-    const criterioDiv = document.getElementById('criterio-' + id);
-    if (criterioDiv) criterioDiv.remove();
   };
 
   // Formulário de criação de competência
@@ -759,14 +842,13 @@
       return;
     }
     
-    // Coletar critérios
+    // Coletar e validar exatamente 4 critérios preenchidos
     const criterioInputs = document.querySelectorAll('.criterio-input');
-    const criterios = [];
-    criterioInputs.forEach(input => {
-      if (input.value.trim()) {
-        criterios.push(input.value.trim());
-      }
-    });
+    const criterios = Array.from(criterioInputs).map(t => t.value.trim());
+    if (criterios.length !== 4 || criterios.some(c => !c)) {
+      showToast('Preencha os 4 critérios de avaliação.', 'error');
+      return;
+    }
     
     try {
       const payload = {
@@ -825,11 +907,22 @@
     ).join('');
   }
 
-  window.toggleGestor = function(id) {
+  window.toggleGestor = async function(id) {
+    const foiAdicionado = !gestoresSelecionados.has(id);
+
     if (gestoresSelecionados.has(id)) gestoresSelecionados.delete(id);
     else gestoresSelecionados.add(id);
+
+    // Pré-seleção automática: apenas quando o gestor é ADICIONADO pela primeira
+    // vez na sessão atual (colaboradoresPorGestor[id] ainda não existe).
+    // Não sobrescreve seleções manuais nem dados carregados de uma campanha existente.
+    if (foiAdicionado && !colaboradoresPorGestor[id]) {
+      const lista = await getColaboradoresDoGestor(id);
+      colaboradoresPorGestor[id] = new Set(lista.map(c => c.id));
+    }
+
     renderGestoresChips();
-    renderColaboradoresPorGestor();
+    atualizarTextoGestores(); // controla visibilidade da seção + renderiza colaboradores
   };
 
   // ─── SALVAR ───────────────────────────────────────────────────────────────────
@@ -869,13 +962,12 @@
       gestorColaboradoresPayload[gestorId] = colaboradoresSet instanceof Set ? Array.from(colaboradoresSet) : [];
     }
 
-    if (tipoAlvo !== 'gestor') {
-      for (const gestorId of gestorIds) {
-        if (!gestorColaboradoresPayload[gestorId] || gestorColaboradoresPayload[gestorId].length === 0) {
-          const gestor = gestores.find(g => g.id === gestorId);
-          showToast(`Gestor ${gestor?.nome || gestorId} deve possuir pelo menos um colaborador.`, 'error');
-          return;
-        }
+    // Valida que cada gestor tem pelo menos 1 colaborador vinculado (vale para todos os tipoAlvo)
+    for (const gestorId of gestorIds) {
+      if (!gestorColaboradoresPayload[gestorId] || gestorColaboradoresPayload[gestorId].length === 0) {
+        const gestor = gestores.find(g => g.id === gestorId);
+        showToast(`Gestor ${gestor?.nome || gestorId} deve possuir pelo menos um colaborador vinculado.`, 'error');
+        return;
       }
     }
 
@@ -928,7 +1020,6 @@
 
   // ─── INIT ─────────────────────────────────────────────────────────────────────
   carregarCampanhas();
-  carregarColaboradores();
 
   // Event listener para botão de criar competência
   document.getElementById('btn-criar-competencia').addEventListener('click', window.abrirModalCriarCompetencia);

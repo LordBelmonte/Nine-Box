@@ -50,6 +50,11 @@ router.get('/gestor/pendentes', isGestorOrAdminMiddleware, (req, res, next) =>
   campaignController.getPendingCampaignsForGestor(req, res, next)
 );
 
+// Duplicar campanha (apenas admin) — gera cópia em status planejamento
+router.post('/:id/duplicate', isAdminMiddleware, (req, res, next) =>
+  campaignController.duplicate(req, res, next)
+);
+
 // CRUD de campanhas (apenas admin)
 router.get('/', isAdminMiddleware, (req, res, next) =>
   campaignController.findAll(req, res, next)

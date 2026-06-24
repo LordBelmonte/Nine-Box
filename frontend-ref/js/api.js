@@ -1006,6 +1006,8 @@ export const campaignsApi = {
 
   getGestoresNaoAvaliados: (campaignId, colaboradorId) =>
     api.get(`/campaigns/${campaignId}/gestores-nao-avaliados/${colaboradorId}`),
+
+  duplicate: (id) => api.post(`/campaigns/${id}/duplicate`),
 };
 
 // =============================================

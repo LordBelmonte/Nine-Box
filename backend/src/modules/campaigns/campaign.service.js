@@ -38,30 +38,28 @@ class CampaignService {
       throw new AppError('A campanha deve possuir pelo menos um gestor.', 400);
     }
 
-    if (data.tipoAlvo !== 'gestor') {
-      if (!data.gestorColaboradores) {
-        console.error('[CampaignService.create] gestorColaboradores é null/undefined');
-        throw new AppError('É obrigatório informar os colaboradores por gestor.', 400);
+    if (!data.gestorColaboradores) {
+      console.error('[CampaignService.create] gestorColaboradores é null/undefined');
+      throw new AppError('É obrigatório informar os colaboradores por gestor.', 400);
+    }
+
+    for (const gestorId of data.gestorIds) {
+      const colaboradorIds = data.gestorColaboradores[gestorId];
+      console.log('[CampaignService.create] validando gestorId:', gestorId, 'colaboradorIds:', colaboradorIds, 'isArray:', Array.isArray(colaboradorIds));
+
+      if (!Array.isArray(colaboradorIds)) {
+        console.error('[CampaignService.create] colaboradorIds não é um array para gestorId:', gestorId, 'tipo:', typeof colaboradorIds);
+        throw new AppError(
+          `Gestor ${gestorId} não possui colaboradores vinculados.`,
+          400
+        );
       }
 
-      for (const gestorId of data.gestorIds) {
-        const colaboradorIds = data.gestorColaboradores[gestorId];
-        console.log('[CampaignService.create] validando gestorId:', gestorId, 'colaboradorIds:', colaboradorIds, 'isArray:', Array.isArray(colaboradorIds));
-
-        if (!Array.isArray(colaboradorIds)) {
-          console.error('[CampaignService.create] colaboradorIds não é um array para gestorId:', gestorId, 'tipo:', typeof colaboradorIds);
-          throw new AppError(
-            `Gestor ${gestorId} não possui colaboradores vinculados.`,
-            400
-          );
-        }
-
-        if (colaboradorIds.length === 0) {
-          throw new AppError(
-            `Gestor ${gestorId} deve possuir pelo menos um colaborador.`,
-            400
-          );
-        }
+      if (colaboradorIds.length === 0) {
+        throw new AppError(
+          `Gestor ${gestorId} deve possuir pelo menos um colaborador.`,
+          400
+        );
       }
     }
 
@@ -154,27 +152,23 @@ class CampaignService {
     }
 
     // Valida vínculos gestor→colaborador quando gestorColaboradores é enviado no update.
-    // Usa tipoAlvo do payload se fornecido, caso contrário usa o da campanha existente.
+    // Vale para todos os tipoAlvo — CampaignGestorColaborador é fonte de verdade universal.
     if (data.gestorColaboradores) {
-      const tipoAlvoEfetivo = data.tipoAlvo ?? campaign.tipoAlvo;
+      // Determina quais gestorIds devem ser validados:
+      // se o update enviou gestorIds, usa esses; caso contrário usa os gestores já na campanha.
+      const gestorIdsParaValidar =
+        data.gestorIds && data.gestorIds.length > 0
+          ? data.gestorIds
+          : campaign.gestores.map(g => g.gestorId);
 
-      if (tipoAlvoEfetivo !== 'gestor') {
-        // Determina quais gestorIds devem ser validados:
-        // se o update enviou gestorIds, usa esses; caso contrário usa os gestores já na campanha.
-        const gestorIdsParaValidar =
-          data.gestorIds && data.gestorIds.length > 0
-            ? data.gestorIds
-            : campaign.gestores.map(g => g.gestorId);
+      for (const gestorId of gestorIdsParaValidar) {
+        const colaboradorIds = data.gestorColaboradores[gestorId];
 
-        for (const gestorId of gestorIdsParaValidar) {
-          const colaboradorIds = data.gestorColaboradores[gestorId];
-
-          if (!Array.isArray(colaboradorIds) || colaboradorIds.length === 0) {
-            throw new AppError(
-              `Gestor ${gestorId} deve possuir pelo menos um colaborador.`,
-              400
-            );
-          }
+        if (!Array.isArray(colaboradorIds) || colaboradorIds.length === 0) {
+          throw new AppError(
+            `Gestor ${gestorId} deve possuir pelo menos um colaborador.`,
+            400
+          );
         }
       }
     }
@@ -401,6 +395,55 @@ class CampaignService {
     }
 
     return this.campaignRepository.getGestoresNaoAvaliados(campaignId, colaboradorId);
+  }
+
+  async duplicate(id, userTipo) {
+    if (userTipo !== 'admin') {
+      throw new AppError('Sem permissão para duplicar campanhas', 403);
+    }
+
+    const original = await this.campaignRepository.findById(id);
+    if (!original) {
+      throw new AppError('Campanha não encontrada', 404);
+    }
+
+    // Monta payload idêntico ao create(), usando os dados da campanha original.
+    // A cópia nasce em status 'planejamento' e com nome prefixado por "Cópia de".
+    const gestorIds = original.gestores.map(g => g.gestorId);
+    const gestorColaboradores = {};
+    for (const g of original.gestores) {
+      gestorColaboradores[g.gestorId] = g.colaboradoresAvaliaveis.map(c => c.colaboradorId);
+    }
+    const competencyIds = original.competencias.map(c => c.competencyId);
+
+    const novaData = {
+      nome:       `Cópia de ${original.nome}`,
+      descricao:  original.descricao || undefined,
+      dataInicio: original.dataInicio,
+      dataFim:    original.dataFim,
+      tipoAlvo:   original.tipoAlvo,
+    };
+
+    const { competencyIds: _c, gestorIds: _g, gestorColaboradores: _gc, ...campaignData } = { ...novaData };
+    const uniqueGestorIds = [...new Set(gestorIds)];
+
+    const novaCampanha = await prisma.$transaction(async (tx) => {
+      const created = await this.campaignRepository.create({
+        ...novaData,
+        gestorIds: uniqueGestorIds,
+        gestorColaboradores
+      }, tx);
+
+      for (const competencyId of competencyIds) {
+        await tx.campaignCompetency.create({
+          data: { campaignId: created.id, competencyId }
+        });
+      }
+
+      return created;
+    });
+
+    return novaCampanha;
   }
 
   // --- Helpers privados ---

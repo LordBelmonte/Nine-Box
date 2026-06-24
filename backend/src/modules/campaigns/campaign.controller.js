@@ -163,6 +163,19 @@ class CampaignController {
     }
   }
 
+  async duplicate(req, res, next) {
+    try {
+      const campaign = await campaignService.duplicate(req.params.id, req.user.tipo);
+      return res.status(201).json({
+        success: true,
+        data: campaign,
+        message: 'Campanha duplicada com sucesso'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getPendingCampaignsForColaborador(req, res, next) {
     try {
       const campaigns = await campaignService.getPendingCampaignsForColaborador(
