@@ -301,12 +301,12 @@ class EvaluationService {
       }
     }
 
-    // Valida escala de cada critério (usando escala máxima de 10 por padrão)
+    // Valida escala de cada critério (escala 1-4)
     for (const nome of nomesEnviados) {
       const nota = criterios[nome];
-      if (nota < 1 || nota > 10) {
+      if (nota < 1 || nota > 4) {
         throw new AppError(
-          `Nota do critério '${nome}' deve ser entre 1 e 10`,
+          `Nota do critério '${nome}' deve ser entre 1 e 4`,
           400
         );
       }
