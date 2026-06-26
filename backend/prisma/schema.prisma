@@ -18,6 +18,7 @@ model User {
   foto                  String?
   cargo                 String?
   departamento          String?
+  deletedAt             DateTime?
   createdAt             DateTime                    @default(now())
   updatedAt             DateTime                    @updatedAt
   campanhasResponsavel  CampaignGestor[]
@@ -27,10 +28,25 @@ model User {
   gruposComoGestor      GestorColaborador[]         @relation("GestorRelation")
   nineBoxAvaliacoes     NineBox[]
   colaboradoresAvaliaveis CampaignGestorColaborador[]
+  refreshTokens         RefreshToken[]
 
   @@index([ra])
   @@index([email])
   @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("refresh_tokens")
 }
 
 model GestorColaborador {
@@ -55,6 +71,8 @@ model EvaluationCampaign {
   dataFim      DateTime
   status       CampaignStatus       @default(planejamento)
   tipoAlvo     String
+  tipoAvaliacao String?  // Tipo da avaliação (ex: "180", "360")
+  deletedAt    DateTime?
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
   competencias CampaignCompetency[]
@@ -148,21 +166,43 @@ model NineBox {
   @@map("nine_box")
 }
 
+// Categorias de configuração do Nine Box (definidas conforme TABELA DE REFERÊNCIA ORIGEM)
+// Usado para exibir perfil e plano de ação de cada quadrante
+model NineBoxCategoria {
+  id              String   @id @default(uuid())
+  codigo          String   @unique  // Ex: "Q1", "Q2", ..., "Q9"
+  potencialClasse String   // "Baixo", "Médio" ou "Alto"
+  desempenhoClasse String  // "Baixo", "Médio" ou "Alto"
+  nome            String   // Ex: "Q1 (Insuficiente)"
+  tipo            String   // Ex: "Insuficiente", "Questionável", "Eficaz", etc.
+  perfil          String   // Descrição do perfil do profissional nesta categoria
+  planoAcao       String   // Plano de ação recomendado para esta categoria
+  icon            String?  // Ícone opcional (ex: classe CSS ou nome do ícone)
+  cor             String?  // Cor opcional (ex: código hex para estilização)
+
+  @@map("nine_box_categorias")
+}
+
+// Valores permitidos para o campo "tipo" de Competency:
+// - "desempenho": competências que impactam diretamente a performance do colaborador
+// - "potencial": competências que indicam potencial de crescimento e desenvolvimento
+//
+// Mapeamento para cálculo do Nine Box:
+// - Performance (Eixo X) = média das notas de competências tipo "desempenho"
+// - Potential (Eixo Y) = média das notas de competências tipo "potencial"
 model Competency {
   id            String               @id @default(uuid())
   nome          String               @unique
   descricao     String
-  tipo          String
+  tipo          String               // Apenas: "desempenho" ou "potencial"
   competenciaDe String
   criterios     String[]
+  deletedAt     DateTime?
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
-  a_melhorar    String?
-  bom           String?
-  ideal         String?
-  mediano       String?
   campaigns     CampaignCompetency[]
 
+  @@index([deletedAt])
   @@map("competencies")
 }
 

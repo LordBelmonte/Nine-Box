@@ -101,43 +101,43 @@
 
           <!-- Linha 3: Alto Potential -->
           <div class="nb-box nb-box-1-3" id="nb-box-1-3">
-            <div class="nb-box-header"><span class="nb-box-name">Q7 (Forte Candidato)</span><span class="nb-box-icon"><i class="fa-solid fa-star"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">A1 (Enigma)</span><span class="nb-box-icon"><i class="fa-solid fa-puzzle-piece"></i></span></div>
             <div class="nb-box-people" id="nb-people-1-3"></div>
           </div>
           <div class="nb-box nb-box-2-3" id="nb-box-2-3">
-            <div class="nb-box-header"><span class="nb-box-name">Q8 (Alto Desempenho)</span><span class="nb-box-icon"><i class="fa-solid fa-chart-line"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">A2 (Em crescimento)</span><span class="nb-box-icon"><i class="fa-solid fa-seedling"></i></span></div>
             <div class="nb-box-people" id="nb-people-2-3"></div>
           </div>
           <div class="nb-box nb-box-3-3" id="nb-box-3-3">
-            <div class="nb-box-header"><span class="nb-box-name">Q9 (Estrela)</span><span class="nb-box-icon"><i class="fa-solid fa-rocket"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">A3 (Destaque)</span><span class="nb-box-icon"><i class="fa-solid fa-crown"></i></span></div>
             <div class="nb-box-people" id="nb-people-3-3"></div>
           </div>
 
           <!-- Linha 2: Médio Potential -->
           <div class="nb-box nb-box-1-2" id="nb-box-1-2">
-            <div class="nb-box-header"><span class="nb-box-name">Q4 (Dilema)</span><span class="nb-box-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">M1 (Questionável)</span><span class="nb-box-icon"><i class="fa-solid fa-question-circle"></i></span></div>
             <div class="nb-box-people" id="nb-people-1-2"></div>
           </div>
           <div class="nb-box nb-box-2-2" id="nb-box-2-2">
-            <div class="nb-box-header"><span class="nb-box-name">Q5 (Mantenedor)</span><span class="nb-box-icon"><i class="fa-solid fa-gem"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">M2 (Mantenedor)</span><span class="nb-box-icon"><i class="fa-solid fa-minus-circle"></i></span></div>
             <div class="nb-box-people" id="nb-people-2-2"></div>
           </div>
           <div class="nb-box nb-box-3-2" id="nb-box-3-2">
-            <div class="nb-box-header"><span class="nb-box-name">Q6 (Especialista)</span><span class="nb-box-icon"><i class="fa-solid fa-bullseye"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">M3 (Forte Desempenho)</span><span class="nb-box-icon"><i class="fa-solid fa-arrow-up"></i></span></div>
             <div class="nb-box-people" id="nb-people-3-2"></div>
           </div>
 
           <!-- Linha 1: Baixo Potential -->
           <div class="nb-box nb-box-1-1" id="nb-box-1-1">
-            <div class="nb-box-header"><span class="nb-box-name">Q1 (Insuficiente)</span><span class="nb-box-icon"><i class="fa-solid fa-circle-question"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">B1 (Insuficiente)</span><span class="nb-box-icon"><i class="fa-solid fa-circle-xmark"></i></span></div>
             <div class="nb-box-people" id="nb-people-1-1"></div>
           </div>
           <div class="nb-box nb-box-2-1" id="nb-box-2-1">
-            <div class="nb-box-header"><span class="nb-box-name">Q2 (Questionável)</span><span class="nb-box-icon"><i class="fa-solid fa-question"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">B2 (Eficaz)</span><span class="nb-box-icon"><i class="fa-solid fa-check"></i></span></div>
             <div class="nb-box-people" id="nb-people-2-1"></div>
           </div>
           <div class="nb-box nb-box-3-1" id="nb-box-3-1">
-            <div class="nb-box-header"><span class="nb-box-name">Q3 (Eficaz)</span><span class="nb-box-icon"><i class="fa-solid fa-gears"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">B3 (Comprometido)</span><span class="nb-box-icon"><i class="fa-solid fa-star"></i></span></div>
             <div class="nb-box-people" id="nb-people-3-1"></div>
           </div>
 
@@ -182,67 +182,67 @@
 
   const CATEGORIAS = {
     '1-1': {
-      nome: 'Q1 (Insuficiente)',
-      icon: '<i class="fa-solid fa-circle-question"></i>',
+      nome: 'B1 (Insuficiente)',
+      icon: '<i class="fa-solid fa-circle-xmark"></i>',
       tipo: 'Insuficiente',
       perfil: 'Potencial baixo e desempenho abaixo do esperado',
-      plano: 'Identificar obstáculos que poderiam justificar o baixo desempenho e ajudá-lo a removê-los ou encontrar outro cargo interno no qual suas habilidades serão melhor utilizadas. Se não houver melhorias, recomenda-se o desligamento da empresa.'
+      plano: 'Identificar obstáculos que impedem o desempenho adequado. Caso não haja melhoria após suporte e desenvolvimento, considerar realocação ou desligamento.'
     },
     '2-1': {
-      nome: 'Q2 (Questionável)',
-      icon: '<i class="fa-solid fa-question"></i>',
-      tipo: 'Questionável',
+      nome: 'B2 (Eficaz)',
+      icon: '<i class="fa-solid fa-check"></i>',
+      tipo: 'Eficaz',
       perfil: 'Potencial baixo e desempenho dentro do esperado',
-      plano: 'Dar feedback, treiná-los para se tornarem mais inovadores, identificar áreas específicas de melhoria e definir um plano de desenvolvimento pessoal, com o objetivo de conduzi-lo à categoria de alto desempenho.'
+      plano: 'Profissionais consistentes que cumprem suas responsabilidades. Manter motivação através de reconhecimento e compensação adequada.'
     },
     '3-1': {
-      nome: 'Q3 (Eficaz)',
-      icon: '<i class="fa-solid fa-gears"></i>',
-      tipo: 'Eficaz',
+      nome: 'B3 (Comprometido)',
+      icon: '<i class="fa-solid fa-star"></i>',
+      tipo: 'Comprometido',
       perfil: 'Potencial baixo e desempenho acima do esperado',
-      plano: 'Apesar do bom desempenho, da mentalidade de trabalho certa e da sua dedicação, esses profissionais não têm muito potencial ou ambição de crescimento. O ideal é mantê-los felizes e recompensá-los com aumentos e bônus.'
+      plano: 'Colaboradores leais e dedicados que superam expectativas. Recompensar com bônus e benefícios, mas sem expectativa de crescimento hierárquico.'
     },
     '1-2': {
-      nome: 'Q4 (Dilema)',
-      icon: '<i class="fa-solid fa-wand-magic-sparkles"></i>',
-      tipo: 'Dilema',
+      nome: 'M1 (Questionável)',
+      icon: '<i class="fa-solid fa-question-circle"></i>',
+      tipo: 'Questionável',
       perfil: 'Potencial mediano e desempenho abaixo do esperado',
-      plano: 'Identificar bloqueios para performance - motivos pessoais, dificuldades com a cultura organizacional, falhas no onboarding... Comunique claramente o que se espera do profissional e proporcione um programa de mentoria interna, motivação e oportunidades de desenvolvimento.'
+      plano: 'Identificar causas do baixo desempenho. Fornecer mentoria, treinamento e definir plano de desenvolvimento com metas claras.'
     },
     '2-2': {
-      nome: 'Q5 (Mantenedor)',
-      icon: '<i class="fa-solid fa-gem"></i>',
+      nome: 'M2 (Mantenedor)',
+      icon: '<i class="fa-solid fa-minus-circle"></i>',
       tipo: 'Mantenedor',
       perfil: 'Potencial e desempenho em nível mediano',
-      plano: 'Invista nesses profissionais chaves para a organização, ao oferecer novos projetos e tarefas que os mantenham engajados, e comece a prepará-los para oportunidades futuras, treinando-os em gestão de pessoas.'
+      plano: 'Profissionais sólidos que mantêm o fluxo de trabalho. Oferecer projetos desafiadores e oportunidades de desenvolvimento para evitar estagnação.'
     },
     '3-2': {
-      nome: 'Q6 (Especialista)',
-      icon: '<i class="fa-solid fa-bullseye"></i>',
-      tipo: 'Especialista',
+      nome: 'M3 (Forte Desempenho)',
+      icon: '<i class="fa-solid fa-arrow-up"></i>',
+      tipo: 'Forte Desempenho',
       perfil: 'Potencial mediano e desempenho acima do esperado',
-      plano: 'Entenda primeiramente se eles estão prontos para o crescimento e mais responsabilidades ou se precisam de mais tempo para se desenvolverem. Trabalhe suas habilidades de pensamento tático e estratégico, que serão úteis para seu futuro na organização.'
+      plano: 'Desenvolver habilidades de liderança e pensamento estratégico. Preparar para assumir mais responsabilidades e projetos complexos.'
     },
     '1-3': {
-      nome: 'Q7 (Forte Candidato)',
-      icon: '<i class="fa-solid fa-star"></i>',
-      tipo: 'Forte Candidato',
+      nome: 'A1 (Enigma)',
+      icon: '<i class="fa-solid fa-puzzle-piece"></i>',
+      tipo: 'Enigma',
       perfil: 'Alto potencial e desempenho abaixo do esperado',
-      plano: 'Mesmo que tenham muito potencial, esses profissionais não estão entregando o que se espera deles, seja porque não têm a experiência necessária ou pela falta de compatibilidade com a função atual. Dê a esses profissionais tempo para ganhar experiência e feedback contínuo para construir confiança.'
+      plano: 'Profissionais com grande potencial que não estão entregando. Investigar causas: desalinhamento de função, falta de suporte, questões pessoais.'
     },
     '2-3': {
-      nome: 'Q8 (Alto Desempenho)',
-      icon: '<i class="fa-solid fa-chart-line"></i>',
-      tipo: 'Alto Desempenho',
+      nome: 'A2 (Em crescimento)',
+      icon: '<i class="fa-solid fa-seedling"></i>',
+      tipo: 'Em crescimento',
       perfil: 'Alto potencial e desempenho dentro do esperado',
-      plano: 'Proporcione mais exposição para que alcancem maior desempenho, através de oportunidades de treinamento, projetos desafiadores e monitoramento de progresso com KPIs claras.'
+      plano: 'Colaboradores em ascensão que respondem bem a desafios. Oferecer projetos estratégicos, mentoria executiva e plano de carreira claro.'
     },
     '3-3': {
-      nome: 'Q9 (Estrela)',
-      icon: '<i class="fa-solid fa-rocket"></i>',
-      tipo: 'Estrela',
+      nome: 'A3 (Destaque)',
+      icon: '<i class="fa-solid fa-crown"></i>',
+      tipo: 'Destaque',
       perfil: 'Alto potencial e desempenho acima do esperado',
-      plano: 'Profissional que já se desenvolveu completamente dentro da sua função e está pronto para uma promoção e novas responsabilidades; é uma boa referência para os demais colaboradores da empresa pela sua capacidade de resolução de problemas, pensamento estratégico e motivação pessoal.'
+      plano: 'Talentos excepcionais prontos para promoções. Desenvolver como futuros líderes, oferecer oportunidades de liderança de projetos e mentoria de pares.'
     },
   };
   const PERF_LABELS = { 1:'Baixo', 2:'Médio', 3:'Alto' };

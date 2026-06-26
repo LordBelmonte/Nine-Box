@@ -314,6 +314,8 @@
   async function loadOrientacoes() {
     const container = document.getElementById('orientacoes-texto');
     const titleEl = document.getElementById('orientacoes-title');
+    const tipoCores = { desempenho: '#2563eb', potencial: '#7c3aed' };
+    const tipoLabels = { desempenho: 'Desempenho', potencial: 'Potencial' };
     console.log('Carregando orientações para campaignId:', campaignId);
     try {
       const response = await campaignsApi.getById(campaignId);
@@ -338,7 +340,10 @@
                   <i class="fa-solid fa-clipboard-check" style="font-size:14px;color:white;"></i>
                 </div>
                 <div style="min-width:0;">
-                  <div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.3;">${comp.nome}</div>
+                  <div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.3;">
+                    ${comp.nome}
+                    <span style="margin-left:6px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;background:${tipoCores[comp.tipo]}22;color:${tipoCores[comp.tipo]}">${tipoLabels[comp.tipo] || comp.tipo}</span>
+                  </div>
                   ${comp.descricao ? `<div style="font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.4;">${comp.descricao}</div>` : ''}
                   <div style="font-size:11px;color:var(--primary);margin-top:4px;font-weight:600;">
                     <i class="fa-solid fa-list-check"></i> ${criteriosCount} critério${criteriosCount !== 1 ? 's' : ''}

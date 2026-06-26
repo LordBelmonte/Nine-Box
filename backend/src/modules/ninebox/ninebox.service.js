@@ -31,21 +31,21 @@ class NineBoxService {
 
     // Matriz (Y = Potencial | X = Desempenho)
     const matriz = {
-      'ALTO-BAIXO': 'Q4 (Dilema)',
-      'ALTO-MÉDIO': 'Q7 (Forte Candidato)',
-      'ALTO-ALTO': 'Q9 (Estrela)',
-      'MÉDIO-BAIXO': 'Q2 (Questionável)',
-      'MÉDIO-MÉDIO': 'Q5 (Mantenedor)',
-      'MÉDIO-ALTO': 'Q8 (Alto Desempenho)',
-      'BAIXO-BAIXO': 'Q1 (Insuficiente)',
-      'BAIXO-MÉDIO': 'Q3 (Eficaz)',
-      'BAIXO-ALTO': 'Q6 (Especialista)'
+      'ALTO-BAIXO': 'A1 (Enigma)',
+      'ALTO-MÉDIO': 'A2 (Em crescimento)',
+      'ALTO-ALTO': 'A3 (Destaque)',
+      'MÉDIO-BAIXO': 'M1 (Questionável)',
+      'MÉDIO-MÉDIO': 'M2 (Mantenedor)',
+      'MÉDIO-ALTO': 'M3 (Forte Desempenho)',
+      'BAIXO-BAIXO': 'B1 (Insuficiente)',
+      'BAIXO-MÉDIO': 'B2 (Eficaz)',
+      'BAIXO-ALTO': 'B3 (Comprometido)'
     };
 
     return matriz[`${yClass}-${xClass}`] || 'Indefinido';
   }
 
-  // Calcula Performance (X) a partir das competências do tipo 'desempenho'
+  // Calcula Performance (X) a partir das competências do tipo 'desempenho' e 'tecnica'
   async calculatePerformanceFromEvaluations(avaliadoId) {
     const evaluations = await this.evaluationRepository.findByAvaliado(avaliadoId, { page: 1, limit: 1000 });
     
@@ -53,16 +53,22 @@ class NineBoxService {
       return null;
     }
 
-    // Busca competências do tipo 'desempenho'
+    // Busca competências dos tipos 'desempenho' e 'tecnica'
     const desempenhoCompetencies = await this.competencyRepository.findByTipo('desempenho');
-    const desempenhoNames = desempenhoCompetencies.map(c => c.nome);
+    const tecnicaCompetencies = await this.competencyRepository.findByTipo('tecnica');
+    // Cria map de nome normalizado (lowercase) -> nome original
+    const desempenhoNameMap = {};
+    [...desempenhoCompetencies, ...tecnicaCompetencies].forEach(c => {
+      desempenhoNameMap[c.nome.toLowerCase()] = c.nome;
+    });
 
     // Extrai notas de competências de desempenho de todas as avaliações
     let allNotas = [];
     for (const evaluation of evaluations.evaluations) {
       if (evaluation.criterios) {
         for (const [competenciaNome, nota] of Object.entries(evaluation.criterios)) {
-          if (desempenhoNames.includes(competenciaNome)) {
+          // Compara usando lowercase para tolerant matching
+          if (desempenhoNameMap[competenciaNome.toLowerCase()]) {
             allNotas.push(nota);
           }
         }
@@ -80,7 +86,7 @@ class NineBoxService {
     return parseFloat(performance.toFixed(2));
   }
 
-  // Calcula Potential (Y) a partir das competências do tipo 'lideranca' ou 'comportamento'
+  // Calcula Potential (Y) a partir das competências do tipo 'potencial', 'lideranca' ou 'comportamento'
   async calculatePotentialFromEvaluations(avaliadoId) {
     const evaluations = await this.evaluationRepository.findByAvaliado(avaliadoId, { page: 1, limit: 1000 });
     
@@ -88,17 +94,23 @@ class NineBoxService {
       return null;
     }
 
-    // Busca competências dos tipos 'lideranca' e 'comportamento'
+    // Busca competências dos tipos 'potencial', 'lideranca' e 'comportamento'
+    const potencialCompetencies = await this.competencyRepository.findByTipo('potencial');
     const liderancaCompetencies = await this.competencyRepository.findByTipo('lideranca');
     const comportamentoCompetencies = await this.competencyRepository.findByTipo('comportamento');
-    const potentialNames = [...liderancaCompetencies, ...comportamentoCompetencies].map(c => c.nome);
+    // Cria map de nome normalizado (lowercase) -> nome original
+    const potentialNameMap = {};
+    [...potencialCompetencies, ...liderancaCompetencies, ...comportamentoCompetencies].forEach(c => {
+      potentialNameMap[c.nome.toLowerCase()] = c.nome;
+    });
 
     // Extrai notas de competências de potencial de todas as avaliações
     let allNotas = [];
     for (const evaluation of evaluations.evaluations) {
       if (evaluation.criterios) {
         for (const [competenciaNome, nota] of Object.entries(evaluation.criterios)) {
-          if (potentialNames.includes(competenciaNome)) {
+          // Compara usando lowercase para tolerant matching
+          if (potentialNameMap[competenciaNome.toLowerCase()]) {
             allNotas.push(nota);
           }
         }
