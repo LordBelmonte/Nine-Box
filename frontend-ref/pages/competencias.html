@@ -9,8 +9,6 @@
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/competencias.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
-  <link rel="stylesheet" href="../css/choices-custom.css">
   <script>
     (function() {
       const darkMode = localStorage.getItem('darkMode');
@@ -181,10 +179,6 @@
   const TIPO_LABELS = { desempenho: 'Desempenho', potencial: 'Potencial' };
   const DE_LABELS   = { gestor:'Gestor', colaborador:'Colaborador', todos:'Todos' };
 
-  // Variáveis globais para Choices.js
-  let choicesCompDe = null;
-  let choicesCompTipo = null;
-
   // Exibe botão Nova apenas para admin
   if (isAdmin()) document.getElementById('btn-nova-comp').style.display = 'flex';
 
@@ -212,24 +206,9 @@
     grid.appendChild(item);
   }
 
-  // --- Choices.js ---
+  // --- Selects nativos (sem Choices.js) ---
   function initChoices() {
-    if (choicesCompDe) choicesCompDe.destroy();
-    if (choicesCompTipo) choicesCompTipo.destroy();
-    
-    choicesCompDe = new Choices('#comp-de', {
-      searchEnabled: false,
-      itemSelectText: '',
-      shouldSort: false,
-      position: 'bottom'
-    });
-    
-    choicesCompTipo = new Choices('#comp-tipo', {
-      searchEnabled: false,
-      itemSelectText: '',
-      shouldSort: false,
-      position: 'bottom'
-    });
+    // Selects já são nativos, não precisa de initialization extra
   }
 
   async function carregarCompetencias() {
