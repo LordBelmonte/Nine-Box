@@ -178,6 +178,45 @@ class NineBoxController {
       next(error);
     }
   }
+
+  // ========== NOVOS ENDPOINTS PARA RELATÓRIO MODAL ==========
+
+  async getReportIndividual(req, res, next) {
+    try {
+      const { evaluationId, pessoaId } = req.params;
+      const report = await nineBoxService.getReportIndividual(
+        evaluationId,
+        pessoaId,
+        req.user.userId,
+        req.user.tipo
+      );
+      return res.json({
+        success: true,
+        data: report
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getReportConsolidated(req, res, next) {
+    try {
+      const { evaluationId } = req.params;
+      const report = await nineBoxService.getReportConsolidated(
+        evaluationId,
+        req.user.userId,
+        req.user.tipo
+      );
+      return res.json({
+        success: true,
+        data: report
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // ========== FIM NOVOS ENDPOINTS ==========
 }
 
 export { NineBoxController };

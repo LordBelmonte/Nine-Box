@@ -10,6 +10,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
   <link rel="stylesheet" href="../css/choices-custom.css">
+  
+  <!-- Bibliotecas para exportação PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
   <script>
     (function() {
       const darkMode = localStorage.getItem('darkMode');
@@ -444,199 +449,67 @@
       color: white;
     }
 
-    /* Lista de usuários no grid */
-    .nb-initial-message {
-      display: block;
-    }
-    .nb-initial-message.hidden {
-      display: none;
-    }
-    .nb-users-list {
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 600px;
-      overflow-y: auto;
-      padding-right: 8px;
-    }
-    .nb-users-list.active {
+    /* Itens de categoria na sidebar */
+    .nb-cat-item {
       display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+      font-size: 12px;
     }
+    .nb-cat-item:hover {
+      background: #eff6ff;
+      border-left-color: var(--primary);
+    }
+    .nb-cat-item.active {
+      background: #eff6ff;
+      border-left-color: var(--primary);
+      font-weight: 700;
+    }
+    .nb-cat-item.empty { opacity: 0.45; }
+    .nb-cat-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+    .nb-cat-label { flex: 1; color: var(--text); font-size: 12px; }
+    .nb-cat-count {
+      font-size: 11px; font-weight: 700;
+      background: #e0e7ff; color: #3730a3;
+      padding: 1px 7px; border-radius: 100px; flex-shrink: 0;
+    }
+    /* Cards de usuário na lista */
     .nb-user-card-inline {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px;
-      background: white;
+      padding: 10px 12px;
+      background: var(--surface);
       border: 1.5px solid var(--border);
       border-radius: 8px;
       transition: all 0.2s;
+      margin-bottom: 8px;
     }
     .nb-user-card-inline:hover {
       border-color: var(--accent);
       box-shadow: var(--shadow-sm);
-      transform: translateX(4px);
     }
     .nb-user-card-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 14px;
-      font-weight: 700;
-      flex-shrink: 0;
-      overflow: hidden;
-    }
-    .nb-user-card-info {
-      flex: 1;
-      min-width: 0;
-    }
-    .nb-user-card-nome {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 2px;
-    }
-    .nb-user-card-meta {
-      font-size: 11px;
-      color: var(--text-muted);
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .nb-user-card-badge {
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 100px;
-      font-weight: 600;
-      background: #eff6ff;
-      color: var(--primary);
-    }
-    .nb-user-card-comment {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-style: italic;
-      margin-top: 6px;
-      padding-top: 6px;
-      border-top: 1px solid var(--border);
-    }
-    .nb-back-btn {
-      display: none;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-bottom: 12px;
-      font-family: inherit;
-    }
-    .nb-back-btn.active {
-      display: inline-flex;
-    }
-    .nb-back-btn:hover {
-      background: #1d4ed8;
-      transform: translateY(-1px);
-    }
-
-    body.dark-mode .nb-user-card-inline {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    body.dark-mode .nb-user-card-inline:hover {
-      background: #334155;
-    }
-
-    body.dark-mode .nb-dist-container {
-      background: linear-gradient(135deg, #1e293b 0%, #1e3a5f 100%);
-      border-color: #334155;
-    }
-    body.dark-mode .nb-axis-label,
-    body.dark-mode .nb-axis-bottom-label,
-    body.dark-mode .nb-dist-sidebar {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    body.dark-mode .nb-legend-item:hover {
-      background: #334155;
-    }
-
-    /* Modal de usuários do Nine Box */
-    .nb-modal-overlay {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-      z-index: 1000; align-items: center; justify-content: center; padding: 20px;
-    }
-    .nb-modal-overlay.open { display: flex; }
-    .nb-modal-box {
-      background: var(--surface); border-radius: var(--radius);
-      box-shadow: var(--shadow-lg); padding: 24px; width: 100%;
-      max-width: 600px; max-height: 80vh; overflow-y: auto;
-      animation: dropdownIn 0.2s ease;
-    }
-    .nb-modal-header {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--border);
-    }
-    .nb-modal-title {
-      font-size: 18px; font-weight: 700; color: var(--primary);
-      display: flex; align-items: center; gap: 10px;
-    }
-    .nb-modal-icon { font-size: 28px; }
-    .nb-modal-subtitle {
-      font-size: 13px; color: var(--text-muted); margin-top: 4px;
-    }
-    .nb-modal-close {
-      background: transparent; border: none; font-size: 24px;
-      color: var(--text-muted); cursor: pointer; padding: 0;
-      width: 32px; height: 32px; display: flex; align-items: center;
-      justify-content: center; border-radius: 50%; transition: all 0.2s;
-    }
-    .nb-modal-close:hover {
-      background: #fee2e2; color: var(--danger); transform: none;
-    }
-    .nb-user-item {
-      display: flex; align-items: center; gap: 12px; padding: 12px;
-      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-      margin-bottom: 8px; transition: all 0.2s;
-    }
-    .nb-user-item:hover {
-      border-color: var(--accent); box-shadow: var(--shadow-sm);
-      background: #fafafa;
-    }
-    .nb-user-avatar {
-      width: 40px; height: 40px; border-radius: 50%;
+      width: 38px; height: 38px; border-radius: 50%;
       background: linear-gradient(135deg, var(--primary), var(--primary-light));
       display: flex; align-items: center; justify-content: center;
-      color: white; font-size: 14px; font-weight: 700; flex-shrink: 0;
+      color: white; font-size: 13px; font-weight: 700; flex-shrink: 0; overflow: hidden;
     }
-    .nb-user-info { flex: 1; min-width: 0; }
-    .nb-user-nome { font-size: 14px; font-weight: 600; color: var(--text); }
-    .nb-user-meta {
-      font-size: 11px; color: var(--text-muted); margin-top: 2px;
-      display: flex; gap: 8px; flex-wrap: wrap;
-    }
-    .nb-user-badge {
-      font-size: 10px; padding: 2px 6px; border-radius: 100px;
-      font-weight: 600; background: #eff6ff; color: var(--primary);
-    }
-    .nb-user-comment {
-      font-size: 12px; color: var(--text-muted); font-style: italic;
-      margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border);
+    .nb-user-card-info { flex: 1; min-width: 0; }
+    .nb-user-card-nome { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .nb-user-card-meta {
+      font-size: 11px; color: var(--text-muted);
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
     }
 
-    body.dark-mode .nb-modal-box { background: #1e293b; }
-    body.dark-mode .nb-user-item { background: #1e293b; }
-    body.dark-mode .nb-user-item:hover { background: #334155; }
-    body.dark-mode .nb-modal-close:hover { background: #7f1d1d; }
+    body.dark-mode .nb-cat-item:hover,
+    body.dark-mode .nb-cat-item.active { background: #1e3a5f; }
+    body.dark-mode .nb-cat-count { background: #1e3a5f; color: #93c5fd; }
+    body.dark-mode .nb-user-card-inline { background: #1e293b; border-color: #334155; }
 
     body.dark-mode .rel-stat-card,
     body.dark-mode .rel-user-card,
@@ -644,12 +517,8 @@
     body.dark-mode .rel-stat-icon { background: #1e3a5f; }
     body.dark-mode .rel-user-search select { background: #0f172a; color: #f1f5f9; border-color: #334155; }
     body.dark-mode .rel-nb-card { background: #1e3a5f; }
-    body.dark-mode .rel-tab:hover {
-      background: #1e3a5f;
-    }
-    body.dark-mode .rel-tab.active {
-      background: #1e3a5f;
-    }
+    body.dark-mode .rel-tab:hover { background: #1e3a5f; }
+    body.dark-mode .rel-tab.active { background: #1e3a5f; }
   </style>
 </head>
 <body>
@@ -707,26 +576,13 @@
 
     <!-- Dashboard (gestor/admin) -->
     <div class="rel-section" id="tab-dashboard">
+      <!-- Stats cards -->
       <div class="rel-stats" id="dash-stats">
         <div class="rel-stat-card">
           <div class="rel-stat-icon"><i class="fa-solid fa-users"></i></div>
           <div class="rel-stat-info">
             <div class="rel-stat-val" id="s-usuarios">—</div>
             <div class="rel-stat-label">Usuários</div>
-          </div>
-        </div>
-        <div class="rel-stat-card">
-          <div class="rel-stat-icon"><i class="fa-solid fa-user-tie"></i></div>
-          <div class="rel-stat-info">
-            <div class="rel-stat-val" id="s-gestores">—</div>
-            <div class="rel-stat-label">Gestores</div>
-          </div>
-        </div>
-        <div class="rel-stat-card">
-          <div class="rel-stat-icon"><i class="fa-solid fa-user"></i></div>
-          <div class="rel-stat-info">
-            <div class="rel-stat-val" id="s-colaboradores">—</div>
-            <div class="rel-stat-label">Colaboradores</div>
           </div>
         </div>
         <div class="rel-stat-card">
@@ -747,83 +603,48 @@
           <div class="rel-stat-icon"><i class="fa-solid fa-th"></i></div>
           <div class="rel-stat-info">
             <div class="rel-stat-val" id="s-ninebox">—</div>
-            <div class="rel-stat-label">Nine Box</div>
+            <div class="rel-stat-label">No Nine Box</div>
           </div>
         </div>
       </div>
 
-      <div class="nb-dist-container">
-        <div class="nb-dist-header">
-          <div class="nb-dist-title">
-            <i class="fa-solid fa-th"></i>
-            Distribuição Nine Box
+      <!-- Painel de colaboradores por categoria -->
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+        <!-- Cabeçalho do painel -->
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1.5px solid var(--border);background:linear-gradient(135deg,#eff6ff,#f0f9ff);">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-users" style="color:var(--primary);font-size:16px;"></i>
+            <span style="font-size:15px;font-weight:700;color:var(--primary);" id="nb-panel-title">Colaboradores</span>
+            <span style="font-size:12px;color:var(--text-muted);" id="nb-panel-subtitle"></span>
           </div>
-          <div style="display:flex;align-items:center;gap:12px">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button onclick="window.NineBoxReportModal && window.NineBoxReportModal.openConsolidated('all')" 
+              style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#4C1D95;color:white;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;" 
+              title="Ver relatório consolidado geral">
+              <i class="fa-solid fa-chart-pie"></i> Relatório Geral
+            </button>
             <button class="btn-exportar-nb" onclick="abrirModalExportar()" title="Exportar relatórios">
               <i class="fa-solid fa-file-export"></i> Exportar
             </button>
-            <div class="nb-dist-legend">
-              <div class="nb-dist-legend-item">
-                <i class="fa-solid fa-arrow-up" style="color:#10b981"></i>
-                <span>Alto</span>
-              </div>
-              <div class="nb-dist-legend-item">
-                <i class="fa-solid fa-minus" style="color:#f59e0b"></i>
-                <span>Médio</span>
-              </div>
-              <div class="nb-dist-legend-item">
-                <i class="fa-solid fa-arrow-down" style="color:#ef4444"></i>
-                <span>Baixo</span>
-              </div>
-            </div>
           </div>
         </div>
-        <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
-          <i class="fa-solid fa-hand-pointer"></i> Clique em um quadrante para ver os usuários posicionados nele
-        </p>
-        
-        <div class="nb-dist-wrapper">
-          <!-- Eixo Y (Potencial) -->
-          <div class="nb-dist-axes">
-            <div class="nb-axis-label">POTENCIAL</div>
+
+        <div style="display:flex;min-height:400px;">
+          <!-- Sidebar de categorias -->
+          <div style="width:200px;flex-shrink:0;border-right:1.5px solid var(--border);padding:12px 0;background:#fafafa;">
+            <div style="font-size:11px;font-weight:700;color:var(--text-muted);padding:0 14px 8px;text-transform:uppercase;letter-spacing:0.5px;">Filtrar por</div>
+            <div id="nb-cat-list">
+              <!-- Preenchido pelo JS -->
+            </div>
           </div>
-          
-          <!-- Grid -->
-          <div style="flex:1">
-            <div class="nb-dist-grid" id="nb-dist-grid">
-              <div class="empty-state" style="grid-column:1/-1">
+
+          <!-- Lista de usuários -->
+          <div style="flex:1;padding:16px;overflow-y:auto;max-height:600px;">
+            <div id="nb-users-panel">
+              <div class="empty-state" style="padding:40px 20px;">
                 <i class="fa-solid fa-spinner fa-spin"></i>
                 <p>Carregando...</p>
               </div>
-            </div>
-
-            <!-- Lista de Usuários -->
-            <div class="nb-users-list" id="nb-users-list">
-              <!-- Preenchido pelo JS -->
-            </div>
-            
-            <!-- Eixo X (Performance) -->
-            <div class="nb-axis-bottom" id="nb-axis-bottom">
-              <div class="nb-axis-bottom-label">BAIXO</div>
-              <div class="nb-axis-bottom-label">MÉDIO</div>
-              <div class="nb-axis-bottom-label">ALTO</div>
-            </div>
-            <div style="text-align:center;margin-top:8px;font-size:11px;font-weight:700;color:var(--primary);letter-spacing:1px" id="nb-axis-label">
-              PERFORMANCE
-            </div>
-          </div>
-          
-          <!-- Legenda lateral -->
-          <div class="nb-dist-sidebar">
-            <div class="nb-dist-sidebar-title">
-              <i class="fa-solid fa-list"></i>
-              Categorias
-            </div>
-            <p style="font-size:10px;color:var(--text-muted);margin-bottom:10px;line-height:1.4">
-              <i class="fa-solid fa-hand-pointer"></i> Clique para filtrar
-            </p>
-            <div id="nb-legend-list">
-              <!-- Preenchido pelo JS -->
             </div>
           </div>
         </div>
@@ -948,35 +769,17 @@
   }
 </style>
 
-<!-- Modal de usuários do Nine Box -->
-<div class="nb-modal-overlay" id="nb-modal">
-  <div class="nb-modal-box">
-    <div class="nb-modal-header">
-      <div>
-        <div class="nb-modal-title">
-          <span class="nb-modal-icon" id="nb-modal-icon"><i class="fa-solid fa-table-cells"></i></span>
-          <span id="nb-modal-title">Categoria</span>
-        </div>
-        <div class="nb-modal-subtitle" id="nb-modal-subtitle">Performance: — | Potencial: —</div>
-      </div>
-      <button class="nb-modal-close" onclick="fecharModalNB()">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-    </div>
-    <div id="nb-modal-body">
-      <div class="empty-state">
-        <i class="fa-solid fa-users"></i>
-        <p>Nenhum usuário nesta categoria</p>
-      </div>
-    </div>
-  </div>
-</div>
-
+<!-- Scripts do Modal de Relatório Nine Box injetados antes do </body> -->
 <script type="module">
   import { requireAuth, getUser, isAdmin, requireAdmin } from '../js/auth.js';
   import { usersApi, reportsApi, nineBoxApi, competenciesApi } from '../js/api.js';
   import { showToast } from '../js/components/toast.js';
+  import CONFIG from '../js/config.js';
   import '../js/navbar.js';
+
+  // Expõe para scripts não-modulares (ninebox-report-modal.js)
+  window.__API_BASE_URL = CONFIG.API_BASE_URL;
+  window.showToast = showToast;
 
   requireAdmin();
 
@@ -1010,200 +813,167 @@
   if (tabs.length) setTab(tabs[0].id);
 
   // ---- DASHBOARD ----
+  // Mapa de categorias Nine Box — chave "perf-pot" onde perf/pot são inteiros 1(Baixo) 2(Médio) 3(Alto)
+  // Nomes conforme NINEBOX-FONTE-UNICA-QUADRANTES.md
+  // Eixo X = Desempenho (perf), Eixo Y = Potencial (pot)
+  // Matriz: pot/perf → Q1-Q9
+  //   pot3/perf1=Q7  pot3/perf2=Q8  pot3/perf3=Q9
+  //   pot2/perf1=Q4  pot2/perf2=Q5  pot2/perf3=Q6
+  //   pot1/perf1=Q1  pot1/perf2=Q2  pot1/perf3=Q3
+  const CATEGORIAS_NB = {
+    '1-1': { q: 'Q1', nome: 'Insuficiente',    icon: 'fa-circle-xmark',        cor: '#ef4444' },
+    '2-1': { q: 'Q2', nome: 'Questionável',     icon: 'fa-question-circle',     cor: '#f97316' },
+    '3-1': { q: 'Q3', nome: 'Eficaz',           icon: 'fa-check-circle',        cor: '#f97316' },
+    '1-2': { q: 'Q4', nome: 'Dilema',           icon: 'fa-triangle-exclamation',cor: '#eab308' },
+    '2-2': { q: 'Q5', nome: 'Mantenedor',       icon: 'fa-minus-circle',        cor: '#eab308' },
+    '3-2': { q: 'Q6', nome: 'Especialista',     icon: 'fa-star-half-stroke',    cor: '#84cc16' },
+    '1-3': { q: 'Q7', nome: 'Forte Candidato',  icon: 'fa-bolt',                cor: '#84cc16' },
+    '2-3': { q: 'Q8', nome: 'Alto Desempenho',  icon: 'fa-chart-line',          cor: '#22c55e' },
+    '3-3': { q: 'Q9', nome: 'Estrela ⭐',       icon: 'fa-star',                cor: '#15803d' },
+  };
+
+  // Converte float (escala 1-4) → inteiro de nível 1/2/3 (Baixo/Médio/Alto)
+  // Espelha classifyScore do backend
+  function nivelParaInt(valor) {
+    if (valor === null || valor === undefined) return null;
+    if (valor >= 1 && valor <= 1.5) return 1;
+    if (valor >= 1.6 && valor <= 2.5) return 2;
+    if (valor >= 2.6) return 3;
+    return null;
+  }
+
+  // Retorna a chave "perf-pot" de um item do allNineBoxData
+  // O calculateAll retorna performance/potential como float (ex: 2.4)
+  function getCatKey(nb) {
+    const perf = nivelParaInt(nb.performance);
+    const pot  = nivelParaInt(nb.potential);
+    if (perf === null || pot === null) return null;
+    return `${perf}-${pot}`;
+  }
+
+  let categoriaAtiva = 'todos';
+
   async function carregarDashboard() {
     try {
-      const res = await reportsApi.dashboard();
-      const d = res.data;
-      document.getElementById('s-usuarios').textContent      = d.totalUsuarios ?? '—';
-      document.getElementById('s-gestores').textContent      = d.totalGestores ?? '—';
-      document.getElementById('s-colaboradores').textContent = d.totalColaboradores ?? '—';
-      document.getElementById('s-avaliacoes').textContent    = d.totalAvaliacoes ?? '—';
-      document.getElementById('s-media').textContent         = d.mediaGeral ? d.mediaGeral.toFixed(1) + ' ★' : '—';
-      
-      // Carregar dados do Nine Box
-      const nbRes = await nineBoxApi.list({ limit: 1000 });
-      allNineBoxData = nbRes.data.nineBoxes || [];
+      // calculateAll usa avaliações como fonte e retorna pessoa embedded
+      const [resStats, nbRes] = await Promise.all([
+        reportsApi.dashboard(),
+        nineBoxApi.calculateAll()
+      ]);
+
+      const d = resStats.data;
+      document.getElementById('s-usuarios').textContent   = d.totalUsuarios  ?? '—';
+      document.getElementById('s-avaliacoes').textContent = d.totalAvaliacoes ?? '—';
+      document.getElementById('s-media').textContent      = d.mediaGeral ? d.mediaGeral.toFixed(1) + ' ★' : '—';
+
+      // calculateAll retorna { team: [...], total: N }
+      // Cada item: { id, performance, potential, categoria, pessoa: { id, nome, cargo, ... } }
+      allNineBoxData = nbRes.data?.team || nbRes.data?.nineBoxes || [];
       document.getElementById('s-ninebox').textContent = allNineBoxData.length;
 
-      // Distribuição Nine Box (B=Baixo, M=Médio, A=Alto)
-      // Formato: 'PERFORMANCE-POTENTIAL' (1=Baixo, 2=Médio, 3=Alto)
-      const CATEGORIAS = {
-        '1-1': { nome: 'B1 (Insuficiente)', icon: '<i class="fa-solid fa-circle-xmark"></i>', slug: 'b1', desc: 'Baixo desempenho e potencial' },
-        '2-1': { nome: 'B2 (Eficaz)', icon: '<i class="fa-solid fa-check"></i>', slug: 'b2', desc: 'Desempenho médio, baixo potencial' },
-        '3-1': { nome: 'B3 (Comprometido)', icon: '<i class="fa-solid fa-star"></i>', slug: 'b3', desc: 'Alto desempenho, baixo potencial' },
-        '1-2': { nome: 'M1 (Questionável)', icon: '<i class="fa-solid fa-question-circle"></i>', slug: 'm1', desc: 'Baixo desempenho, potencial médio' },
-        '2-2': { nome: 'M2 (Mantenedor)', icon: '<i class="fa-solid fa-minus-circle"></i>', slug: 'm2', desc: 'Desempenho e potencial médios' },
-        '3-2': { nome: 'M3 (Forte Desempenho)', icon: '<i class="fa-solid fa-arrow-up"></i>', slug: 'm3', desc: 'Alto desempenho, potencial médio' },
-        '1-3': { nome: 'A1 (Enigma)', icon: '<i class="fa-solid fa-puzzle-piece"></i>', slug: 'a1', desc: 'Baixo desempenho, alto potencial' },
-        '2-3': { nome: 'A2 (Em crescimento)', icon: '<i class="fa-solid fa-seedling"></i>', slug: 'a2', desc: 'Desempenho médio, alto potencial' },
-        '3-3': { nome: 'A3 (Destaque)', icon: '<i class="fa-solid fa-crown"></i>', slug: 'a3', desc: 'Alto desempenho e potencial' },
-      };
-      
-      const legendList = document.getElementById('nb-legend-list');
-      const grid = document.getElementById('nb-dist-grid');
-      let legendHtml = '';
-      let gridHtml = '';
-      
-      // Ordem: pot 3→1 (top to bottom), perf 1→3 (left to right)
-      for (let pot = 3; pot >= 1; pot--) {
-        for (let perf = 1; perf <= 3; perf++) {
-          const key = `${perf}-${pot}`;
-          const cat = CATEGORIAS[key];
-          const count = allNineBoxData.filter(nb => nb.performance === perf && nb.potential === pot).length;
-          const isEmpty = count === 0;
-          
-          // Adicionar ao grid
-          gridHtml += `
-            <div class="nb-dist-cell ${isEmpty ? 'empty' : ''}" 
-                 data-category="${cat?.slug || ''}"
-                 data-perf="${perf}"
-                 data-pot="${pot}"
-                 onclick="mostrarUsuariosCategoria(${perf}, ${pot})"
-                 title="${cat?.desc || ''}">
-              <div class="nb-dist-icon">${cat?.icon || ''}</div>
-              <div class="nb-dist-count">${count}</div>
-              <div class="nb-dist-label">${cat?.nome || ''}</div>
-            </div>`;
-          
-          // Adicionar à legenda (todos clicáveis)
-          legendHtml += `
-            <div class="nb-legend-item" data-perf="${perf}" data-pot="${pot}" onclick="mostrarUsuariosCategoria(${perf}, ${pot})">
-              <div class="nb-legend-icon">${cat?.icon || ''}</div>
-              <div class="nb-legend-text">${cat?.nome || ''}</div>
-              <div class="nb-legend-count">${count}</div>
-            </div>`;
-        }
-      }
-      grid.innerHTML = gridHtml;
-      legendList.innerHTML = legendHtml;
-      
-      // Pré-selecionar a primeira categoria que tem usuários
-      let primeiraCategoriaComUsuarios = null;
-      for (let pot = 3; pot >= 1; pot--) {
-        for (let perf = 1; perf <= 3; perf++) {
-          const count = allNineBoxData.filter(nb => nb.performance === perf && nb.potential === pot).length;
-          if (count > 0 && !primeiraCategoriaComUsuarios) {
-            primeiraCategoriaComUsuarios = { perf, pot };
-            break;
-          }
-        }
-        if (primeiraCategoriaComUsuarios) break;
-      }
-      
-      // Se encontrou categoria com usuários, mostrar automaticamente
-      if (primeiraCategoriaComUsuarios) {
-        mostrarUsuariosCategoria(primeiraCategoriaComUsuarios.perf, primeiraCategoriaComUsuarios.pot);
-      }
+      renderCategorias();
+      mostrarColaboradores('todos');
+
     } catch (err) {
       console.error('Erro ao carregar dashboard:', err);
-      document.getElementById('dash-stats').innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fa-solid fa-triangle-exclamation"></i><p>Erro ao carregar dashboard.</p></div>`;
+      document.getElementById('dash-stats').innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <p>Erro ao carregar dashboard.</p>
+        </div>`;
     }
   }
 
-  // ---- MOSTRAR USUÁRIOS DA CATEGORIA (inline) ----
-  window.mostrarUsuariosCategoria = function(performance, potential) {
-    const CATEGORIAS = {
-      '1-1': { nome: 'B1 (Insuficiente)', icon: '<i class="fa-solid fa-circle-xmark"></i>', color: '#ef4444' },
-      '2-1': { nome: 'B2 (Eficaz)', icon: '<i class="fa-solid fa-check"></i>', color: '#22c55e' },
-      '3-1': { nome: 'B3 (Comprometido)', icon: '<i class="fa-solid fa-star"></i>', color: '#10b981' },
-      '1-2': { nome: 'M1 (Questionável)', icon: '<i class="fa-solid fa-question-circle"></i>', color: '#f59e0b' },
-      '2-2': { nome: 'M2 (Mantenedor)', icon: '<i class="fa-solid fa-minus-circle"></i>', color: '#3b82f6' },
-      '3-2': { nome: 'M3 (Forte Desempenho)', icon: '<i class="fa-solid fa-arrow-up"></i>', color: '#8b5cf6' },
-      '1-3': { nome: 'A1 (Enigma)', icon: '<i class="fa-solid fa-puzzle-piece"></i>', color: '#f97316' },
-      '2-3': { nome: 'A2 (Em crescimento)', icon: '<i class="fa-solid fa-seedling"></i>', color: '#06b6d4' },
-      '3-3': { nome: 'A3 (Destaque)', icon: '<i class="fa-solid fa-crown"></i>', color: '#eab308' },
-    };
-    
-    const key = `${performance}-${potential}`;
-    const cat = CATEGORIAS[key];
-    
-    // Filtrar usuários nesta categoria
-    const usuariosNaCategoria = allNineBoxData.filter(
-      nb => nb.performance === performance && nb.potential === potential
-    );
-    
-    // Ocultar grid e eixos
-    const gridEl = document.getElementById('nb-dist-grid');
-    const axisBottomEl = document.getElementById('nb-axis-bottom');
-    const axisLabelEl = document.getElementById('nb-axis-label');
-    const axesEl = document.querySelector('.nb-dist-axes');
-    
-    if (gridEl) gridEl.style.display = 'none';
-    if (axisBottomEl) axisBottomEl.style.display = 'none';
-    if (axisLabelEl) axisLabelEl.style.display = 'none';
-    if (axesEl) axesEl.style.display = 'none';
-    
-    // Marcar item da legenda como ativo
-    document.querySelectorAll('.nb-legend-item').forEach(item => {
-      item.classList.remove('active');
-      if (item.dataset.perf == performance && item.dataset.pot == potential) {
-        item.classList.add('active');
-      }
-    });
-    
-    // Mostrar lista de usuários
-    const usersList = document.getElementById('nb-users-list');
-    usersList.classList.add('active');
-    
-    if (usuariosNaCategoria.length === 0) {
-      usersList.innerHTML = `
-        <div class="empty-state">
-          <i class="fa-solid fa-users"></i>
-          <p>Nenhum usuário posicionado em <strong>${cat?.nome || 'esta categoria'}</strong></p>
-          <p style="font-size:12px;color:var(--text-muted);margin-top:8px">
-            Performance: ${performance} | Potencial: ${potential}
-          </p>
+  function renderCategorias() {
+    const catList = document.getElementById('nb-cat-list');
+    const total = allNineBoxData.length;
+
+    // Item "Todos"
+    let html = `
+      <div class="nb-cat-item ${categoriaAtiva === 'todos' ? 'active' : ''}" 
+           onclick="mostrarColaboradores('todos')" data-key="todos">
+        <i class="fa-solid fa-users nb-cat-icon" style="color:var(--primary);"></i>
+        <span class="nb-cat-label">Todos</span>
+        <span class="nb-cat-count">${total}</span>
+      </div>`;
+
+    // Items por categoria — usa getCatKey para converter floats
+    for (const [key, cat] of Object.entries(CATEGORIAS_NB)) {
+      const count = allNineBoxData.filter(nb => getCatKey(nb) === key).length;
+      const isActive = categoriaAtiva === key;
+      html += `
+        <div class="nb-cat-item ${isActive ? 'active' : ''} ${count === 0 ? 'empty' : ''}" 
+             onclick="mostrarColaboradores('${key}')" data-key="${key}">
+          <i class="fa-solid ${cat.icon} nb-cat-icon" style="color:${cat.cor};"></i>
+          <span class="nb-cat-label">${cat.q} · ${cat.nome}</span>
+          <span class="nb-cat-count">${count}</span>
         </div>`;
+    }
+
+    catList.innerHTML = html;
+  }
+
+  window.mostrarColaboradores = function(key) {
+    categoriaAtiva = key;
+
+    // Atualizar seleção visual na sidebar
+    document.querySelectorAll('.nb-cat-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.key === key);
+    });
+
+    const panel = document.getElementById('nb-users-panel');
+    const titleEl = document.getElementById('nb-panel-title');
+    const subtitleEl = document.getElementById('nb-panel-subtitle');
+
+    let lista;
+    if (key === 'todos') {
+      // Filtra apenas quem tem performance/potential válidos
+      lista = allNineBoxData.filter(nb => getCatKey(nb) !== null);
+      titleEl.textContent = 'Todos os colaboradores';
+      subtitleEl.textContent = `(${lista.length})`;
     } else {
-      usersList.innerHTML = `
-        <div style="margin-bottom:12px;padding:12px;background:#eff6ff;border-radius:8px;border:1.5px solid var(--border)">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-            <span style="font-size:24px;color:${cat?.color || '#059669'}">${cat?.icon || '<i class="fa-solid fa-table-cells"></i>'}</span>
-            <div>
-              <div style="font-size:16px;font-weight:700;color:var(--primary)">${cat?.nome || 'Categoria'}</div>
-              <div style="font-size:12px;color:var(--text-muted)">
-                Performance: ${performance} | Potencial: ${potential} | ${usuariosNaCategoria.length} usuário${usuariosNaCategoria.length !== 1 ? 's' : ''}
-              </div>
+      lista = allNineBoxData.filter(nb => getCatKey(nb) === key);
+      const cat = CATEGORIAS_NB[key];
+      titleEl.textContent = `${cat?.q} · ${cat?.nome || key}`;
+      subtitleEl.textContent = `(${lista.length} colaborador${lista.length !== 1 ? 'es' : ''})`;
+    }
+
+    if (lista.length === 0) {
+      panel.innerHTML = `
+        <div class="empty-state" style="padding:40px 20px;">
+          <i class="fa-solid fa-users"></i>
+          <p>Nenhum colaborador nesta categoria</p>
+        </div>`;
+      return;
+    }
+
+    panel.innerHTML = lista.map(nb => {
+      const pessoa = nb.pessoa || {};
+      const iniciais = pessoa.nome
+        ? pessoa.nome.split(' ').slice(0,2).map(p => p[0]).join('').toUpperCase()
+        : '?';
+      const avatarHTML = pessoa.foto
+        ? `<img src="${pessoa.foto}" alt="${pessoa.nome}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+        : iniciais;
+      const catKey = getCatKey(nb);
+      const cat = CATEGORIAS_NB[catKey];
+      // pessoaId: calculateAll usa user.id como nb.id e nb.pessoa.id
+      const pessoaId = pessoa.id || nb.id || '';
+
+      return `
+        <div class="nb-user-card-inline" data-pessoa-id="${pessoaId}" data-ninebox-id="${nb.id || ''}">
+          <div class="nb-user-card-avatar">${avatarHTML}</div>
+          <div class="nb-user-card-info">
+            <div class="nb-user-card-nome">${pessoa.nome || 'Usuário'}</div>
+            <div class="nb-user-card-meta">
+              ${pessoa.cargo ? `<span>${pessoa.cargo}</span>` : ''}
+              ${pessoa.departamento ? `<span>${pessoa.departamento}</span>` : ''}
+              ${cat ? `<span style="color:${cat.cor};font-weight:700;">${cat.q} ${cat.nome}</span>` : ''}
             </div>
           </div>
-        </div>
-        ${usuariosNaCategoria.map(nb => {
-          const pessoa = nb.pessoa || {};
-          const iniciais = pessoa.nome ? pessoa.nome.split(' ').slice(0,2).map(p => p[0]).join('').toUpperCase() : '?';
-          const avatarHTML = pessoa.foto 
-            ? `<img src="${pessoa.foto}" alt="${pessoa.nome}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` 
-            : iniciais;
-          
-          return `
-            <div class="nb-user-card-inline">
-              <div class="nb-user-card-avatar">${avatarHTML}</div>
-              <div class="nb-user-card-info">
-                <div class="nb-user-card-nome">${pessoa.nome || 'Usuário'}</div>
-                <div class="nb-user-card-meta">
-                  ${pessoa.tipo ? `<span class="nb-user-card-badge">${pessoa.tipo}</span>` : ''}
-                  ${pessoa.cargo ? `<span>${pessoa.cargo}</span>` : ''}
-                  <span><i class="fa-solid fa-calendar"></i> ${new Date(nb.data).toLocaleDateString('pt-BR')}</span>
-                </div>
-                ${nb.comentario ? `<div class="nb-user-card-comment">"${nb.comentario}"</div>` : ''}
-              </div>
-            </div>`;
-        }).join('')}`;
-    }
+        </div>`;
+    }).join('');
   };
-
-  window.fecharModalNB = function() {
-    document.getElementById('nb-modal').classList.remove('open');
-  };
-
-  // Fechar modal clicando fora
-  document.getElementById('nb-modal').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) fecharModalNB();
-  });
-
-  // Fechar modal com ESC
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') fecharModalNB();
-  });
 
   // Variável global para Choices.js
   let choicesUsuario = null;
@@ -1665,28 +1435,32 @@
       return;
     }
 
-    const CATEGORIAS = {
-      '1-1': 'Insuficiente', '2-1': 'Eficaz',      '3-1': 'Comprometido',
-      '1-2': 'Questionável', '2-2': 'Mantenedor',  '3-2': 'Forte Desempenho',
-      '1-3': 'Enigma',       '2-3': 'Em crescimento', '3-3': 'Destaque'
-    };
     const NIVEL = { 1: 'Baixo', 2: 'Médio', 3: 'Alto' };
+    // Nomes conforme NINEBOX-FONTE-UNICA-QUADRANTES.md
+    const CAT_NOMES = {
+      '1-1': 'Q1 Insuficiente', '2-1': 'Q2 Questionável', '3-1': 'Q3 Eficaz',
+      '1-2': 'Q4 Dilema',       '2-2': 'Q5 Mantenedor',   '3-2': 'Q6 Especialista',
+      '1-3': 'Q7 Forte Candidato','2-3':'Q8 Alto Desempenho','3-3':'Q9 Estrela'
+    };
 
     const headers = [
       'Nome', 'RA', 'Tipo', 'Cargo', 'Departamento',
-      'Performance (Nível)', 'Performance', 'Potencial (Nível)', 'Potencial',
-      'Categoria Nine Box', 'Comentário', 'Data'
+      'Desempenho (float)', 'Desempenho (nível)', 'Potencial (float)', 'Potencial (nível)',
+      'Quadrante Nine Box'
     ];
 
     const rows = allNineBoxData.map(nb => {
       const p = nb.pessoa || {};
+      const perfInt = nivelParaInt(nb.performance);
+      const potInt  = nivelParaInt(nb.potential);
+      const catKey  = (perfInt && potInt) ? `${perfInt}-${potInt}` : null;
       return [
         p.nome || '', p.ra || '', p.tipo || '', p.cargo || '', p.departamento || '',
-        nb.performance || '', NIVEL[nb.performance] || '',
-        nb.potential   || '', NIVEL[nb.potential]   || '',
-        CATEGORIAS[`${nb.performance}-${nb.potential}`] || '',
-        nb.comentario || '',
-        nb.data ? new Date(nb.data).toLocaleDateString('pt-BR') : ''
+        nb.performance != null ? Number(nb.performance).toFixed(2) : '',
+        NIVEL[perfInt] || '',
+        nb.potential != null ? Number(nb.potential).toFixed(2) : '',
+        NIVEL[potInt] || '',
+        catKey ? CAT_NOMES[catKey] || catKey : 'Sem dados'
       ];
     });
 
@@ -1695,6 +1469,9 @@
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+<!-- Scripts do Modal de Relatório Nine Box -->
+<script src="../js/components/ninebox-report-modal.js"></script>
+<script src="../js/components/ninebox-report-integration.js"></script>
 </body>
 </html>
-

@@ -10,6 +10,12 @@ const nineBoxController = new NineBoxController();
 // Todas as rotas precisam de autenticação
 router.use(authMiddleware);
 
+// Rotas de relatório do modal (NOVO)
+// Individual: usa evaluationId e pessoaId (evaluationId pode ser 'all' ou ID do ninebox)
+router.get('/report/individual/:evaluationId/:pessoaId', isGestorOrAdminMiddleware, (req, res, next) => nineBoxController.getReportIndividual(req, res, next));
+// Consolidado: usa evaluationId (pode ser 'all', ID do ninebox, ou ID de avaliação)
+router.get('/report/consolidated/:evaluationId', isGestorOrAdminMiddleware, (req, res, next) => nineBoxController.getReportConsolidated(req, res, next));
+
 // Rotas públicas (autenticadas)
 // IMPORTANTE: Rotas específicas ANTES de rotas genéricas para evitar conflitos
 router.get('/stats/distribution', isAdminMiddleware, (req, res, next) => nineBoxController.getGridDistribution(req, res, next));

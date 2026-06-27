@@ -25,24 +25,46 @@ class NineBoxService {
 
   // Calcula a categoria baseada em performance (X) e potential (Y)
   // Escala 1-4 com faixas: BAIXO (1-1.5), MÉDIO (1.6-2.5), ALTO (2.6-4)
+  // ATENÇÃO: Usar NINEBOX-FONTE-UNICA-QUADRANTES.md como referência oficial
   calculateCategoria(performance, potential) {
     const xClass = this.classifyScore(performance);
     const yClass = this.classifyScore(potential);
 
-    // Matriz (Y = Potencial | X = Desempenho)
+    // Matriz (Y = Potencial | X = Desempenho) - Fonte Única
     const matriz = {
-      'ALTO-BAIXO': 'A1 (Enigma)',
-      'ALTO-MÉDIO': 'A2 (Em crescimento)',
-      'ALTO-ALTO': 'A3 (Destaque)',
-      'MÉDIO-BAIXO': 'M1 (Questionável)',
-      'MÉDIO-MÉDIO': 'M2 (Mantenedor)',
-      'MÉDIO-ALTO': 'M3 (Forte Desempenho)',
-      'BAIXO-BAIXO': 'B1 (Insuficiente)',
-      'BAIXO-MÉDIO': 'B2 (Eficaz)',
-      'BAIXO-ALTO': 'B3 (Comprometido)'
+      'BAIXO-BAIXO': 'Q1 (Insuficiente)',
+      'BAIXO-MÉDIO': 'Q2 (Questionável)',
+      'BAIXO-ALTO': 'Q3 (Eficaz)',
+      'MÉDIO-BAIXO': 'Q4 (Dilema)',
+      'MÉDIO-MÉDIO': 'Q5 (Mantenedor)',
+      'MÉDIO-ALTO': 'Q6 (Especialista)',
+      'ALTO-BAIXO': 'Q7 (Forte Candidato)',
+      'ALTO-MÉDIO': 'Q8 (Alto Desempenho)',
+      'ALTO-ALTO': 'Q9 (Estrela)'
     };
 
     return matriz[`${yClass}-${xClass}`] || 'Indefinido';
+  }
+
+  // Retorna apenas o código do quadrante (Q1-Q9)
+  getCodigoQuadrante(performance, potential) {
+    const xClass = this.classifyScore(performance);
+    const yClass = this.classifyScore(potential);
+    const chave = `${yClass}-${xClass}`;
+    
+    const mapeamento = {
+      'BAIXO-BAIXO': 'Q1',
+      'BAIXO-MÉDIO': 'Q2',
+      'BAIXO-ALTO': 'Q3',
+      'MÉDIO-BAIXO': 'Q4',
+      'MÉDIO-MÉDIO': 'Q5',
+      'MÉDIO-ALTO': 'Q6',
+      'ALTO-BAIXO': 'Q7',
+      'ALTO-MÉDIO': 'Q8',
+      'ALTO-ALTO': 'Q9'
+    };
+
+    return mapeamento[chave] || null;
   }
 
   // Calcula Performance (X) a partir das competências do tipo 'desempenho' e 'tecnica'
@@ -253,6 +275,193 @@ class NineBoxService {
       total: todasPessoas.length
     };
   }
+
+  // ========== NOVOS MÉTODOS PARA RELATÓRIO MODAL ==========
+
+  // Gera relatório individual para o modal
+  async getReportIndividual(evaluationId, pessoaId, userId, userTipo) {
+    // Verifica se a pessoa existe
+    const pessoa = await this.userRepository.findById(pessoaId);
+    if (!pessoa) {
+      throw new AppError('Pessoa não encontrada. Verifique se o ID está correto.', 404);
+    }
+
+    // Colaborador só pode ver seu próprio relatório
+    if (userTipo === 'colaborador' && pessoaId !== userId) {
+      throw new AppError('Sem permissão para ver este relatório', 403);
+    }
+
+    // Calcula performance e potential a partir das avaliações
+    const [performance, potential] = await Promise.all([
+      this.calculatePerformanceFromEvaluations(pessoaId),
+      this.calculatePotentialFromEvaluations(pessoaId)
+    ]);
+
+    if (performance === null || potential === null) {
+      throw new AppError('Não há avaliações suficientes para gerar o relatório deste colaborador. Verifique se o colaborador possui avaliações respondidas.', 400);
+    }
+
+    // Busca competências avaliadas
+    const competencias = [];
+    const allEvaluations = await this.evaluationRepository.findByAvaliado(pessoaId, { page: 1, limit: 100 });
+    
+    // Determina o código da avaliação para exibição
+    let evaluation = null;
+    let avaliacaoCodigo = 'N/A';
+    let empresa = pessoa.departamento || 'Empresa';
+    
+    // Se evaluationId for fornecido e não for 'all', tenta buscar a avaliação
+    if (evaluationId && evaluationId !== 'all' && evaluationId !== 'null') {
+      evaluation = await this.evaluationRepository.findById(evaluationId).catch(() => null);
+      if (evaluation) {
+        avaliacaoCodigo = evaluation.id.substring(0, 8).toUpperCase();
+        empresa = evaluation.campaignId || empresa;
+      } else {
+        // Se não encontrou a avaliação, usa o ID fornecido como código
+        avaliacaoCodigo = evaluationId.substring(0, 8).toUpperCase();
+      }
+    }
+    
+    // Buscar competências da avaliação mais recente se não encontrou a específica
+    if (allEvaluations.evaluations.length > 0) {
+      const avaliacao = evaluation 
+        ? allEvaluations.evaluations.find(e => e.id === evaluationId) 
+        : allEvaluations.evaluations[0];
+      
+      if (avaliacao && avaliacao.criterios) {
+        for (const [nome, nota] of Object.entries(avaliacao.criterios)) {
+          competencias.push({
+            nome: nome,
+            nota: nota
+          });
+        }
+      }
+      
+      // Se não tem código ainda, usa o da avaliação encontrada
+      if (!evaluation && allEvaluations.evaluations[0]) {
+        avaliacaoCodigo = allEvaluations.evaluations[0].id.substring(0, 8).toUpperCase();
+      }
+    }
+
+    const codigoQuadrante = this.getCodigoQuadrante(performance, potential);
+
+    return {
+      colaborador: {
+        nome: pessoa.nome,
+        empresa: pessoa.departamento || empresa,
+        setor: pessoa.departamento || 'Não informado',
+        cargo: pessoa.cargo || 'Não informado',
+        statusAvaliacao: allEvaluations.evaluations.length > 0 ? 'Respondida' : 'Pendente'
+      },
+      notaDesempenho: parseFloat(performance.toFixed(2)),
+      notaPotencial: parseFloat(potential.toFixed(2)),
+      nivelDesempenho: this.classifyScore(performance),
+      nivelPotencial: this.classifyScore(potential),
+      codigoQuadrante: codigoQuadrante,
+      competencias: competencias,
+      avaliacao: {
+        codigo: avaliacaoCodigo,
+        empresa: empresa
+      }
+    };
+  }
+
+  // Gera relatório consolidado para o modal
+  async getReportConsolidated(evaluationId, userId, userTipo) {
+    // Sempre trata como consolidado geral — qualquer evaluationId que não seja
+    // um ID de avaliação real é ignorado (ex: UUID de usuário, 'all', 'null', etc.)
+    const isGeral = !evaluationId || evaluationId === 'all' || evaluationId === 'null';
+    
+    let evaluation = null;
+    if (!isGeral) {
+      // Tenta buscar a avaliação silenciosamente — se não existir, faz consolidado geral
+      evaluation = await this.evaluationRepository.findById(evaluationId).catch(() => null);
+      // Se não encontrou (pode ser UUID de usuário ou outro valor), trata como geral
+    }
+
+    // Busca todos os usuários
+    const users = await this.userRepository.findAll({ page: 1, limit: 1000 });
+    const allUsers = users.users || [];
+
+    if (allUsers.length === 0) {
+      throw new AppError('Nenhum usuário encontrado no sistema', 404);
+    }
+
+    // Calcula performance e potential para cada usuário
+    let totalPerformance = 0;
+    let totalPotential = 0;
+    let count = 0;
+    let competenciasAcumuladas = {};
+
+    for (const user of allUsers) {
+      const [performance, potential] = await Promise.all([
+        this.calculatePerformanceFromEvaluations(user.id),
+        this.calculatePotentialFromEvaluations(user.id)
+      ]);
+
+      if (performance !== null && potential !== null) {
+        totalPerformance += performance;
+        totalPotential += potential;
+        count++;
+
+        // Acumula notas das competências
+        const userEvals = await this.evaluationRepository.findByAvaliado(user.id, { page: 1, limit: 1 });
+        if (userEvals.evaluations.length > 0) {
+          const criterios = userEvals.evaluations[0].criterios;
+          if (criterios) {
+            for (const [nome, nota] of Object.entries(criterios)) {
+              if (!competenciasAcumuladas[nome]) {
+                competenciasAcumuladas[nome] = { soma: 0, count: 0 };
+              }
+              competenciasAcumuladas[nome].soma += nota;
+              competenciasAcumuladas[nome].count++;
+            }
+          }
+        }
+      }
+    }
+
+    if (count === 0) {
+      throw new AppError('Não há avaliações suficientes para gerar relatório consolidado. Verifique se há avaliações respondidas.', 400);
+    }
+
+    // Calcula médias
+    const notaDesempenhoMedia = totalPerformance / count;
+    const notaPotencialMedia = totalPotential / count;
+
+    // Calcula competências médias
+    const competencias = [];
+    for (const [nome, dados] of Object.entries(competenciasAcumuladas)) {
+      competencias.push({
+        nome: nome,
+        notaMedia: parseFloat((dados.soma / dados.count).toFixed(2))
+      });
+    }
+
+    // Determina quadrante predominante (simplificado: usa a média)
+    const codigoQuadranteGeral = this.getCodigoQuadrante(notaDesempenhoMedia, notaPotencialMedia);
+
+    // Busca gestor responsável (simplificado)
+    const gestor = await this.userRepository.findById(userId);
+
+    // Retorna dados da avaliação se disponível, ou dados gerais
+    return {
+      avaliacao: {
+        codigo: evaluation?.id ? evaluation.id.substring(0, 8).toUpperCase() : 'GERAL',
+        empresa: evaluation?.campaignId || 'Consolidado Geral',
+        gestor: gestor?.nome || 'Não informado',
+        totalColaboradores: allUsers.length,
+        totalRespondidos: count,
+        isGeral: isGeral
+      },
+      notaDesempenhoMedia: parseFloat(notaDesempenhoMedia.toFixed(2)),
+      notaPotencialMedia: parseFloat(notaPotencialMedia.toFixed(2)),
+      codigoQuadranteGeral: codigoQuadranteGeral,
+      competencias: competencias
+    };
+  }
+
+  // ========== FIM NOVOS MÉTODOS ==========
 
   async create(data, userTipo) {
     // Apenas gestor e admin podem criar avaliações Nine Box
