@@ -625,7 +625,10 @@ function getAuthHeaders() {
 // Inicializar automaticamente quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', initNineBoxReportModal);
 
-// Exportar funções para uso global
+// Exportar funções para uso global — inclui as usadas em onclick= inline do HTML do modal
+window.closeNineBoxReportModal = closeNineBoxReportModal;
+window.exportNineBoxReportPDF  = exportNineBoxReportPDF;
+
 window.NineBoxReportModal = {
   init: initNineBoxReportModal,
   openIndividual: openNineBoxReportIndividual,

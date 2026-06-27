@@ -20,6 +20,11 @@ class CampaignService {
     }
 
     this._validateCompetencyIds(data.competencyIds);
+
+    // Normaliza datas para ISO-8601 completo (Prisma exige DateTime, não só Date)
+    data.dataInicio = data.dataInicio ? new Date(data.dataInicio).toISOString() : data.dataInicio;
+    data.dataFim    = data.dataFim    ? new Date(data.dataFim).toISOString()    : data.dataFim;
+
     this._validateDatas(data.dataInicio, data.dataFim);
 
     console.log('[CampaignService.create] payload:', {
@@ -81,7 +86,7 @@ class CampaignService {
       }
 
       return createdCampaign;
-    });
+    }, { maxWait: 15000, timeout: 30000 });
 
     return campaign;
   }
@@ -187,6 +192,9 @@ class CampaignService {
     }
 
     if (data.dataInicio || data.dataFim) {
+      // Normaliza datas para ISO-8601 completo
+      if (data.dataInicio) data.dataInicio = new Date(data.dataInicio).toISOString();
+      if (data.dataFim)    data.dataFim    = new Date(data.dataFim).toISOString();
       const inicio = data.dataInicio || campaign.dataInicio;
       const fim = data.dataFim || campaign.dataFim;
       this._validateDatas(inicio, fim);
@@ -438,7 +446,7 @@ class CampaignService {
       }
 
       return created;
-    });
+    }, { maxWait: 15000, timeout: 30000 });
 
     return novaCampanha;
   }

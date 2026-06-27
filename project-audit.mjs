@@ -129,7 +129,7 @@ if (htmlFiles.length === 0) {
 
 // ─── 3. Páginas órfãs ───────────────────────────────────────────────────────
 section('3. Páginas HTML possivelmente órfãs');
-const ENTRY_POINTS = ['login.html', 'index.html'];
+const ENTRY_POINTS = ['login.html', 'index.html', 'avaliacoes-pendentes.html']; // avaliacoes-pendentes: referenciada via JS em navbar.js
 let orphanCount = 0;
 for (const file of htmlFiles) {
   const name = path.basename(file);
