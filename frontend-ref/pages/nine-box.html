@@ -247,6 +247,18 @@
   };
   const PERF_LABELS = { 1:'Baixo', 2:'Médio', 3:'Alto' };
 
+  // Função para converter nota para classe (1=Baixo, 2=Médio, 3=Alto)
+  function getPerformanceClass(score) {
+    if (score >= 1 && score <= 1.5) return 1;  // Baixo
+    if (score >= 1.6 && score <= 2.5) return 2; // Médio
+    if (score >= 2.6 && score <= 4) return 3;   // Alto
+    return null;
+  }
+
+  function getPotentialClass(score) {
+    return getPerformanceClass(score); // Mesma lógica
+  }
+
   async function carregarGrid() {
     try {
       let res;
@@ -303,11 +315,11 @@
 
     filteredNineBoxes.forEach(nb => {
       console.log('Processando nb:', nb);
-      // Convert performance and potential to 1-3 scale for grid display
-      const perf = nb.performance !== null ? Math.round(nb.performance) : null;
-      const pot = nb.potential !== null ? Math.round(nb.potential) : null;
+      // Usar classificação por faixa em vez de Math.round
+      const perf = nb.performance !== null ? getPerformanceClass(nb.performance) : null;
+      const pot = nb.potential !== null ? getPotentialClass(nb.potential) : null;
       
-      console.log('perf:', perf, 'pot:', pot);
+      console.log('perf:', nb.performance, '->', perf, 'pot:', nb.potential, '->', pot);
       
       if (perf && pot) {
         const key = `${perf}-${pot}`;
@@ -379,9 +391,9 @@
   };
 
   function abrirListaPessoas(nineBoxes) {
-    // Convert performance and potential to 1-3 scale for category lookup
-    const perf = nineBoxes[0].performance !== null ? Math.round(nineBoxes[0].performance) : null;
-    const pot = nineBoxes[0].potential !== null ? Math.round(nineBoxes[0].potential) : null;
+    // Usar classificação por faixa
+    const perf = nineBoxes[0].performance !== null ? getPerformanceClass(nineBoxes[0].performance) : null;
+    const pot = nineBoxes[0].potential !== null ? getPotentialClass(nineBoxes[0].potential) : null;
     
     if (!perf || !pot) {
       showToast('Dados insuficientes para exibir categoria', 'error');
@@ -425,9 +437,9 @@
   };
 
   function abrirModal(nb) {
-    // Convert performance and potential to 1-3 scale for category lookup
-    const perf = nb.performance !== null ? Math.round(nb.performance) : null;
-    const pot = nb.potential !== null ? Math.round(nb.potential) : null;
+    // Usar classificação por faixa
+    const perf = nb.performance !== null ? getPerformanceClass(nb.performance) : null;
+    const pot = nb.potential !== null ? getPotentialClass(nb.potential) : null;
     
     if (!perf || !pot) {
       showToast('Dados insuficientes para exibir categoria', 'error');
