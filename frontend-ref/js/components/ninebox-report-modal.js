@@ -356,8 +356,8 @@ function renderReportIndividual(data) {
   renderChart(data.competencias, 'Média por competência');
   
   // Chips
-  document.getElementById('nb-chip-performance-text').textContent = `Desempenho Médio: ${formatarNota(data.notaDesempenho)}`;
-  document.getElementById('nb-chip-potential-text').textContent = `Potencial Médio: ${formatarNota(data.notaPotencial)}`;
+  document.getElementById('nb-chip-performance-text').textContent = `Desempenho Médio: ${formatarNota(data.notaDesempenho)}/4`;
+  document.getElementById('nb-chip-potential-text').textContent = `Potencial Médio: ${formatarNota(data.notaPotencial)}/4`;
   
   // Perfil e Plano
   const quadrante = QUADRANTES[data.codigoQuadrante] || QUADRANTES['Q5'];
@@ -404,8 +404,8 @@ function renderReportConsolidated(data) {
   renderChart(data.competencias, 'Média por competência geral');
   
   // Chips (com "total")
-  document.getElementById('nb-chip-performance-text').textContent = `Desempenho Médio total: ${formatarNota(data.notaDesempenhoMedia)}`;
-  document.getElementById('nb-chip-potential-text').textContent = `Potencial Médio total: ${formatarNota(data.notaPotencialMedia)}`;
+  document.getElementById('nb-chip-performance-text').textContent = `Desempenho Médio total: ${formatarNota(data.notaDesempenhoMedia)}/4`;
+  document.getElementById('nb-chip-potential-text').textContent = `Potencial Médio total: ${formatarNota(data.notaPotencialMedia)}/4`;
   
   // Perfil e Plano
   const quadrante = QUADRANTES[data.codigoQuadranteGeral] || QUADRANTES['Q5'];
@@ -492,7 +492,7 @@ function renderChart(competencias, titulo) {
     barraContainer.innerHTML = `
       <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
         <span style="font-size:12px;color:var(--text);font-weight:500;">${comp.nome}</span>
-        <span style="font-size:12px;font-weight:600;color:var(--primary);">${formatarNota(nota)}</span>
+        <span style="font-size:12px;font-weight:600;color:var(--primary);">${formatarNota(nota)}<span style="font-size:10px;font-weight:400;color:var(--text-muted)">/4</span></span>
       </div>
       <div style="background:#e5e7eb;border-radius:100px;height:8px;overflow:hidden;">
         <div style="background:linear-gradient(90deg,var(--primary),var(--primary-light));height:100%;width:${percentualDisplay}%;border-radius:100px;transition:width 0.5s ease;"></div>
