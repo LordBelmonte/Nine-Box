@@ -429,7 +429,7 @@ export const MOCK_NINEBOXES = [
     pessoa: { id: "sys-colab-001", nome: "Ana Costa", tipo: "colaborador", cargo: "Desenvolvedora Full Stack" },
     performance: 3,
     potential: 3,
-    categoria: "Superstar",
+    categoria: "A3 (Destaque)",
     comentario: "Excelente performance e alto potencial de crescimento",
     data: "2026-05-15T10:00:00.000Z"
   },
@@ -439,7 +439,7 @@ export const MOCK_NINEBOXES = [
     pessoa: { id: "sys-colab-008", nome: "Isabela Cardoso", tipo: "colaborador", cargo: "Executiva de Vendas" },
     performance: 3,
     potential: 3,
-    categoria: "Superstar",
+    categoria: "A3 (Destaque)",
     comentario: "Sempre supera metas e tem grande potencial de liderança",
     data: "2026-05-16T10:00:00.000Z"
   },
@@ -449,7 +449,7 @@ export const MOCK_NINEBOXES = [
     pessoa: { id: "sys-colab-004", nome: "Camila Rodrigues", tipo: "colaborador", cargo: "Desenvolvedora Frontend" },
     performance: 2,
     potential: 3,
-    categoria: "Estrela",
+    categoria: "A2 (Em crescimento)",
     comentario: "Bom desempenho com excelente potencial",
     data: "2026-05-17T10:00:00.000Z"
   },
@@ -459,7 +459,7 @@ export const MOCK_NINEBOXES = [
     pessoa: { id: "sys-colab-003", nome: "Bruno Martins", tipo: "colaborador", cargo: "Desenvolvedor Backend" },
     performance: 3,
     potential: 2,
-    categoria: "Especialista",
+    categoria: "M3 (Forte Desempenho)",
     comentario: "Excelente tecnicamente, especialista na área",
     data: "2026-05-18T10:00:00.000Z"
   },
@@ -469,7 +469,7 @@ export const MOCK_NINEBOXES = [
     pessoa: { id: "sys-colab-002", nome: "Carlos Oliveira", tipo: "colaborador", cargo: "Analista de Sistemas" },
     performance: 2,
     potential: 2,
-    categoria: "Núcleo",
+    categoria: "M2 (Mantenedor)",
     comentario: "Desempenho sólido e consistente",
     data: "2026-05-19T10:00:00.000Z"
   },
@@ -479,7 +479,7 @@ export const MOCK_NINEBOXES = [
     pessoa: { id: "sys-colab-006", nome: "Felipe Araújo", tipo: "colaborador", cargo: "Analista de RH" },
     performance: 2,
     potential: 2,
-    categoria: "Núcleo",
+    categoria: "M2 (Mantenedor)",
     comentario: "Bom desempenho nas atividades de RH",
     data: "2026-05-20T10:00:00.000Z"
   },
@@ -489,7 +489,7 @@ export const MOCK_NINEBOXES = [
     pessoa: { id: "sys-colab-005", nome: "Diego Souza", tipo: "colaborador", cargo: "DevOps Engineer" },
     performance: 1,
     potential: 2,
-    categoria: "Dilema",
+    categoria: "M1 (Questionável)",
     comentario: "Potencial presente, performance a desenvolver",
     data: "2026-05-21T10:00:00.000Z"
   }

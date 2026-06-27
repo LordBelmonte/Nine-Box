@@ -310,15 +310,13 @@ class CampaignService {
         try {
           // Para tipoAlvo: gestor, colaborador avalia gestor
           if (campaign.tipoAlvo === 'gestor') {
-            // Usa CampaignGestorColaborador como fonte de verdade
             const gestoresNaoAvaliados = await this.campaignRepository.getGestoresNaoAvaliados(campaign.id, userId);
             if (gestoresNaoAvaliados.length > 0) {
               campaignsPendentes.push(campaign);
             }
           }
-          // Para tipoAlvo: todos, colaborador pode avaliar gestores que estão em CampaignGestorColaborador
+          // Para tipoAlvo: todos, colaborador pode avaliar gestores
           else if (campaign.tipoAlvo === 'todos') {
-            // Usa CampaignGestorColaborador como fonte de verdade
             const gestoresNaoAvaliados = await this.campaignRepository.getGestoresNaoAvaliados(campaign.id, userId);
             if (gestoresNaoAvaliados.length > 0) {
               campaignsPendentes.push(campaign);
@@ -326,7 +324,6 @@ class CampaignService {
           }
         } catch (error) {
           console.error(`Erro ao processar campanha ${campaign.id}:`, error);
-          // Continue with next campaign
         }
       }
 

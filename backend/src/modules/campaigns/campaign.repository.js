@@ -407,8 +407,6 @@ class CampaignRepository {
       }
     };
 
-    console.log('[CampaignRepository.getGestoresNaoAvaliados] campaignId:', campaignId, 'colaboradorId:', colaboradorId, 'gestorIds:', gestorIds);
-
     const naoAvaliados = await prisma.user.findMany({
       where,
       select: {
@@ -420,7 +418,6 @@ class CampaignRepository {
       }
     });
 
-    console.log('[CampaignRepository.getGestoresNaoAvaliados] resultCount:', naoAvaliados.length);
     return naoAvaliados;
   }
 

@@ -335,7 +335,16 @@ async function main() {
       status: 'ativa',
       tipoAlvo: 'gestor',
       gestores: {
-        create: [{ gestorId: gestor1.id }]
+        create: [{
+          gestorId: gestor1.id,
+          colaboradoresAvaliaveis: {
+            create: [
+              { colaboradorId: colaborador1.id },
+              { colaboradorId: colaborador2.id },
+              { colaboradorId: colaborador5.id }
+            ]
+          }
+        }]
       }
     }
   });
@@ -360,7 +369,15 @@ async function main() {
       status: 'ativa',
       tipoAlvo: 'gestor',
       gestores: {
-        create: [{ gestorId: gestor2.id }]
+        create: [{
+          gestorId: gestor2.id,
+          colaboradoresAvaliaveis: {
+            create: [
+              { colaboradorId: colaborador3.id },
+              { colaboradorId: colaborador4.id }
+            ]
+          }
+        }]
       }
     }
   });
@@ -383,11 +400,28 @@ async function main() {
       dataInicio: new Date('2025-11-01'),
       dataFim: new Date('2025-12-31'),
       status: 'finalizada',
-      tipoAlvo: 'colaborador',
+      tipoAlvo: 'todos',
       gestores: {
         create: [
-          { gestorId: gestor1.id },
-          { gestorId: gestor2.id }
+          {
+            gestorId: gestor1.id,
+            colaboradoresAvaliaveis: {
+              create: [
+                { colaboradorId: colaborador1.id },
+                { colaboradorId: colaborador2.id },
+                { colaboradorId: colaborador5.id }
+              ]
+            }
+          },
+          {
+            gestorId: gestor2.id,
+            colaboradoresAvaliaveis: {
+              create: [
+                { colaboradorId: colaborador3.id },
+                { colaboradorId: colaborador4.id }
+              ]
+            }
+          }
         ]
       }
     }
@@ -416,14 +450,13 @@ async function main() {
       avaliadorId: gestor1.id,
       avaliadoId: colaborador1.id,
       criterios: {
-        'Qualidade técnica': 5,
+        'Qualidade técnica': 4,
         'Cumprimento de prazos': 4,
         'Comunicação': 4,
-        'Trabalho em equipe': 5,
         'Proatividade': 4
       },
-      media: 4.4,
-      comentario: 'Excelente profissional, entrega com qualidade e dentro dos prazos.',
+      media: 4.0,
+      comentario: 'Excelente profissional.',
       anonima: false
     }
   });
@@ -434,14 +467,13 @@ async function main() {
       avaliadorId: gestor1.id,
       avaliadoId: colaborador2.id,
       criterios: {
-        'Qualidade técnica': 4,
+        'Qualidade técnica': 3,
         'Cumprimento de prazos': 3,
-        'Comunicação': 4,
-        'Trabalho em equipe': 4,
+        'Comunicação': 3,
         'Proatividade': 3
       },
-      media: 3.6,
-      comentario: 'Bom desempenho técnico, precisa melhorar gestão de prazos.',
+      media: 3.0,
+      comentario: 'Bom desempenho.',
       anonima: false
     }
   });
@@ -453,69 +485,18 @@ async function main() {
       avaliadorId: gestor2.id,
       avaliadoId: colaborador3.id,
       criterios: {
-        'Atendimento ao cliente interno': 5,
-        'Organização': 5,
-        'Conhecimento técnico': 4,
-        'Relacionamento interpessoal': 5
+        'Qualidade técnica': 4,
+        'Comunicação': 4,
+        'Trabalho em equipe': 4,
+        'Proatividade': 4
       },
-      media: 4.75,
-      comentario: 'Profissional exemplar, referência no departamento.',
-      anonima: false
-    }
-  });
-
-  // Avaliações na campanha3 (finalizada) - histórico
-  await prisma.evaluation.create({
-    data: {
-      campaignId: campanha3.id,
-      avaliadorId: gestor1.id,
-      avaliadoId: colaborador1.id,
-      criterios: {
-        'Desempenho geral': 9,
-        'Metas atingidas': 8,
-        'Comportamento': 9
-      },
-      media: 8.67,
-      comentario: 'Ótimo ano, superou expectativas.',
-      anonima: false
-    }
-  });
-
-  await prisma.evaluation.create({
-    data: {
-      campaignId: campanha3.id,
-      avaliadorId: gestor2.id,
-      avaliadoId: colaborador3.id,
-      criterios: {
-        'Desempenho geral': 10,
-        'Metas atingidas': 9,
-        'Comportamento': 10
-      },
-      media: 9.67,
-      comentario: 'Desempenho excepcional durante todo o ano.',
+      media: 4.0,
+      comentario: 'Profissional exemplar.',
       anonima: false
     }
   });
 
   console.log('✅ Avaliações criadas');
-
-  // ─── Nine Box ─────────────────────────────────────────────────────────────────
-
-  console.log('📊 Criando avaliações Nine Box...');
-
-  const nineBoxData = [
-    { pessoaId: colaborador1.id, performance: 3, potential: 3, categoria: 'Superstar', comentario: 'Alta performance e alto potencial' },
-    { pessoaId: colaborador2.id, performance: 2, potential: 2, categoria: 'Núcleo', comentario: 'Sólido e confiável' },
-    { pessoaId: colaborador3.id, performance: 3, potential: 2, categoria: 'Especialista', comentario: 'Excelente especialista técnica' },
-    { pessoaId: colaborador4.id, performance: 2, potential: 3, categoria: 'Estrela', comentario: 'Grande potencial de crescimento' },
-    { pessoaId: colaborador5.id, performance: 1, potential: 2, categoria: 'Dilema', comentario: 'Potencial presente, performance a desenvolver' }
-  ];
-
-  for (const nb of nineBoxData) {
-    await prisma.nineBox.create({ data: nb });
-  }
-
-  console.log('✅ Nine Box criado');
 
   console.log('\n🎉 Seed concluído com sucesso!');
   console.log('\n📋 Resumo:');

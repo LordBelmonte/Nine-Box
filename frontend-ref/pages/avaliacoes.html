@@ -294,15 +294,12 @@
         response = await campaignsApi.getPendingForGestor();
         console.log('Resposta:', response);
       } else {
-        console.log('Carregando avaliações pendentes para colaborador...');
         response = await campaignsApi.getPendingForColaborador();
-        console.log('Resposta:', response);
       }
 
       const campaigns = response.data || [];
       // Guardar campanhas carregadas para uso posterior
       loadedCampaigns = campaigns;
-      console.log('Campanhas:', campaigns);
       
       if (campaigns.length === 0) {
         container.innerHTML = '<tr><td colspan="3">Nenhuma avaliação disponível.</td></tr>';
@@ -400,7 +397,43 @@
       return;
     }
 
-    // Fluxo padrão para não-gestor ou campanhas que não necessitam de fila
+    // Se for colaborador avaliando gestores (tipoAlvo: 'gestor' ou 'todos')
+    if (isColaborador() && (campaign.tipoAlvo === 'gestor' || campaign.tipoAlvo === 'todos')) {
+      try {
+        // Buscar gestores que o colaborador ainda não avaliou
+        const res = await campaignsApi.getGestoresNaoAvaliados(campaign.id, getUser().id);
+        const gestores = res.data || [];
+        if (!gestores || gestores.length === 0) {
+          showToast('Você já avaliou todos os gestores desta campanha.', 'info');
+          modalTextEl.textContent = defaultModalText;
+          modal.classList.remove('open');
+          return;
+        }
+
+        // Mostrar mensagem com a quantidade e preparar fila
+        const qtd = gestores.length;
+        modalTextEl.innerHTML = `Você vai avaliar <strong>${qtd}</strong> gestor${qtd > 1 ? 'es' : ''} desta campanha, <strong>um por vez, em sequência</strong>. Deseja continuar?`;
+        
+        // Armazenar a fila de gestores para o fluxo de avaliação
+        const filaProcessada = gestores.map(g => ({ id: g.id, nome: g.nome }));
+        localStorage.setItem('campaignId', avaliacaoSelecionada);
+        localStorage.setItem('gestoresFila', JSON.stringify(filaProcessada));
+        localStorage.setItem('gestoresTotal', String(filaProcessada.length));
+        
+        // Redirecionar após breve delay para o usuário ver a mensagem
+        setTimeout(() => {
+          window.location.href = 'avaliacao-orientacoes.html';
+        }, 500);
+      } catch (e) {
+        console.error('Erro ao buscar gestores:', e);
+        showToast('Erro ao carregar gestores para avaliação.', 'error');
+        modalTextEl.textContent = defaultModalText;
+        modal.classList.remove('open');
+      }
+      return;
+    }
+
+    // Fluxo padrão (admin ou campanhas sem necessidade de fila)
     localStorage.setItem('campaignId', avaliacaoSelecionada);
     window.location.href = 'avaliacao-orientacoes.html';
   };
