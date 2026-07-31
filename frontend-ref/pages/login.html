@@ -33,24 +33,10 @@
       gap: 8px;
       margin-bottom: 28px;
     }
-    .login-logo i {
-      font-size: 40px;
-      color: var(--primary-light);
-    }
-    .login-logo h1 {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--primary);
-      text-align: center;
-    }
-    .login-logo p {
-      font-size: 13px;
-      color: var(--text-muted);
-      text-align: center;
-    }
-    .login-field {
-      margin-bottom: 16px;
-    }
+    .login-logo i { font-size: 40px; color: var(--primary-light); }
+    .login-logo h1 { font-size: 20px; font-weight: 700; color: var(--primary); text-align: center; }
+    .login-logo p  { font-size: 13px; color: var(--text-muted); text-align: center; }
+    .login-field { margin-bottom: 16px; }
     .login-field label {
       display: block;
       font-size: 13px;
@@ -58,9 +44,7 @@
       color: var(--primary);
       margin-bottom: 6px;
     }
-    .login-field .input-wrap {
-      position: relative;
-    }
+    .login-field .input-wrap { position: relative; }
     .login-field .input-wrap i {
       position: absolute;
       left: 12px;
@@ -104,7 +88,12 @@
       justify-content: center;
       gap: 8px;
     }
-    .login-btn:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(30, 58, 138, 0.25); }
+    .login-btn:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(30, 58, 138, 0.25);
+    }
+    .login-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
     .login-info {
       margin-top: 20px;
       padding: 12px 14px;
@@ -118,9 +107,19 @@
       align-items: flex-start;
     }
     .login-info i { margin-top: 1px; flex-shrink: 0; }
-    body.dark-mode .login-card { background: #1e293b; }
+    .login-error {
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: #fef2f2;
+      border-radius: var(--radius-sm);
+      border: 1px solid #fecaca;
+      font-size: 13px;
+      color: #991b1b;
+      display: none;
+    }
+    body.dark-mode .login-card  { background: #1e293b; }
     body.dark-mode .login-field input { background: #0f172a; color: #f1f5f9; border-color: #334155; }
-    body.dark-mode .login-info { background: #1e3a5f; border-color: #1e40af; color: #93c5fd; }
+    body.dark-mode .login-info  { background: #1e3a5f; border-color: #1e40af; color: #93c5fd; }
   </style>
 </head>
 <body>
@@ -139,7 +138,6 @@
         <i class="fa-solid fa-envelope"></i>
         <input type="email" id="login-email" placeholder="nome@faculdade.edu.br" autocomplete="email">
       </div>
-      <!-- Erro inline injetado aqui pelo JS -->
     </div>
 
     <div class="login-field">
@@ -150,7 +148,11 @@
       </div>
     </div>
 
-    <button class="login-btn" id="btn-login" onclick="fazerLogin()">
+    <!-- Erro genérico de rede/módulo -->
+    <div class="login-error" id="login-error-box"></div>
+
+    <!-- Botão usa ID em vez de onclick para não depender de escopo global -->
+    <button class="login-btn" id="btn-login" type="button">
       <i class="fa-solid fa-right-to-bracket"></i> Entrar
     </button>
 
@@ -159,30 +161,55 @@
       <span>Apenas usuários cadastrados podem acessar o sistema.</span>
     </div>
 
-    <div class="login-info" id="logout-info" style="display: none; background: #fef2f2; border-color: #fecaca; color: #991b1b;">
+    <div class="login-info" id="logout-info" style="display:none; background:#fef2f2; border-color:#fecaca; color:#991b1b;">
       <i class="fa-solid fa-circle-exclamation"></i>
-      <span>Você já está logado. <a href="#" onclick="fazerLogout()" style="text-decoration: underline; color: #991b1b; font-weight: 600;">Clique aqui para sair</a> e fazer login com outra conta.</span>
+      <span>Você já está logado. <a href="#" id="link-logout" style="text-decoration:underline;color:#991b1b;font-weight:600;">Clique aqui para sair</a> e fazer login com outra conta.</span>
     </div>
   </div>
 </div>
 
 <script type="module">
-  import { usersApi } from '../js/api.js';
-  import { setToken, setUser, isLoggedIn, getUser, logout } from '../js/auth.js';
-  import { validateLoginForm } from '../js/validators.js';
-  import { showToast } from '../js/components/toast.js';
+  /**
+   * login.html — script de autenticação
+   *
+   * USA addEventListener em vez de onclick inline para evitar
+   * o erro "fazerLogin is not defined" caso o módulo demore ou falhe.
+   *
+   * O erro ocorre porque onclick="fazerLogin()" chama uma função global
+   * que só existe se o <script type="module"> tiver terminado de carregar.
+   * Se qualquer import falhar, o módulo aborta e a função nunca é registrada.
+   *
+   * Com addEventListener, o botão simplesmente não faz nada antes do módulo
+   * carregar, em vez de lançar ReferenceError.
+   */
 
-  // Se já logado, mostrar opção de logout
+  // Imports — se qualquer um falhar, o catch no final exibe mensagem amigável
+  let usersApi, setToken, setUser, isLoggedIn, getUser, logout, validateLoginForm, showToast;
+
+  try {
+    ({ usersApi }                            = await import('../js/api.js'));
+    ({ setToken, setUser, isLoggedIn, getUser, logout } = await import('../js/auth.js'));
+    ({ validateLoginForm }                   = await import('../js/validators.js'));
+    ({ showToast }                           = await import('../js/components/toast.js'));
+  } catch (importErr) {
+    console.error('[LOGIN] Erro ao carregar módulos:', importErr);
+    const box = document.getElementById('login-error-box');
+    if (box) {
+      box.textContent = 'Erro ao carregar a aplicação. Verifique sua conexão e recarregue a página.';
+      box.style.display = 'block';
+    }
+    // Não prosseguir — módulos não carregaram
+    throw importErr;
+  }
+
+  // ── Se já está logado, redirecionar ou mostrar opção de logout ─────────────
   if (isLoggedIn()) {
     const user = getUser();
     const logoutInfo = document.getElementById('logout-info');
-    if (logoutInfo) {
-      logoutInfo.style.display = 'flex';
-    }
-    
-    // Redirecionar após um pequeno delay se não fizer logout
+    if (logoutInfo) logoutInfo.style.display = 'flex';
+
     setTimeout(() => {
-      if (user.tipo === 'colaborador' || user.tipo === 'gestor') {
+      if (user && (user.tipo === 'colaborador' || user.tipo === 'gestor')) {
         window.location.href = 'avaliacoes.html';
       } else {
         window.location.href = '../index.html';
@@ -190,14 +217,21 @@
     }, 5000);
   }
 
-  window.fazerLogout = function() {
+  // ── Link "sair" no aviso de já logado ─────────────────────────────────────
+  document.getElementById('link-logout')?.addEventListener('click', (e) => {
+    e.preventDefault();
     logout();
     window.location.reload();
-  };
+  });
 
-  window.fazerLogin = async function() {
+  // ── Função de login ────────────────────────────────────────────────────────
+  async function fazerLogin() {
     const email = document.getElementById('login-email').value.trim();
     const senha = document.getElementById('login-senha').value;
+
+    // Ocultar erro anterior
+    const errorBox = document.getElementById('login-error-box');
+    if (errorBox) errorBox.style.display = 'none';
 
     if (!validateLoginForm({ email, senha })) return;
 
@@ -209,24 +243,30 @@
       const res = await usersApi.login({ email, senha });
       setToken(res.data.token);
       setUser(res.data.user);
-      
-      // Colaboradores e gestores vão direto para avaliações
+
       if (res.data.user.tipo === 'colaborador' || res.data.user.tipo === 'gestor') {
         window.location.href = 'avaliacoes.html';
       } else {
         window.location.href = '../index.html';
       }
     } catch (err) {
-      // Erro já exibido pelo api.js via toast
+      // Erro já exibido via toast pelo api.js
+      // Exibir também no errorBox para garantir visibilidade
+      if (errorBox && err.message) {
+        errorBox.textContent = err.message;
+        errorBox.style.display = 'block';
+      }
     } finally {
       btn.disabled = false;
       btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Entrar';
     }
-  };
+  }
 
-  // Enter para logar
+  // ── Registrar listeners ────────────────────────────────────────────────────
+  document.getElementById('btn-login')?.addEventListener('click', fazerLogin);
+
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') window.fazerLogin();
+    if (e.key === 'Enter') fazerLogin();
   });
 </script>
 </body>

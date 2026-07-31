@@ -1,57 +1,61 @@
+/**
+ * server.js — ponto de entrada da aplicação
+ *
+ * IMPORTANTE sobre ES Modules e dotenv:
+ * Em ES Modules os `import` são hoisted (avaliados antes do código do módulo).
+ * Isso significa que app.js é carregado ANTES que dotenv/config execute,
+ * tornando process.env inacessível no topo de app.js durante desenvolvimento local.
+ *
+ * Solução: usamos `--env-file` do Node 20+ OU mantemos dotenv/config aqui
+ * e garantimos que app.js leia process.env apenas em runtime (dentro de funções),
+ * não em variáveis de módulo no topo.
+ *
+ * No Render: as variáveis já estão em process.env ANTES do processo Node iniciar,
+ * então dotenv não é necessário lá — mas não atrapalha.
+ */
 import 'dotenv/config';
 import app from './src/app.js';
 import { prisma } from './src/config/database.js';
 
-const PORT = process.env.PORT || 3000;
+const PORT     = process.env.PORT     || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 const server = app.listen(PORT, () => {
-  if (NODE_ENV === 'development') {
-    console.log(`🚀 Servidor rodando na porta ${PORT}`);
-    console.log(`📊 Health check: http://localhost:${PORT}/health`);
-    console.log(`🌍 Ambiente: ${NODE_ENV}`);
-  }
+  console.log(`[SERVER] ✅ Rodando na porta ${PORT} | NODE_ENV=${NODE_ENV}`);
+  console.log(`[SERVER] Health: http://localhost:${PORT}/health`);
+  console.log(`[SERVER] Frontend: http://localhost:${PORT}/frontend-ref/pages/login.html`);
 });
 
-// Graceful shutdown
+// ─── Graceful shutdown ────────────────────────────────────────────────────────
 const gracefulShutdown = async (signal) => {
-  if (NODE_ENV === 'development') {
-    console.log(`\n${signal} recebido. Encerrando servidor...`);
-  }
-  
+  console.log(`[SERVER] ${signal} recebido — encerrando...`);
+
   server.close(async () => {
-    if (NODE_ENV === 'development') {
-      console.log('Servidor HTTP fechado');
-    }
-    
     try {
       await prisma.$disconnect();
-      if (NODE_ENV === 'development') {
-        console.log('Conexão com banco de dados fechada');
-      }
+      console.log('[SERVER] Banco desconectado. Encerrado com sucesso.');
       process.exit(0);
-    } catch (error) {
-      console.error('Erro ao fechar conexão com banco:', error);
+    } catch (err) {
+      console.error('[SERVER] Erro ao desconectar banco:', err);
       process.exit(1);
     }
   });
 
-  // Força o encerramento após 10 segundos
+  // Força encerramento após 10s se o servidor não fechar
   setTimeout(() => {
-    console.error('Forçando encerramento após timeout');
+    console.error('[SERVER] Timeout de shutdown — forçando encerramento.');
     process.exit(1);
-  }, 10000);
+  }, 10_000);
 };
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
 
-// Tratamento de erros não capturados
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+process.on('unhandledRejection', (reason) => {
+  console.error('[SERVER] UnhandledRejection:', reason);
 });
 
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
+process.on('uncaughtException', (err) => {
+  console.error('[SERVER] UncaughtException:', err);
   gracefulShutdown('UNCAUGHT_EXCEPTION');
 });

@@ -1,32 +1,61 @@
 # render.yaml — Configuração de deploy no Render
 # Documentação: https://render.com/docs/blueprint-spec
+#
+# INSTRUÇÕES DE DEPLOY:
+# 1. Faça push deste arquivo para o GitHub
+# 2. No Render: New → Blueprint → conecte o repositório
+# 3. Configure as variáveis com sync:false no painel (Environment > Add Variable):
+#    DATABASE_URL, DIRECT_URL, JWT_SECRET
+# 4. Após o primeiro deploy, a URL do serviço será visível no painel
+#    Atualize FRONTEND_URL e BACKEND_URL com essa URL
+#    Ex: https://ninebox-backend.onrender.com
 
 services:
   - type: web
     name: ninebox-backend
     env: node
-    region: oregon           # Altere para a região mais próxima se necessário
+    region: oregon
     rootDir: backend
-    buildCommand: npm install
+    buildCommand: npm install && npx prisma generate
     startCommand: node server.js
     envVars:
       - key: NODE_ENV
         value: production
+
       - key: PORT
-        value: 3000
-      # Configure as variáveis abaixo no painel do Render (Environment > Add Variable)
-      # NÃO coloque valores secretos aqui — use o painel do Render.
-      - key: DATABASE_URL
-        sync: false          # Será preenchido manualmente no painel
-      - key: DIRECT_URL
-        sync: false
-      - key: JWT_SECRET
-        sync: false          # OBRIGATÓRIO: defina um secret seguro no painel
+        value: 10000
+        # O Render expõe a porta 10000 por padrão para serviços web Node.js
+        # Mas aceita qualquer porta via variável PORT
+
       - key: JWT_EXPIRES_IN
         value: 30d
+
+      # ── Preencher manualmente no painel do Render ──────────────────────────
+      # DATABASE_URL e DIRECT_URL: string de conexão PostgreSQL (ex: Supabase)
+      - key: DATABASE_URL
+        sync: false
+
+      - key: DIRECT_URL
+        sync: false
+
+      # JWT_SECRET: string aleatória longa e segura
+      # Gere com: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+      - key: JWT_SECRET
+        sync: false
+
+      # FRONTEND_URL: URL pública deste serviço no Render
+      # Ex: https://ninebox-backend.onrender.com
+      # Necessário para o CORS aceitar requisições do próprio domínio
       - key: FRONTEND_URL
-        sync: false          # URL do frontend Vercel (ex: https://meu-app.vercel.app)
-      - key: CORS_ORIGINS
-        sync: false          # URLs extras separadas por vírgula (opcional)
+        sync: false
+
+      # BACKEND_URL: mesma URL do serviço (usada no CSP do Helmet)
+      # Ex: https://ninebox-backend.onrender.com
       - key: BACKEND_URL
-        sync: false          # URL pública deste serviço (ex: https://ninebox.onrender.com)
+        sync: false
+
+      # CORS_ORIGINS: URLs extras separadas por vírgula (opcional)
+      # Use se o frontend estiver em outro domínio (Vercel, etc.)
+      # Ex: https://meu-frontend.vercel.app,https://preview.meu-frontend.vercel.app
+      - key: CORS_ORIGINS
+        sync: false
