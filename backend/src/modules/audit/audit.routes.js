@@ -1,10 +1,11 @@
 import express from 'express';
 import { AuditController } from './audit.controller.js';
-import { isGestorOrAdminMiddleware } from '../../middlewares/auth.js';
+import { authMiddleware, isGestorOrAdminMiddleware } from '../../middlewares/auth.js';
 
 const router = express.Router();
 const auditController = new AuditController();
 
+router.use(authMiddleware);
 router.use(isGestorOrAdminMiddleware);
 
 router.get('/', (req, res, next) =>

@@ -1,8 +1,23 @@
 import { prisma } from '../../config/database.js';
 
+// Campos padrão retornados (nunca expõe senha)
+const USER_SELECT = {
+  id:           true,
+  ra:           true,
+  nome:         true,
+  email:        true,
+  tipo:         true,
+  cargo:        true,
+  departamento: true,
+  foto:         true,
+  createdAt:    true,
+};
+
 class UserRepository {
-  async create(data) {
-    return prisma.user.create({ data });
+  // ─── Leitura ───────────────────────────────────────────────────────────────
+
+  async findById(id) {
+    return prisma.user.findUnique({ where: { id } });
   }
 
   async findByEmail(email) {
@@ -13,94 +28,89 @@ class UserRepository {
     return prisma.user.findUnique({ where: { ra } });
   }
 
-  async findById(id) {
-    return prisma.user.findUnique({ where: { id } });
-  }
+  /**
+   * Lista usuários com filtros, paginação e ordenação no banco.
+   * @param {object} opts
+   */
+  async findAll({
+    page = 1,
+    limit = 10,
+    tipo,
+    excludeTipo,
+    search,
+    departamento,
+    orderBy = 'nome',
+    orderDir = 'asc',
+  }) {
+    const skip = Math.max((page - 1) * limit, 0);
 
-  async findAll({ page = 1, limit = 10, tipo, search, departamento }) {
-    const skip = (page - 1) * limit;
     const where = {};
-    
-    if (tipo) where.tipo = tipo;
+    if (tipo)        where.tipo = tipo;
+    if (excludeTipo) where.tipo = { not: excludeTipo };
     if (departamento) where.departamento = departamento;
     if (search) {
-      where.nome = {
-        contains: search,
-        mode: 'insensitive'
-      };
+      where.OR = [
+        { nome:  { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { ra:    { contains: search, mode: 'insensitive' } },
+      ];
     }
 
-    console.log('[USER REPOSITORY] Query params:', { page, limit, skip, where });
+    // Campos válidos para ordenação no banco
+    const VALID_ORDER = ['nome', 'ra', 'email', 'createdAt', 'tipo'];
+    const field = VALID_ORDER.includes(orderBy) ? orderBy : 'nome';
+    const dir   = orderDir === 'desc' ? 'desc' : 'asc';
 
-    try {
-      const [users, total] = await Promise.all([
-        prisma.user.findMany({
-          where,
-          skip: skip >= 0 ? skip : 0,
-          take: limit > 0 ? limit : 10,
-          select: {
-            id: true,
-            ra: true,
-            nome: true,
-            email: true,
-            tipo: true,
-            cargo: true,
-            departamento: true,
-            foto: true,
-            createdAt: true
-          },
-          orderBy: { createdAt: 'desc' }
-        }),
-        prisma.user.count({ where })
-      ]);
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        skip,
+        take: limit,
+        select: USER_SELECT,
+        orderBy: { [field]: dir },
+      }),
+      prisma.user.count({ where }),
+    ]);
 
-      console.log(`[USER REPOSITORY] Query executada - Retornando ${users.length} de ${total} usuários`);
-      
-      // Debug: mostrar primeiros usuários
-      if (users.length > 0) {
-        console.log('[USER REPOSITORY] Primeiro usuário:', users[0].nome, users[0].tipo);
-      }
-
-      return {
-        users,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit)
-        }
-      };
-    } catch (error) {
-      console.error('[USER REPOSITORY] Erro na query:', error);
-      throw error;
-    }
+    return {
+      users,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit) || 1,
+      },
+    };
   }
+
+  // ─── Criação ───────────────────────────────────────────────────────────────
+
+  async create(data) {
+    return prisma.user.create({ data });
+  }
+
+  // ─── Atualização ──────────────────────────────────────────────────────────
 
   async update(id, data) {
     return prisma.user.update({
       where: { id },
       data,
-      select: {
-        id: true,
-        ra: true,
-        nome: true,
-        email: true,
-        tipo: true,
-        cargo: true,
-        departamento: true,
-        foto: true
-      }
+      select: USER_SELECT,
     });
   }
+
+  // ─── Exclusão ─────────────────────────────────────────────────────────────
 
   async delete(id) {
     return prisma.user.delete({ where: { id } });
   }
 
+  // ─── Verificações de unicidade ────────────────────────────────────────────
+
   async emailExists(email) {
     const user = await prisma.user.findUnique({
       where: { email },
-      select: { id: true }
+      select: { id: true },
     });
     return !!user;
   }
@@ -108,67 +118,58 @@ class UserRepository {
   async raExists(ra) {
     const user = await prisma.user.findUnique({
       where: { ra },
-      select: { id: true }
+      select: { id: true },
     });
     return !!user;
   }
 
-  async findByGestorId(gestorId) {
-    return prisma.user.findMany({
-      where: {
-        gruposComoColaborador: {
-          some: {
-            gestorId
-          }
-        }
-      },
-      select: {
-        id: true,
-        ra: true,
-        nome: true,
-        email: true,
-        tipo: true,
-        cargo: true,
-        departamento: true,
-        foto: true
-      }
+  /** Verifica se email já existe para outro usuário (uso na edição) */
+  async emailExistsExcept(email, excludeId) {
+    const user = await prisma.user.findFirst({
+      where: { email, NOT: { id: excludeId } },
+      select: { id: true },
+    });
+    return !!user;
+  }
+
+  /** Verifica se RA já existe para outro usuário (uso na edição) */
+  async raExistsExcept(ra, excludeId) {
+    const user = await prisma.user.findFirst({
+      where: { ra, NOT: { id: excludeId } },
+      select: { id: true },
+    });
+    return !!user;
+  }
+
+  // ─── Grupos ────────────────────────────────────────────────────────────────
+
+  /** Cria vínculo gestor ↔ colaborador */
+  async createGestorColaborador(gestorId, colaboradorId) {
+    return prisma.gestorColaborador.upsert({
+      where: { gestorId_colaboradorId: { gestorId, colaboradorId } },
+      update: {},
+      create: { gestorId, colaboradorId },
     });
   }
 
-  async findGestoresByGestorId(gestorId) {
-    return prisma.user.findMany({
-      where: {
-        gruposComoColaborador: {
-          some: {
-            gestorId
-          }
-        },
-        tipo: 'gestor'
+  /** Remove todos os vínculos de gestor de um colaborador */
+  async removeAllGestoresFromColaborador(colaboradorId) {
+    return prisma.gestorColaborador.deleteMany({ where: { colaboradorId } });
+  }
+
+  /** Retorna os gestores de um colaborador */
+  async findGestoresByColaboradorId(colaboradorId) {
+    return prisma.gestorColaborador.findMany({
+      where: { colaboradorId },
+      include: {
+        gestor: { select: USER_SELECT },
       },
-      select: {
-        id: true,
-        ra: true,
-        nome: true,
-        email: true,
-        tipo: true,
-        cargo: true,
-        departamento: true,
-        foto: true
-      }
     });
   }
 
+  /** Conta usuários */
   async count() {
     return prisma.user.count();
-  }
-
-  async addGestorColaborador(gestorId, colaboradorId) {
-    return prisma.gestorColaborador.create({
-      data: {
-        gestorId,
-        colaboradorId
-      }
-    });
   }
 }
 

@@ -35,6 +35,8 @@ app.use(helmet({
         "https://cdnjs.cloudflare.com",
         "https://cdn.jsdelivr.net"
       ],
+      // Necessário para onclick="..." e outros event handlers inline no HTML
+      scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: [
         "'self'",
         "'unsafe-inline'",

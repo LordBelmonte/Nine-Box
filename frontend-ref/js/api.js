@@ -677,6 +677,14 @@ export const nineBoxApi = {
     return api.get(`/ninebox/calculate/person/${pessoaId}`);
   },
 
+  // ─── Relatório Modal (ETAPA 3) ────────────────────────────────────────────
+  getReportIndividual: (pessoaId) =>
+    api.get(`/ninebox/report/individual/all/${pessoaId}`),
+
+  getReportConsolidated: () =>
+    api.get('/ninebox/report/consolidated/all'),
+  // ──────────────────────────────────────────────────────────────────────────
+
   update: (id, b) => api.put(`/ninebox/${id}`, b),
   
   delete: async (id) => {

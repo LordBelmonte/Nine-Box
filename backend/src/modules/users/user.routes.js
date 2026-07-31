@@ -2,28 +2,37 @@ import express from 'express';
 import { UserController } from './user.controller.js';
 import { authMiddleware, isAdminMiddleware, isGestorOrAdminMiddleware } from '../../middlewares/auth.js';
 import { validate } from '../../middlewares/validate.js';
-import { registerSchema, loginSchema, updateProfileSchema } from './user.validation.js';
+import { registerSchema, loginSchema, updateProfileSchema, updateUserSchema } from './user.validation.js';
 
 const router = express.Router();
-const userController = new UserController();
+const ctrl   = new UserController();
 
-// Rotas públicas
-router.post('/login', validate(loginSchema), (req, res, next) => userController.login(req, res, next));
+// ─── Rotas públicas ───────────────────────────────────────────────────────────
+router.post('/login', validate(loginSchema), (req, res, next) => ctrl.login(req, res, next));
 
-// Rotas protegidas
+// ─── Autenticação obrigatória para todas as rotas abaixo ─────────────────────
 router.use(authMiddleware);
 
-router.get('/profile', isAdminMiddleware, (req, res, next) => userController.getProfile(req, res, next));
-router.put('/profile', isAdminMiddleware, validate(updateProfileSchema), (req, res, next) => userController.updateProfile(req, res, next));
+// Perfil do próprio usuário logado (apenas admin acessa pelo painel)
+router.get('/profile',  isAdminMiddleware, (req, res, next) => ctrl.getProfile(req, res, next));
+router.put('/profile',  isAdminMiddleware, validate(updateProfileSchema), (req, res, next) => ctrl.updateProfile(req, res, next));
 
-router.get('/ra/:ra', isAdminMiddleware, (req, res, next) => userController.findByRA(req, res, next));
+// Busca por RA
+router.get('/ra/:ra', isAdminMiddleware, (req, res, next) => ctrl.findByRA(req, res, next));
 
-// Rotas de admin
-router.get('/', isAdminMiddleware, (req, res, next) => userController.findAll(req, res, next));
-router.get('/:id', isAdminMiddleware, (req, res, next) => userController.findById(req, res, next));
+// Listagem — admin vê tudo; gestor e colaborador filtrados no service
+router.get('/', isGestorOrAdminMiddleware, (req, res, next) => ctrl.findAll(req, res, next));
 
-// Rotas de admin
-router.post('/register', isAdminMiddleware, validate(registerSchema), (req, res, next) => userController.register(req, res, next));
-router.delete('/:id', isAdminMiddleware, (req, res, next) => userController.delete(req, res, next));
+// Cadastro (apenas admin)
+router.post('/register', isAdminMiddleware, validate(registerSchema), (req, res, next) => ctrl.register(req, res, next));
+
+// Obter por ID — colocado após /profile e /ra/:ra para evitar conflito de rota
+router.get('/:id', isAdminMiddleware, (req, res, next) => ctrl.findById(req, res, next));
+
+// Editar por ID — apenas admin (ETAPA 2.1)
+router.put('/:id', isAdminMiddleware, validate(updateUserSchema), (req, res, next) => ctrl.updateById(req, res, next));
+
+// Excluir por ID — apenas admin
+router.delete('/:id', isAdminMiddleware, (req, res, next) => ctrl.delete(req, res, next));
 
 export default router;

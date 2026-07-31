@@ -8,197 +8,75 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
-  <link rel="stylesheet" href="../css/choices-custom.css">
-  <script>
-    // Aplicar dark mode imediatamente para evitar flash
-    (function() {
-      const darkMode = localStorage.getItem('darkMode');
-      if (darkMode === '1' || (darkMode === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark-mode');
-        if (document.body) document.body.classList.add('dark-mode');
-      }
-    })();
-  </script>
+  <script>(function(){const dm=localStorage.getItem('darkMode');if(dm==='1'||(dm===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark-mode');if(document.body)document.body.classList.add('dark-mode');}})();</script>
   <style>
     .pg-wrapper { align-items: flex-start; padding: 32px 20px; }
-    .pg-card-wide {
-      background: var(--surface);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-md);
-      padding: 28px;
-      width: 100%;
-      max-width: 900px;
-      border: 1.5px solid var(--border);
-    }
-    .pg-toolbar {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-    .pg-filtros { display: flex; gap: 6px; flex-wrap: wrap; }
-    .pg-filtro {
-      padding: 7px 16px;
-      border: 1.5px solid var(--border);
-      border-radius: 100px;
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-top: 0;
-      width: auto;
-    }
-    .pg-filtro.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: none; transform: none; }
-    .pg-filtro:hover:not(.active) { border-color: var(--primary-light); color: var(--primary); background: #eff6ff; transform: none; box-shadow: none; }
-    .pg-search-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: #fafafa;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 8px 14px;
-      flex: 1;
-      min-width: 200px;
-    }
-    .pg-search-wrap i { color: var(--text-muted); font-size: 13px; }
-    .pg-search-wrap input {
-      border: none;
-      background: transparent;
-      font-size: 14px;
-      font-family: inherit;
-      color: var(--text);
-      width: 100%;
-      outline: none;
-    }
-    .pg-search-wrap input::placeholder { color: var(--text-muted); }
-    .pg-ra-search {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: #fafafa;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 8px 14px;
-      min-width: 180px;
-    }
-    .pg-ra-search input {
-      border: none;
-      background: transparent;
-      font-size: 14px;
-      font-family: inherit;
-      color: var(--text);
-      width: 100%;
-      outline: none;
-    }
-    .pg-ra-search button {
-      margin: 0;
-      width: auto;
-      padding: 4px 10px;
-      font-size: 12px;
-      border-radius: 6px;
-    }
-    /* Lista de pessoas */
-    .pessoa-item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 14px 16px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      margin-bottom: 10px;
-      transition: all 0.2s;
-      background: var(--surface);
-    }
-    .pessoa-item:hover { border-color: var(--accent); box-shadow: var(--shadow-sm); }
-    .pessoa-avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 16px;
-      font-weight: 700;
-      flex-shrink: 0;
-      overflow: hidden;
-    }
-    .pessoa-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-    .pessoa-info { flex: 1; min-width: 0; }
-    .pessoa-nome { font-size: 15px; font-weight: 600; color: var(--text); }
-    .pessoa-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; display: flex; gap: 10px; flex-wrap: wrap; }
-    .pessoa-ra { font-size: 11px; background: #f1f5f9; color: var(--text-muted); padding: 2px 8px; border-radius: 100px; font-weight: 600; }
-    .pessoa-actions { display: flex; gap: 8px; }
-    .btn-ver {
-      padding: 6px 14px;
-      font-size: 12px;
-      background: #eff6ff;
-      color: var(--primary);
-      border: 1px solid #bfdbfe;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.15s;
-      margin: 0;
-      width: auto;
-      font-weight: 600;
-    }
-    .btn-ver:hover { background: #dbeafe; transform: none; box-shadow: none; }
-    .btn-del {
-      padding: 6px 10px;
-      font-size: 12px;
-      background: transparent;
-      color: var(--danger);
-      border: 1px solid #fecaca;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.15s;
-      margin: 0;
-      width: auto;
-    }
-    .btn-del:hover { background: #fee2e2; transform: none; box-shadow: none; }
-    /* Modal */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 500;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .modal-overlay.open { display: flex; }
-    .modal-box {
-      background: var(--surface);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-lg);
-      padding: 28px;
-      width: 100%;
-      max-width: 420px;
-      animation: dropdownIn 0.2s ease;
-    }
-    .modal-box h4 { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 16px; }
-    .modal-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
-    .modal-row:last-of-type { border-bottom: none; }
-    .modal-row span:first-child { color: var(--text-muted); font-weight: 500; }
-    .modal-row span:last-child { font-weight: 600; color: var(--text); }
-    .modal-close { margin-top: 16px; }
-    body.dark-mode .pg-card-wide,
-    body.dark-mode .pessoa-item,
-    body.dark-mode .modal-box { background: #1e293b; }
-    body.dark-mode .pg-search-wrap,
-    body.dark-mode .pg-ra-search { background: #0f172a; border-color: #334155; }
-    body.dark-mode .pg-search-wrap input,
-    body.dark-mode .pg-ra-search input { color: #f1f5f9; }
-    body.dark-mode .pessoa-ra { background: #334155; color: #e2e8f0; }
-    body.dark-mode .pg-filtro { color: #94a3b8; }
-    body.dark-mode .pg-filtro:hover:not(.active) { color: #60a5fa; background: #1e293b; border-color: #60a5fa; }
+    .pg-card-wide { background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow-md); padding:28px; width:100%; max-width:960px; border:1.5px solid var(--border); }
+    .pg-toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+    .pg-filtros { display:flex; gap:6px; flex-wrap:wrap; }
+    .pg-filtro { padding:7px 16px; border:1.5px solid var(--border); border-radius:100px; background:transparent; color:var(--text-muted); font-size:13px; font-weight:500; cursor:pointer; transition:all 0.2s; margin-top:0; width:auto; }
+    .pg-filtro.active { background:var(--primary); color:white; border-color:var(--primary); box-shadow:none; transform:none; }
+    .pg-filtro:hover:not(.active) { border-color:var(--primary-light); color:var(--primary); background:#eff6ff; transform:none; box-shadow:none; }
+    .pg-search-wrap { display:flex; align-items:center; gap:8px; background:#fafafa; border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:8px 14px; flex:1; min-width:180px; }
+    .pg-search-wrap i { color:var(--text-muted); font-size:13px; }
+    .pg-search-wrap input { border:none; background:transparent; font-size:14px; font-family:inherit; color:var(--text); width:100%; outline:none; }
+    .pg-search-wrap input::placeholder { color:var(--text-muted); }
+    .pg-filters-row { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+    .pg-select { padding:8px 12px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-size:13px; font-family:inherit; background:var(--surface); color:var(--text); cursor:pointer; min-width:160px; }
+    .pessoa-item { display:flex; align-items:center; gap:14px; padding:14px 16px; border:1.5px solid var(--border); border-radius:var(--radius-sm); margin-bottom:10px; transition:all 0.2s; background:var(--surface); }
+    .pessoa-item:hover { border-color:var(--accent); box-shadow:var(--shadow-sm); }
+    .pessoa-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--primary-light)); display:flex; align-items:center; justify-content:center; color:white; font-size:16px; font-weight:700; flex-shrink:0; overflow:hidden; }
+    .pessoa-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+    .pessoa-info { flex:1; min-width:0; }
+    .pessoa-nome { font-size:15px; font-weight:600; color:var(--text); }
+    .pessoa-meta { font-size:12px; color:var(--text-muted); margin-top:2px; display:flex; gap:10px; flex-wrap:wrap; }
+    .pessoa-ra { font-size:11px; background:#f1f5f9; color:var(--text-muted); padding:2px 8px; border-radius:100px; font-weight:600; }
+    .pessoa-actions { display:flex; gap:6px; flex-shrink:0; }
+    .btn-acao-sm { padding:6px 12px; font-size:12px; border-radius:8px; cursor:pointer; font-weight:600; border:1.5px solid; transition:all 0.15s; margin:0; width:auto; display:inline-flex; align-items:center; gap:5px; }
+    .btn-ver-sm  { background:#eff6ff; color:var(--primary); border-color:#bfdbfe; }
+    .btn-ver-sm:hover  { background:#dbeafe; transform:none; box-shadow:none; }
+    .btn-edit-sm { background:#fef3c7; color:#92400e; border-color:#fde68a; }
+    .btn-edit-sm:hover { background:#fde68a; transform:none; box-shadow:none; }
+    .btn-del-sm  { background:transparent; color:var(--danger); border-color:#fecaca; }
+    .btn-del-sm:hover  { background:#fee2e2; transform:none; box-shadow:none; }
+    .pag-bar { display:flex; gap:8px; justify-content:center; align-items:center; margin-top:16px; flex-wrap:wrap; }
+    .pag-btn { padding:6px 16px; font-size:13px; border:1.5px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text); cursor:pointer; margin:0; width:auto; transition:all 0.15s; }
+    .pag-btn:hover:not(:disabled) { border-color:var(--primary-light); color:var(--primary); transform:none; box-shadow:none; }
+    .pag-btn:disabled { opacity:0.4; cursor:not-allowed; }
+    .pag-info { font-size:13px; color:var(--text-muted); white-space:nowrap; }
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:500; align-items:center; justify-content:center; padding:20px; }
+    .modal-overlay.open { display:flex; }
+    .modal-box { background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow-lg); padding:28px; width:100%; max-width:460px; animation:dropdownIn 0.2s ease; }
+    .modal-box h4 { font-size:16px; font-weight:700; color:var(--primary); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+    .modal-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:14px; }
+    .modal-row:last-of-type { border-bottom:none; }
+    .modal-row span:first-child { color:var(--text-muted); font-weight:500; }
+    .modal-row span:last-child { font-weight:600; color:var(--text); }
+    .edit-field { margin-bottom:14px; }
+    .edit-field label { display:block; font-size:13px; font-weight:600; color:var(--text); margin-bottom:5px; }
+    .edit-field input, .edit-field select { width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; font-family:inherit; background:var(--surface); color:var(--text); }
+    .edit-field input.field-invalid, .edit-field select.field-invalid { border-color:var(--danger) !important; }
+    .field-error { display:block; font-size:12px; color:var(--danger); margin-top:3px; font-weight:500; }
+    .edit-field input:focus, .edit-field select:focus { border-color:var(--primary-light); box-shadow:0 0 0 3px rgba(59,130,246,0.1); outline:none; }
+    .modal-actions { display:flex; gap:8px; margin-top:16px; }
+    .btn-modal-cancel { flex:1; background:#f1f5f9; color:var(--text); border:1.5px solid var(--border); border-radius:8px; padding:10px; font-size:14px; font-weight:600; cursor:pointer; margin:0; }
+    .btn-modal-cancel:hover { background:#e2e8f0; transform:none; box-shadow:none; }
+    .btn-modal-save { flex:1; background:var(--primary); color:white; border:none; border-radius:8px; padding:10px; font-size:14px; font-weight:600; cursor:pointer; margin:0; }
+    .btn-modal-save:hover { background:#1d4ed8; transform:none; box-shadow:none; }
+    .btn-modal-save:disabled { background:var(--text-muted); cursor:not-allowed; }
+    .btn-modal-del { flex:1; background:var(--danger); color:white; border:none; border-radius:8px; padding:10px; font-size:14px; font-weight:600; cursor:pointer; margin:0; }
+    .btn-modal-del:disabled { background:#fca5a5; cursor:not-allowed; }
+    body.dark-mode .pg-card-wide, body.dark-mode .pessoa-item, body.dark-mode .modal-box { background:#1e293b; }
+    body.dark-mode .pg-search-wrap { background:#0f172a; border-color:#334155; }
+    body.dark-mode .pg-search-wrap input { color:#f1f5f9; }
+    body.dark-mode .pessoa-ra { background:#334155; color:#e2e8f0; }
+    body.dark-mode .pg-filtro { color:#94a3b8; }
+    body.dark-mode .pg-filtro:hover:not(.active) { color:#60a5fa; background:#1e293b; border-color:#60a5fa; }
+    body.dark-mode .pg-select { background:#0f172a; border-color:#334155; color:#f1f5f9; }
+    body.dark-mode .edit-field input, body.dark-mode .edit-field select { background:#0f172a; border-color:#334155; color:#f1f5f9; }
+    body.dark-mode .pag-btn { background:#1e293b; border-color:#334155; color:#f1f5f9; }
+    body.dark-mode .btn-modal-cancel { background:#334155; color:#f1f5f9; border-color:#475569; }
+    @media(max-width:600px){ .pessoa-actions{ flex-direction:column; } .pg-toolbar{ flex-direction:column; } }
   </style>
 </head>
 <body>
@@ -226,266 +104,249 @@
 
 <nav class="navbar">
   <ul class="navbar-nav">
-    <li class="navbar-item"><a href="../index.html" class="navbar-link"><i class="fa-solid fa-home"></i><span>Início</span></a></li>
-    <li class="navbar-item" data-role="admin"><a href="cadastrar.html" class="navbar-link"><i class="fa-solid fa-user-plus"></i><span>Cadastrar</span></a></li>
-    <li class="navbar-item" data-role="gestorOrAdmin"><a href="consultar.html" class="navbar-link active"><i class="fa-solid fa-magnifying-glass"></i><span>Consultar</span></a></li>
-    <li class="navbar-item navbar-item-dropdown">
+    <li class="navbar-item">
+      <a href="../index.html" class="navbar-link"><i class="fa-solid fa-home"></i><span>Início</span></a>
+    </li>
+    <li class="navbar-item navbar-item-dropdown" data-role="admin">
+      <a href="#" class="navbar-link navbar-link-dropdown active" onclick="toggleSubmenu(event, this)">
+        <i class="fa-solid fa-address-book"></i><span>Contatos</span><i class="fa-solid fa-chevron-down navbar-chevron"></i>
+      </a>
+      <ul class="navbar-submenu">
+        <li><a href="cadastrar.html" class="navbar-submenu-link"><i class="fa-solid fa-user-plus"></i> Cadastrar</a></li>
+        <li><a href="consultar.html" class="navbar-submenu-link active"><i class="fa-solid fa-magnifying-glass"></i> Consultar</a></li>
+        <li><a href="grupos.html" class="navbar-submenu-link"><i class="fa-solid fa-users"></i> Grupos</a></li>
+      </ul>
+    </li>
+    <li class="navbar-item navbar-item-dropdown" data-role="admin">
       <a href="#" class="navbar-link navbar-link-dropdown" onclick="toggleSubmenu(event, this)">
         <i class="fa-solid fa-star"></i><span>Avaliações</span><i class="fa-solid fa-chevron-down navbar-chevron"></i>
       </a>
       <ul class="navbar-submenu">
-        <li data-role="admin"><a href="campanhas.html" class="navbar-submenu-link"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
-        <li><a href="avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-star"></i> Avaliações</a></li>
-        <li data-role="admin"><a href="historico-avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-history"></i> Histórico</a></li>
-        <li data-role="admin"><a href="nine-box.html" class="navbar-submenu-link"><i class="fa-solid fa-th"></i> Nine Box</a></li>
+        <li><a href="campanhas.html" class="navbar-submenu-link"><i class="fa-solid fa-bullhorn"></i> Campanhas</a></li>
         <li><a href="competencias.html" class="navbar-submenu-link"><i class="fa-solid fa-clipboard-check"></i> Competências</a></li>
+        <li><a href="historico-avaliacoes.html" class="navbar-submenu-link"><i class="fa-solid fa-history"></i> Histórico</a></li>
+        <li><a href="nine-box.html" class="navbar-submenu-link"><i class="fa-solid fa-th"></i> Ninebox</a></li>
       </ul>
     </li>
-    <li class="navbar-item" data-role="admin"><a href="grupos.html" class="navbar-link"><i class="fa-solid fa-users"></i><span>Grupos</span></a></li>
-    <li class="navbar-item"><a href="relatorios.html" class="navbar-link"><i class="fa-solid fa-chart-bar"></i><span>Relatórios</span></a></li>
+    <li class="navbar-item" data-role="admin">
+      <a href="relatorios.html" class="navbar-link"><i class="fa-solid fa-chart-bar"></i><span>Relatórios</span></a>
+    </li>
   </ul>
 </nav>
 
 <main class="wrapper pg-wrapper">
   <div class="pg-card-wide">
 
+    <!-- Toolbar principal -->
     <div class="pg-toolbar">
       <div class="pg-filtros">
-        <button class="pg-filtro active" data-filtro="todos" onclick="filtrar('todos')">Todos</button>
-        <button class="pg-filtro" data-filtro="gestor" onclick="filtrar('gestor')">Gestores</button>
-        <button class="pg-filtro" data-filtro="colaborador" onclick="filtrar('colaborador')">Colaboradores</button>
+        <button class="pg-filtro active" data-filtro="todos"        onclick="setFiltro('todos')">Todos</button>
+        <button class="pg-filtro"        data-filtro="gestor"       onclick="setFiltro('gestor')">Gestores</button>
+        <button class="pg-filtro"        data-filtro="colaborador"  onclick="setFiltro('colaborador')">Colaboradores</button>
       </div>
       <div class="pg-search-wrap">
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" id="busca-nome" placeholder="Buscar por nome..." oninput="buscarPorNome()">
-      </div>
-      <div class="pg-ra-search">
-        <i class="fa-solid fa-id-card" style="color:var(--text-muted);font-size:13px"></i>
-        <input type="text" id="busca-ra" placeholder="Buscar por RA..." maxlength="10">
-        <button onclick="buscarPorRA()"><i class="fa-solid fa-search"></i></button>
+        <input type="text" id="busca-nome" placeholder="Buscar por nome, e-mail ou RA..." oninput="onSearch()">
       </div>
       <button onclick="exportarCSV()" style="padding:8px 14px;font-size:12px;background:#10b981;color:white;border:none;border-radius:8px;cursor:pointer;margin:0;width:auto;font-weight:600;display:flex;align-items:center;gap:6px" title="Exportar para CSV">
         <i class="fa-solid fa-file-csv"></i> Exportar
       </button>
     </div>
 
-    <!-- Filtros adicionais -->
-    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
-      <div style="min-width:200px">
-        <select id="filtro-departamento" onchange="aplicarFiltros()">
-          <option value="">Todos os departamentos</option>
-          <option value="Tecnologia da Informação">Tecnologia da Informação</option>
-          <option value="Recursos Humanos">Recursos Humanos</option>
-          <option value="Vendas">Vendas</option>
-          <option value="Financeiro">Financeiro</option>
-          <option value="Marketing">Marketing</option>
-        </select>
-      </div>
-      <div style="min-width:180px">
-        <select id="ordenacao" onchange="aplicarFiltros()">
-          <option value="nome-asc">Nome (A-Z)</option>
-          <option value="nome-desc">Nome (Z-A)</option>
-          <option value="ra-asc">RA (crescente)</option>
-          <option value="ra-desc">RA (decrescente)</option>
-        </select>
-      </div>
-      <button onclick="limparFiltros()" style="padding:6px 12px;font-size:12px;background:#f1f5f9;color:#475569;border:1px solid var(--border);border-radius:8px;cursor:pointer;margin:0;width:auto;font-weight:600">
-        <i class="fa-solid fa-filter-circle-xmark"></i> Limpar filtros
+    <!-- Filtros secundários -->
+    <div class="pg-filters-row">
+      <select class="pg-select" id="filtro-departamento" onchange="aplicarFiltros()">
+        <option value="">Todos os departamentos</option>
+        <option value="Tecnologia da Informação">TI</option>
+        <option value="Recursos Humanos">RH</option>
+        <option value="Vendas">Vendas</option>
+        <option value="Financeiro">Financeiro</option>
+        <option value="Marketing">Marketing</option>
+        <option value="Operações">Operações</option>
+        <option value="Jurídico">Jurídico</option>
+        <option value="Outros">Outros</option>
+      </select>
+      <select class="pg-select" id="ordenacao" onchange="aplicarFiltros()">
+        <option value="nome|asc">Nome (A-Z)</option>
+        <option value="nome|desc">Nome (Z-A)</option>
+        <option value="ra|asc">RA (crescente)</option>
+        <option value="ra|desc">RA (decrescente)</option>
+        <option value="createdAt|desc">Mais recentes</option>
+        <option value="createdAt|asc">Mais antigos</option>
+      </select>
+      <button onclick="limparFiltros()" style="padding:7px 14px;font-size:12px;background:#f1f5f9;color:#475569;border:1px solid var(--border);border-radius:8px;cursor:pointer;margin:0;width:auto;font-weight:600;display:flex;align-items:center;gap:5px">
+        <i class="fa-solid fa-filter-circle-xmark"></i> Limpar
       </button>
     </div>
 
+    <!-- Lista -->
     <div id="lista-pessoas">
-      <div class="empty-state">
-        <i class="fa-solid fa-users"></i>
-        <p>Carregando usuários...</p>
-      </div>
+      <div class="empty-state"><i class="fa-solid fa-users"></i><p>Carregando usuários...</p></div>
     </div>
 
     <!-- Paginação -->
-    <div id="paginacao" style="display:none; margin-top:16px; display:flex; gap:8px; justify-content:center; align-items:center;">
-      <button id="btn-prev" onclick="mudarPagina(-1)" style="width:auto;padding:6px 14px;margin:0;font-size:13px">← Anterior</button>
-      <span id="pag-info" style="font-size:13px;color:var(--text-muted)"></span>
-      <button id="btn-next" onclick="mudarPagina(1)" style="width:auto;padding:6px 14px;margin:0;font-size:13px">Próxima →</button>
+    <div class="pag-bar" id="paginacao" style="display:none">
+      <button class="pag-btn" id="btn-prev" onclick="mudarPagina(-1)">← Anterior</button>
+      <span class="pag-info" id="pag-info"></span>
+      <button class="pag-btn" id="btn-next" onclick="mudarPagina(1)">Próxima →</button>
     </div>
 
   </div>
 </main>
 
-<!-- Modal de detalhes -->
-<div class="modal-overlay" id="modal-usuario">
+<!-- Modal: Ver detalhes -->
+<div class="modal-overlay" id="modal-ver">
   <div class="modal-box">
-    <h4 id="modal-nome">Detalhes do Usuário</h4>
-    <div id="modal-body"></div>
-    <button class="modal-close" onclick="fecharModal()">Fechar</button>
+    <h4 id="modal-ver-titulo"><i class="fa-solid fa-user"></i> Detalhes</h4>
+    <div id="modal-ver-body"></div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="fecharModal('modal-ver')">Fechar</button>
+    </div>
   </div>
 </div>
 
-<!-- Modal de edição -->
+<!-- Modal: Editar usuário -->
 <div class="modal-overlay" id="modal-editar">
-  <div class="modal-box" style="max-width:500px">
-    <h4>Editar Usuário</h4>
-    <form id="form-editar" style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
-      <div>
-        <label style="display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">Nome completo</label>
-        <input type="text" id="edit-nome" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px">
+  <div class="modal-box" style="max-width:520px">
+    <h4><i class="fa-solid fa-pen"></i> Editar Usuário</h4>
+    <form id="form-editar" novalidate>
+
+      <div class="edit-field">
+        <label for="edit-nome">Nome completo *</label>
+        <input type="text" id="edit-nome" placeholder="Nome completo">
       </div>
-      <div>
-        <label style="display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">E-mail</label>
-        <input type="email" id="edit-email" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px">
+
+      <div class="edit-field">
+        <label for="edit-email">E-mail institucional *</label>
+        <input type="email" id="edit-email" placeholder="nome@faculdade.edu.br">
       </div>
-      <div>
-        <label style="display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">Cargo</label>
-        <input type="text" id="edit-cargo" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px">
+
+      <div class="edit-field">
+        <label for="edit-cargo">Cargo *</label>
+        <input type="text" id="edit-cargo" placeholder="Ex: Analista, Desenvolvedor...">
       </div>
-      <div>
-        <label style="display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">Departamento</label>
-        <select id="edit-departamento" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px">
+
+      <div class="edit-field">
+        <label for="edit-departamento">Departamento *</label>
+        <select id="edit-departamento">
           <option value="">Selecione...</option>
           <option value="Tecnologia da Informação">Tecnologia da Informação</option>
           <option value="Recursos Humanos">Recursos Humanos</option>
           <option value="Vendas">Vendas</option>
           <option value="Financeiro">Financeiro</option>
           <option value="Marketing">Marketing</option>
+          <option value="Operações">Operações</option>
+          <option value="Jurídico">Jurídico</option>
+          <option value="Outros">Outros</option>
         </select>
       </div>
-      <div id="edit-tipo-container">
-        <label style="display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">Tipo de usuário</label>
-        <select id="edit-tipo" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px">
+
+      <div class="edit-field" id="edit-tipo-wrap">
+        <label for="edit-tipo">Tipo de usuário</label>
+        <select id="edit-tipo">
           <option value="colaborador">Colaborador</option>
           <option value="gestor">Gestor</option>
         </select>
       </div>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button type="button" onclick="fecharModalEditar()" style="flex:1;background:#f1f5f9;color:var(--text);margin:0">Cancelar</button>
-        <button type="submit" style="flex:1;margin:0" id="btn-salvar-edicao">Salvar Alterações</button>
+
+      <div class="edit-field" id="edit-gestor-wrap">
+        <label for="edit-gestor">Gestor responsável</label>
+        <select id="edit-gestor">
+          <option value="">Sem gestor</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-modal-cancel" onclick="fecharModal('modal-editar')">Cancelar</button>
+        <button type="submit" class="btn-modal-save" id="btn-salvar-edicao">
+          <i class="fa-solid fa-floppy-disk"></i> Salvar
+        </button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- Modal de confirmação de exclusão -->
-<div class="modal-overlay" id="modal-confirmar-exclusao">
+<!-- Modal: Confirmar exclusão -->
+<div class="modal-overlay" id="modal-excluir">
   <div class="modal-box" style="max-width:400px">
     <h4 style="color:var(--danger)"><i class="fa-solid fa-triangle-exclamation"></i> Confirmar Exclusão</h4>
-    <p style="margin:16px 0;font-size:14px;color:var(--text-muted)">
-      Tem certeza que deseja excluir o usuário <strong id="nome-excluir"></strong>?
+    <p style="font-size:14px;color:var(--text-muted);margin:12px 0">
+      Excluir o usuário <strong id="nome-excluir"></strong>?
     </p>
-    <p style="font-size:13px;color:var(--danger);margin-bottom:16px">
+    <p style="font-size:12px;color:var(--danger);margin-bottom:8px">
       <i class="fa-solid fa-circle-info"></i> Esta ação não pode ser desfeita.
     </p>
-    <div style="display:flex;gap:8px">
-      <button onclick="fecharModalConfirmarExclusao()" style="flex:1;background:#f1f5f9;color:var(--text);margin:0">Cancelar</button>
-      <button onclick="confirmarExclusao()" style="flex:1;background:var(--danger);margin:0" id="btn-confirmar-exclusao">
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="fecharModal('modal-excluir')">Cancelar</button>
+      <button class="btn-modal-del" id="btn-confirmar-excluir" onclick="confirmarExclusao()">
         <i class="fa-solid fa-trash"></i> Excluir
       </button>
     </div>
   </div>
 </div>
 
-<!-- Custom Select Script -->
-<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-
 <script type="module">
-  import { requireRole, isAdmin, isGestor, requireAdmin } from '../js/auth.js';
-  import { usersApi } from '../js/api.js';
+  import { requireAdmin, isAdmin } from '../js/auth.js';
+  import { usersApi, groupsApi } from '../js/api.js';
   import { showToast } from '../js/components/toast.js';
+  import { setFieldError, validateEdicaoForm } from '../js/validators.js';
   import '../js/navbar.js';
 
   requireAdmin();
 
-  requireRole('gestorOrAdmin');
+  // ─── Estado ──────────────────────────────────────────────────────────────────
+  let paginaAtual   = 1;
+  let totalPaginas  = 1;
+  let filtroTipo    = 'todos';
+  let filtroDept    = '';
+  let ordemCampo    = 'nome';
+  let ordemDir      = 'asc';
+  let buscaTimer    = null;
+  let gestoresCache = [];
+  let excluindoId   = null;
+  let editandoId    = null;
+  let editandoTipo  = null;
 
-  // Inicializar Choices.js nos selects
-  const choicesDepartamento = new Choices('#filtro-departamento', {
-    searchEnabled: false,
-    itemSelectText: '',
-    shouldSort: false,
-    position: 'bottom'
-  });
-
-  const choicesOrdenacao = new Choices('#ordenacao', {
-    searchEnabled: false,
-    itemSelectText: '',
-    shouldSort: false,
-    position: 'bottom'
-  });
-
-  let paginaAtual = 1;
-  let filtroAtual = 'todos';
-  let totalPaginas = 1;
-  let departamentoAtual = '';
-  let ordenacaoAtual = 'nome-asc';
-
-  async function carregarUsuarios(page = 1) {
+  // ─── Carregar usuários ───────────────────────────────────────────────────────
+  async function carregar(page = 1) {
     paginaAtual = page;
-    const params = { page, limit: 10 };
-    if (filtroAtual !== 'todos') params.tipo = filtroAtual;
+    const params = {
+      page,
+      limit: 10,
+      orderBy: ordemCampo,
+      orderDir: ordemDir,
+    };
+    if (filtroTipo !== 'todos') params.tipo = filtroTipo;
 
     const busca = document.getElementById('busca-nome').value.trim();
     if (busca) params.search = busca;
-    
-    if (departamentoAtual) params.departamento = departamentoAtual;
-
-    console.log('[CONSULTAR] Carregando usuários com params:', params);
+    if (filtroDept) params.departamento = filtroDept;
 
     try {
-      const res = await usersApi.list(params);
-      console.log('[CONSULTAR] Resposta recebida:', res);
-      
-      let { users } = res.data;
-      const { pagination } = res.data;
-      
-      console.log('[CONSULTAR] Usuários recebidos:', users.length);
-      
-      // Aplicar ordenação
-      users = ordenarUsuarios(users, ordenacaoAtual);
-      
-      totalPaginas = pagination.totalPages;
+      const res  = await usersApi.list(params);
+      const { users, pagination } = res.data;
+      totalPaginas = pagination.totalPages || 1;
       renderLista(users);
       renderPaginacao(pagination);
-    } catch (error) {
-      console.error('[CONSULTAR] Erro ao carregar usuários:', error);
-      document.getElementById('lista-pessoas').innerHTML = `
-        <div class="empty-state">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-          <p>Erro ao carregar usuários.</p>
-        </div>`;
-    }
-  }
-  
-  function ordenarUsuarios(users, ordem) {
-    const sorted = [...users];
-    
-    switch(ordem) {
-      case 'nome-asc':
-        return sorted.sort((a, b) => a.nome.localeCompare(b.nome));
-      case 'nome-desc':
-        return sorted.sort((a, b) => b.nome.localeCompare(a.nome));
-      case 'ra-asc':
-        return sorted.sort((a, b) => a.ra.localeCompare(b.ra));
-      case 'ra-desc':
-        return sorted.sort((a, b) => b.ra.localeCompare(a.ra));
-      default:
-        return sorted;
+    } catch {
+      document.getElementById('lista-pessoas').innerHTML =
+        '<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Erro ao carregar usuários.</p></div>';
     }
   }
 
+  // ─── Renderizar lista ─────────────────────────────────────────────────────────
   function renderLista(users) {
-    const container = document.getElementById('lista-pessoas');
+    const el = document.getElementById('lista-pessoas');
     if (!users.length) {
-      container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-users"></i><p>Nenhum usuário encontrado.</p></div>`;
+      el.innerHTML = '<div class="empty-state"><i class="fa-solid fa-users"></i><p>Nenhum usuário encontrado.</p></div>';
       return;
     }
+    const badgeClass = { admin:'badge-admin', gestor:'badge-gestor', colaborador:'badge-colaborador' };
+    const badgeLabel = { admin:'Admin', gestor:'Gestor', colaborador:'Colaborador' };
 
-    const tipoLabels = { admin: 'Gestor', gestor: 'Gestor', colaborador: 'Colaborador' };
-    const tipoBadge  = { admin: 'badge-admin', gestor: 'badge-gestor', colaborador: 'badge-colaborador' };
-
-    container.innerHTML = users.map(u => {
+    el.innerHTML = users.map(u => {
       const iniciais = u.nome.split(' ').slice(0,2).map(p => p[0]).join('').toUpperCase();
-      const avatar = u.foto
-        ? `<img src="${u.foto}" alt="${u.nome}">`
-        : iniciais;
-
+      const avatar   = u.foto ? `<img src="${u.foto}" alt="${u.nome}">` : iniciais;
       return `
         <div class="pessoa-item">
           <div class="pessoa-avatar">${avatar}</div>
@@ -496,285 +357,276 @@
               ${u.cargo ? `<span>${u.cargo}</span>` : ''}
               ${u.departamento ? `<span>${u.departamento}</span>` : ''}
             </div>
-            <div style="margin-top:4px;display:flex;gap:6px;align-items:center">
-              <span class="badge ${tipoBadge[u.tipo]}">${tipoLabels[u.tipo]}</span>
+            <div style="margin-top:4px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+              <span class="badge ${badgeClass[u.tipo]}">${badgeLabel[u.tipo]}</span>
               <span class="pessoa-ra">RA: ${u.ra}</span>
             </div>
           </div>
           <div class="pessoa-actions">
-            <button class="btn-ver" onclick="verDetalhes('${u.id}')"><i class="fa-solid fa-eye"></i> Ver</button>
-            ${(isAdmin() || (isGestor() && u.tipo === 'colaborador')) ? `<button class="btn-ver" onclick="editarUsuario('${u.id}')" style="background:#fef3c7;color:#92400e;border-color:#fde68a"><i class="fa-solid fa-pen"></i> Editar</button>` : ''}
-            ${isAdmin() && u.tipo !== 'admin' ? `<button class="btn-del" onclick="deletarUsuario('${u.id}','${u.nome}')"><i class="fa-solid fa-trash"></i></button>` : ''}
+            <button class="btn-acao-sm btn-ver-sm"  onclick="verDetalhes('${u.id}')"><i class="fa-solid fa-eye"></i> Ver</button>
+            ${u.tipo !== 'admin' ? `<button class="btn-acao-sm btn-edit-sm" onclick="abrirEdicao('${u.id}')"><i class="fa-solid fa-pen"></i> Editar</button>` : ''}
+            ${u.tipo !== 'admin' ? `<button class="btn-acao-sm btn-del-sm"  onclick="abrirExclusao('${u.id}','${u.nome.replace(/'/g,"\\'")}')"><i class="fa-solid fa-trash"></i></button>` : ''}
           </div>
         </div>`;
     }).join('');
   }
 
-  function renderPaginacao(pagination) {
-    const div = document.getElementById('paginacao');
+  // ─── Paginação ────────────────────────────────────────────────────────────────
+  function renderPaginacao(p) {
+    const bar  = document.getElementById('paginacao');
     const info = document.getElementById('pag-info');
     const prev = document.getElementById('btn-prev');
     const next = document.getElementById('btn-next');
-
-    if (pagination.totalPages <= 1) { div.style.display = 'none'; return; }
-    div.style.display = 'flex';
-    info.textContent = `Página ${pagination.page} de ${pagination.totalPages}`;
-    prev.disabled = pagination.page <= 1;
-    next.disabled = pagination.page >= pagination.totalPages;
+    if (p.totalPages <= 1) { bar.style.display = 'none'; return; }
+    bar.style.display = 'flex';
+    info.textContent  = `Página ${p.page} de ${p.totalPages} (${p.total} usuários)`;
+    prev.disabled     = p.page <= 1;
+    next.disabled     = p.page >= p.totalPages;
   }
 
-  window.filtrar = function(tipo) {
-    filtroAtual = tipo;
-    document.querySelectorAll('.pg-filtro').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.filtro === tipo);
-    });
-    carregarUsuarios(1);
+  // ─── Controles de filtro / busca ──────────────────────────────────────────────
+  window.setFiltro = function(tipo) {
+    filtroTipo = tipo;
+    document.querySelectorAll('.pg-filtro').forEach(b =>
+      b.classList.toggle('active', b.dataset.filtro === tipo));
+    carregar(1);
   };
 
-  window.buscarPorNome = function() {
-    clearTimeout(window._searchTimer);
-    window._searchTimer = setTimeout(() => carregarUsuarios(1), 400);
+  window.onSearch = function() {
+    clearTimeout(buscaTimer);
+    buscaTimer = setTimeout(() => carregar(1), 380);
   };
 
-  window.buscarPorRA = async function() {
-    const ra = document.getElementById('busca-ra').value.trim();
-    if (!ra) { carregarUsuarios(1); return; }
-    try {
-      const res = await usersApi.getByRA(ra);
-      renderLista([res.data]);
-      document.getElementById('paginacao').style.display = 'none';
-    } catch {
-      // Erro já exibido
-    }
+  window.aplicarFiltros = function() {
+    filtroDept = document.getElementById('filtro-departamento').value;
+    const [campo, dir] = document.getElementById('ordenacao').value.split('|');
+    ordemCampo = campo;
+    ordemDir   = dir;
+    carregar(1);
+  };
+
+  window.limparFiltros = function() {
+    document.getElementById('busca-nome').value        = '';
+    document.getElementById('filtro-departamento').value = '';
+    document.getElementById('ordenacao').value         = 'nome|asc';
+    filtroTipo  = 'todos';
+    filtroDept  = '';
+    ordemCampo  = 'nome';
+    ordemDir    = 'asc';
+    document.querySelectorAll('.pg-filtro').forEach(b =>
+      b.classList.toggle('active', b.dataset.filtro === 'todos'));
+    carregar(1);
   };
 
   window.mudarPagina = function(delta) {
     const nova = paginaAtual + delta;
-    if (nova >= 1 && nova <= totalPaginas) carregarUsuarios(nova);
-  };
-  
-  window.aplicarFiltros = function() {
-    departamentoAtual = document.getElementById('filtro-departamento').value;
-    ordenacaoAtual = document.getElementById('ordenacao').value;
-    carregarUsuarios(1);
-  };
-  
-  window.limparFiltros = function() {
-    document.getElementById('busca-nome').value = '';
-    document.getElementById('busca-ra').value = '';
-    choicesDepartamento.setChoiceByValue('');
-    choicesOrdenacao.setChoiceByValue('nome-asc');
-    filtroAtual = 'todos';
-    departamentoAtual = '';
-    ordenacaoAtual = 'nome-asc';
-    document.querySelectorAll('.pg-filtro').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.filtro === 'todos');
-    });
-    carregarUsuarios(1);
+    if (nova >= 1 && nova <= totalPaginas) carregar(nova);
   };
 
+  // ─── Modais helpers ───────────────────────────────────────────────────────────
+  window.fecharModal = function(id) {
+    document.getElementById(id).classList.remove('open');
+  };
+
+  // Fechar ao clicar fora
+  ['modal-ver','modal-editar','modal-excluir'].forEach(id => {
+    document.getElementById(id).addEventListener('click', e => {
+      if (e.target === e.currentTarget) fecharModal(id);
+    });
+  });
+
+  // ─── Ver detalhes ─────────────────────────────────────────────────────────────
   window.verDetalhes = async function(id) {
     try {
       const res = await usersApi.getById(id);
-      const u = res.data;
-      const tipoLabels = { admin: 'Gestor', gestor: 'Gestor', colaborador: 'Colaborador' };
-      document.getElementById('modal-nome').textContent = u.nome;
-      document.getElementById('modal-body').innerHTML = `
+      const u   = res.data;
+      const tipoLabel = { admin:'Administrador', gestor:'Gestor', colaborador:'Colaborador' };
+      document.getElementById('modal-ver-titulo').innerHTML =
+        `<i class="fa-solid fa-user"></i> ${u.nome}`;
+      document.getElementById('modal-ver-body').innerHTML = `
         <div class="modal-row"><span>RA</span><span>${u.ra}</span></div>
         <div class="modal-row"><span>E-mail</span><span>${u.email}</span></div>
-        <div class="modal-row"><span>Tipo</span><span>${tipoLabels[u.tipo]}</span></div>
+        <div class="modal-row"><span>Tipo</span><span>${tipoLabel[u.tipo] || u.tipo}</span></div>
         <div class="modal-row"><span>Cargo</span><span>${u.cargo || '—'}</span></div>
         <div class="modal-row"><span>Departamento</span><span>${u.departamento || '—'}</span></div>
         <div class="modal-row"><span>Cadastrado em</span><span>${new Date(u.createdAt).toLocaleDateString('pt-BR')}</span></div>
       `;
-      document.getElementById('modal-usuario').classList.add('open');
-    } catch {}
+      document.getElementById('modal-ver').classList.add('open');
+    } catch { /* toast já exibido pelo api.js */ }
   };
 
-  window.fecharModal = function() {
-    document.getElementById('modal-usuario').classList.remove('open');
-  };
-
-  window.deletarUsuario = async function(id, nome) {
-    // Usar modal de confirmação
-    usuarioExcluindoId = id;
-    document.getElementById('nome-excluir').textContent = nome;
-    document.getElementById('modal-confirmar-exclusao').classList.add('open');
-  };
-  
-  let usuarioExcluindoId = null;
-  
-  window.fecharModalConfirmarExclusao = function() {
-    document.getElementById('modal-confirmar-exclusao').classList.remove('open');
-    usuarioExcluindoId = null;
-  };
-  
-  window.confirmarExclusao = async function() {
-    if (!usuarioExcluindoId) return;
-    
-    const btn = document.getElementById('btn-confirmar-exclusao');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Excluindo...';
-    
-    try {
-      await usersApi.delete(usuarioExcluindoId);
-      showToast('Usuário removido com sucesso.', 'success');
-      fecharModalConfirmarExclusao();
-      carregarUsuarios(paginaAtual);
-    } catch {}
-    finally {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-trash"></i> Excluir';
+  // ─── Carregar gestores para o select de edição ────────────────────────────────
+  async function carregarGestoresEdit(selecionado = '') {
+    if (!gestoresCache.length) {
+      try {
+        const res = await usersApi.list({ tipo:'gestor', limit:200, orderBy:'nome', orderDir:'asc' });
+        gestoresCache = res.data?.users || [];
+      } catch { gestoresCache = []; }
     }
-  };
+    const sel = document.getElementById('edit-gestor');
+    sel.innerHTML = '<option value="">Sem gestor</option>';
+    gestoresCache.forEach(g => {
+      const opt = document.createElement('option');
+      opt.value = g.id;
+      opt.textContent = `${g.nome}${g.cargo ? ' — ' + g.cargo : ''}`;
+      if (g.id === selecionado) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
 
-  // Editar usuário
-  let usuarioEditandoId = null;
-  
-  window.editarUsuario = async function(id) {
+  // ─── Abrir edição ─────────────────────────────────────────────────────────────
+  window.abrirEdicao = async function(id) {
+    // Limpar erros
+    ['edit-nome','edit-email','edit-cargo','edit-departamento'].forEach(f => setFieldError(f, ''));
     try {
       const res = await usersApi.getById(id);
-      const u = res.data;
-      usuarioEditandoId = id;
-      
-      // Preencher formulário
-      document.getElementById('edit-nome').value = u.nome || '';
-      document.getElementById('edit-email').value = u.email || '';
-      document.getElementById('edit-cargo').value = u.cargo || '';
+      const u   = res.data;
+      editandoId   = id;
+      editandoTipo = u.tipo;
+
+      document.getElementById('edit-nome').value         = u.nome  || '';
+      document.getElementById('edit-email').value        = u.email || '';
+      document.getElementById('edit-cargo').value        = u.cargo || '';
       document.getElementById('edit-departamento').value = u.departamento || '';
-      document.getElementById('edit-tipo').value = u.tipo || 'colaborador';
-      
-      // Admin pode editar tipo, gestor não
-      if (!isAdmin()) {
-        document.getElementById('edit-tipo-container').style.display = 'none';
-      } else {
-        document.getElementById('edit-tipo-container').style.display = 'block';
+      document.getElementById('edit-tipo').value         = u.tipo  || 'colaborador';
+
+      // Buscar gestor atual do colaborador
+      let gestorAtual = '';
+      if (u.tipo === 'colaborador') {
+        try {
+          const gr = await groupsApi.getGestores(id);
+          // getGestores retorna array de objetos gestor diretamente
+          gestorAtual = gr.data?.[0]?.id || '';
+        } catch { /* sem gestor */ }
       }
-      
+
+      // Mostrar/ocultar campos conforme tipo
+      document.getElementById('edit-tipo-wrap').style.display   = 'block';
+      document.getElementById('edit-gestor-wrap').style.display = u.tipo === 'colaborador' ? 'block' : 'none';
+
+      await carregarGestoresEdit(gestorAtual);
+
+      // Atualizar visibilidade do gestor ao mudar tipo
+      document.getElementById('edit-tipo').onchange = function() {
+        document.getElementById('edit-gestor-wrap').style.display =
+          this.value === 'colaborador' ? 'block' : 'none';
+      };
+
       document.getElementById('modal-editar').classList.add('open');
-    } catch {}
+    } catch { /* toast api.js */ }
   };
-  
-  window.fecharModalEditar = function() {
-    document.getElementById('modal-editar').classList.remove('open');
-    usuarioEditandoId = null;
-  };
-  
-  // Salvar edição
-  document.getElementById('form-editar').addEventListener('submit', async (e) => {
+
+  // ─── Salvar edição ────────────────────────────────────────────────────────────
+  document.getElementById('form-editar').addEventListener('submit', async e => {
     e.preventDefault();
-    if (!usuarioEditandoId) return;
-    
-    const nome = document.getElementById('edit-nome').value.trim();
-    const email = document.getElementById('edit-email').value.trim().toLowerCase();
-    const cargo = document.getElementById('edit-cargo').value.trim();
+    if (!editandoId) return;
+
+    const nome         = document.getElementById('edit-nome').value.trim();
+    const email        = document.getElementById('edit-email').value.trim().toLowerCase();
+    const cargo        = document.getElementById('edit-cargo').value.trim();
     const departamento = document.getElementById('edit-departamento').value;
-    const tipo = document.getElementById('edit-tipo').value;
-    
-    if (!nome) { showToast('Digite o nome.', 'error'); return; }
-    if (!email) { showToast('Digite o e-mail.', 'error'); return; }
-    
-    // Validar formato de email
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.edu\.br$/i.test(email)) {
-      showToast('Use um e-mail institucional válido (ex: nome@faculdade.edu.br)', 'error');
-      return;
-    }
-    
-    // Validar email único (exceto o próprio usuário)
-    try {
-      const resUsers = await usersApi.list({ limit: 1000 });
-      const emailExiste = resUsers.data.users.some(u => 
-        u.email.toLowerCase() === email && u.id !== usuarioEditandoId
-      );
-      if (emailExiste) {
-        showToast('Este e-mail já está cadastrado para outro usuário.', 'error');
-        return;
-      }
-    } catch {}
-    
+    const tipo         = document.getElementById('edit-tipo').value;
+    const gestorId     = document.getElementById('edit-gestor').value;
+
+    // Limpar erros anteriores
+    ['edit-nome','edit-email','edit-cargo','edit-departamento'].forEach(f => setFieldError(f, ''));
+
+    if (!validateEdicaoForm({ nome, email, cargo, departamento, tipo, gestorId },
+        tipo === 'colaborador')) return;
+
     const btn = document.getElementById('btn-salvar-edicao');
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
-    
+
     try {
-      const payload = { nome, email, cargo, departamento };
-      if (isAdmin()) payload.tipo = tipo;
-      
-      await usersApi.update(usuarioEditandoId, payload);
+      const payload = { nome, email, cargo, departamento, tipo };
+      if (tipo === 'colaborador') payload.gestorId = gestorId || null;
+
+      await usersApi.update(editandoId, payload);
       showToast('Usuário atualizado com sucesso!', 'success');
-      fecharModalEditar();
-      carregarUsuarios(paginaAtual);
-    } catch {}
-    finally {
+      fecharModal('modal-editar');
+
+      // Atualiza cache de gestores se tipo mudou
+      if (tipo === 'gestor' || editandoTipo === 'gestor') gestoresCache = [];
+
+      carregar(paginaAtual);
+    } catch (err) {
+      const msg = err?.message || '';
+      if (msg.toLowerCase().includes('e-mail') || msg.toLowerCase().includes('email')) {
+        setFieldError('edit-email', msg);
+      }
+    } finally {
       btn.disabled = false;
-      btn.innerHTML = 'Salvar Alterações';
+      btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar';
     }
   });
 
-  // Fechar modal clicando fora
-  document.getElementById('modal-usuario').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) window.fecharModal();
-  });
-  
-  document.getElementById('modal-editar').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) window.fecharModalEditar();
-  });
-  
-  document.getElementById('modal-confirmar-exclusao').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) window.fecharModalConfirmarExclusao();
-  });
-  
-  // Exportar CSV
+  // ─── Exclusão ─────────────────────────────────────────────────────────────────
+  window.abrirExclusao = function(id, nome) {
+    excluindoId = id;
+    document.getElementById('nome-excluir').textContent = nome;
+    document.getElementById('modal-excluir').classList.add('open');
+  };
+
+  window.confirmarExclusao = async function() {
+    if (!excluindoId) return;
+    const btn = document.getElementById('btn-confirmar-excluir');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Excluindo...';
+    try {
+      await usersApi.delete(excluindoId);
+      showToast('Usuário excluído com sucesso.', 'success');
+      fecharModal('modal-excluir');
+      gestoresCache = []; // invalida cache caso gestor tenha sido excluído
+      carregar(paginaAtual);
+    } catch { /* toast api.js */ }
+    finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-trash"></i> Excluir';
+      excluindoId = null;
+    }
+  };
+
+  // ─── Exportar CSV ─────────────────────────────────────────────────────────────
   window.exportarCSV = async function() {
     try {
-      const res = await usersApi.list({ limit: 1000 });
-      let users = res.data.users;
-      
-      // Aplicar filtros atuais
-      if (filtroAtual !== 'todos') {
-        users = users.filter(u => u.tipo === filtroAtual);
-      }
-      if (departamentoAtual) {
-        users = users.filter(u => u.departamento === departamentoAtual);
-      }
-      
-      // Ordenar
-      users = ordenarUsuarios(users, ordenacaoAtual);
-      
-      // Criar CSV com BOM para Excel
+      showToast('Preparando exportação...', 'info');
+      const params = { limit: 1000, orderBy: ordemCampo, orderDir: ordemDir };
+      if (filtroTipo !== 'todos') params.tipo = filtroTipo;
+      if (filtroDept) params.departamento = filtroDept;
+      const busca = document.getElementById('busca-nome').value.trim();
+      if (busca) params.search = busca;
+
+      const res   = await usersApi.list(params);
+      const users = res.data?.users || [];
+
+      const tipoLabel = { admin:'Administrador', gestor:'Gestor', colaborador:'Colaborador' };
       const BOM = '\uFEFF';
-      const headers = ['RA', 'Nome', 'E-mail', 'Tipo', 'Cargo', 'Departamento', 'Data de Cadastro'];
-      const tipoLabels = { admin: 'Gestor', gestor: 'Gestor', colaborador: 'Colaborador' };
-      
+      const headers = ['RA','Nome','E-mail','Tipo','Cargo','Departamento','Cadastrado em'];
       const rows = users.map(u => [
         u.ra,
         u.nome,
         u.email,
-        tipoLabels[u.tipo] || u.tipo,
+        tipoLabel[u.tipo] || u.tipo,
         u.cargo || '',
         u.departamento || '',
-        new Date(u.dataCadastro || u.createdAt || Date.now()).toLocaleDateString('pt-BR')
-      ]);
-      
-      const csvContent = BOM + [
-        headers.join(','),
-        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-      ].join('\n');
-      
-      // Download
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        new Date(u.createdAt).toLocaleDateString('pt-BR'),
+      ].map(c => `"${String(c).replace(/"/g,'""')}"`).join(','));
+
+      const csv  = BOM + [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
+      link.href     = URL.createObjectURL(blob);
       link.download = `usuarios_${new Date().toISOString().split('T')[0]}.csv`;
       link.click();
-      
-      showToast('Arquivo CSV exportado com sucesso!', 'success');
+      showToast(`${users.length} usuários exportados.`, 'success');
     } catch {
       showToast('Erro ao exportar CSV.', 'error');
     }
   };
 
-  carregarUsuarios();
+  // ─── Init ─────────────────────────────────────────────────────────────────────
+  carregar();
 </script>
 </body>
 </html>

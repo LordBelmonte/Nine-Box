@@ -271,6 +271,11 @@
 
   requireAuth();
 
+  // MVP: tela de avaliações do admin está oculta — admin é redirecionado para o painel principal
+  if (isAdmin()) {
+    window.location.href = '../index.html';
+  }
+
   const user = getUser();
   let avaliacaoSelecionada = null;
   let loadedCampaigns = [];

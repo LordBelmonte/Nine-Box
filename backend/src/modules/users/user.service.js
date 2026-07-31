@@ -4,179 +4,211 @@ import { AppError } from '../../utils/errors.js';
 
 class UserService {
   constructor(userRepository) {
-    this.userRepository = userRepository;
+    this.repo = userRepository;
   }
 
+  // ─── Auth ──────────────────────────────────────────────────────────────────
+
   async register(data) {
-    // Verifica email duplicado
-    const emailExists = await this.userRepository.emailExists(data.email);
-    if (emailExists) {
-      throw new AppError('Email já cadastrado', 400);
+    const { gestorId, foto, ...userData } = data;
+
+    // Unicidade de email
+    if (await this.repo.emailExists(userData.email)) {
+      throw new AppError('E-mail já cadastrado. Use outro e-mail.', 400);
     }
 
-    // Verifica RA duplicado
-    const raExists = await this.userRepository.raExists(data.ra);
-    if (raExists) {
-      throw new AppError('RA já cadastrado', 400);
+    // Unicidade de RA
+    if (await this.repo.raExists(userData.ra)) {
+      throw new AppError('RA já cadastrado. Use outro RA.', 400);
     }
 
     // Hash da senha
-    const hashedPassword = await bcrypt.hash(data.senha, 10);
+    const senha = await bcrypt.hash(userData.senha, 10);
 
-    // Extrai gestorId se fornecido (não vai para tabela User)
-    const { gestorId, ...userData } = data;
+    // Foto: aceitar base64 ou null
+    const fotoFinal = foto && foto.startsWith('data:image') ? foto : null;
 
-    // Cria usuário
-    const user = await this.userRepository.create({
+    const user = await this.repo.create({
       ...userData,
-      senha: hashedPassword
+      senha,
+      foto: fotoFinal,
     });
 
-    // Se for colaborador e gestorId foi fornecido, cria associação
+    // Vínculo gestor → colaborador
     if (userData.tipo === 'colaborador' && gestorId) {
-      await this.userRepository.addGestorColaborador(gestorId, user.id);
+      // Verifica se o gestor existe
+      const gestor = await this.repo.findById(gestorId);
+      if (!gestor || gestor.tipo !== 'gestor') {
+        throw new AppError('Gestor informado não encontrado ou inválido.', 400);
+      }
+      await this.repo.createGestorColaborador(gestorId, user.id);
     }
 
-    // Remove senha da resposta
-    delete user.senha;
-
-    return user;
+    const { senha: _, ...userSemSenha } = user;
+    return userSemSenha;
   }
 
   async login(email, senha) {
-    // Busca usuário
-    const user = await this.userRepository.findByEmail(email);
+    const user = await this.repo.findByEmail(email);
     if (!user) {
-      throw new AppError('Email ou senha inválidos', 401);
+      throw new AppError('E-mail ou senha inválidos.', 401);
     }
 
-    // Verifica senha
-    const isPasswordValid = await bcrypt.compare(senha, user.senha);
-    if (!isPasswordValid) {
-      throw new AppError('Email ou senha inválidos', 401);
+    const isValid = await bcrypt.compare(senha, user.senha);
+    if (!isValid) {
+      throw new AppError('E-mail ou senha inválidos.', 401);
     }
 
-    // Gera token
     const token = jwt.sign(
-      {
-        userId: user.id,
-        email: user.email,
-        tipo: user.tipo,
-        ra: user.ra
-      },
+      { userId: user.id, email: user.email, tipo: user.tipo, ra: user.ra },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      { expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
     );
 
-    // Remove senha da resposta
-    delete user.senha;
-
-    return { user, token };
+    const { senha: _, ...userSemSenha } = user;
+    return { user: userSemSenha, token };
   }
 
-  async getProfile(userId) {
-    const user = await this.userRepository.findById(userId);
-    if (!user) {
-      throw new AppError('Usuário não encontrado', 404);
-    }
+  // ─── Perfil (próprio admin) ────────────────────────────────────────────────
 
-    delete user.senha;
-    return user;
+  async getProfile(userId) {
+    const user = await this.repo.findById(userId);
+    if (!user) throw new AppError('Usuário não encontrado.', 404);
+    const { senha: _, ...userSemSenha } = user;
+    return userSemSenha;
   }
 
   async updateProfile(userId, data) {
-    const user = await this.userRepository.findById(userId);
-    if (!user) {
-      throw new AppError('Usuário não encontrado', 404);
-    }
+    const user = await this.repo.findById(userId);
+    if (!user) throw new AppError('Usuário não encontrado.', 404);
 
-    // Validar e processar foto se fornecida
     if (data.foto) {
-      // Validar formato base64
       const base64Regex = /^data:image\/(png|jpg|jpeg|gif|webp);base64,/;
       if (!base64Regex.test(data.foto)) {
         throw new AppError('Formato de imagem inválido. Use PNG, JPG, GIF ou WebP.', 400);
       }
-
-      // Validar tamanho (máximo 2MB)
       const base64Length = data.foto.length - (data.foto.indexOf(',') + 1);
-      const sizeInBytes = (base64Length * 3) / 4;
-      const sizeInMB = sizeInBytes / (1024 * 1024);
-      
+      const sizeInMB = (base64Length * 3) / 4 / (1024 * 1024);
       if (sizeInMB > 2) {
         throw new AppError('Imagem muito grande. Máximo 2MB.', 400);
       }
     }
 
-    const updated = await this.userRepository.update(userId, data);
-    delete updated.senha;
-    return updated;
+    // Nunca permite alterar senha pelo updateProfile
+    const { senha, ...safeData } = data;
+    return this.repo.update(userId, safeData);
   }
 
-  async findAll(filters, userTipo) {
-    console.log(`[USER SERVICE] findAll chamado - userTipo: ${userTipo}, filters:`, filters);
-    
-    // Colaborador pode listar apenas gestores (para avaliar)
-    if (userTipo === 'colaborador') {
-      filters.tipo = 'gestor';
-      console.log(`[USER SERVICE] Colaborador - filtrando apenas gestores`);
-    }
-    
-    // Gestor pode listar todos exceto admin
-    if (userTipo === 'gestor' && !filters.tipo) {
-      console.log(`[USER SERVICE] Gestor - listando todos exceto admin`);
-    }
+  // ─── CRUD admin ────────────────────────────────────────────────────────────
 
-    const result = await this.userRepository.findAll(filters);
-    
-    // Filtrar admins para gestores (no service, não no repository)
-    if (userTipo === 'gestor') {
-      result.users = result.users.filter(u => u.tipo !== 'admin');
-      result.pagination.total = result.users.length;
-      result.pagination.totalPages = Math.ceil(result.users.length / (filters.limit || 10));
-    }
-    
-    console.log(`[USER SERVICE] Retornando ${result.users.length} usuários`);
-    return result;
+  async findAll(filters) {
+    const {
+      page = 1,
+      limit = 10,
+      tipo,
+      search,
+      departamento,
+      orderBy = 'nome',
+      orderDir = 'asc',
+      callerTipo,
+    } = filters;
+
+    // Gestor: não pode ver admins
+    const excludeTipo = callerTipo === 'gestor' ? 'admin' : undefined;
+    // Colaborador: só pode ver gestores
+    const tipoFinal   = callerTipo === 'colaborador' ? 'gestor' : tipo;
+
+    return this.repo.findAll({
+      page: parseInt(page) || 1,
+      limit: parseInt(limit) || 10,
+      tipo:        tipoFinal,
+      excludeTipo: !tipoFinal ? excludeTipo : undefined,
+      search,
+      departamento,
+      orderBy,
+      orderDir,
+    });
   }
 
   async findById(id, requestUserId, requestUserTipo) {
-    const user = await this.userRepository.findById(id);
-    if (!user) {
-      throw new AppError('Usuário não encontrado', 404);
-    }
-
-    // Colaborador só pode ver próprio perfil
+    const user = await this.repo.findById(id);
+    if (!user) throw new AppError('Usuário não encontrado.', 404);
     if (requestUserTipo === 'colaborador' && id !== requestUserId) {
-      throw new AppError('Sem permissão para ver este usuário', 403);
+      throw new AppError('Sem permissão para ver este usuário.', 403);
     }
-
-    delete user.senha;
-    return user;
+    const { senha: _, ...userSemSenha } = user;
+    return userSemSenha;
   }
 
   async findByRA(ra) {
-    const user = await this.userRepository.findByRA(ra);
-    if (!user) {
-      throw new AppError('Usuário não encontrado', 404);
-    }
-
-    delete user.senha;
-    return user;
+    const user = await this.repo.findByRA(ra);
+    if (!user) throw new AppError('Usuário não encontrado.', 404);
+    const { senha: _, ...userSemSenha } = user;
+    return userSemSenha;
   }
 
-  async delete(id) {
-    const user = await this.userRepository.findById(id);
-    if (!user) {
-      throw new AppError('Usuário não encontrado', 404);
-    }
+  // ─── Edição por ID (admin) ─────────────────────────────────────────────────
+
+  async updateById(id, data) {
+    const user = await this.repo.findById(id);
+    if (!user) throw new AppError('Usuário não encontrado.', 404);
 
     if (user.tipo === 'admin') {
-      throw new AppError('Não é possível deletar admin', 400);
+      throw new AppError('Não é permitido editar um administrador.', 403);
     }
 
-    await this.userRepository.delete(id);
-    return { message: 'Usuário deletado com sucesso' };
+    const { gestorId, senha, foto, ...fields } = data;
+
+    // Verificar duplicidade de e-mail
+    if (fields.email && fields.email !== user.email) {
+      if (await this.repo.emailExistsExcept(fields.email, id)) {
+        throw new AppError('E-mail já cadastrado para outro usuário.', 400);
+      }
+    }
+
+    // Foto: validação básica
+    let fotoFinal = undefined;
+    if (foto !== undefined) {
+      if (foto && !foto.startsWith('data:image') && foto !== '') {
+        throw new AppError('Formato de imagem inválido.', 400);
+      }
+      fotoFinal = foto || null;
+    }
+
+    // Montar payload sem senha
+    const payload = { ...fields };
+    if (fotoFinal !== undefined) payload.foto = fotoFinal;
+
+    const updated = await this.repo.update(id, payload);
+
+    // Alterar gestor (para colaboradores)
+    if (user.tipo === 'colaborador' && gestorId !== undefined) {
+      if (gestorId) {
+        const gestor = await this.repo.findById(gestorId);
+        if (!gestor || gestor.tipo !== 'gestor') {
+          throw new AppError('Gestor informado não encontrado ou inválido.', 400);
+        }
+        await this.repo.removeAllGestoresFromColaborador(id);
+        await this.repo.createGestorColaborador(gestorId, id);
+      } else {
+        // gestorId vazio/null = remove vínculo
+        await this.repo.removeAllGestoresFromColaborador(id);
+      }
+    }
+
+    return updated;
+  }
+
+  // ─── Exclusão ─────────────────────────────────────────────────────────────
+
+  async delete(id) {
+    const user = await this.repo.findById(id);
+    if (!user) throw new AppError('Usuário não encontrado.', 404);
+    if (user.tipo === 'admin') {
+      throw new AppError('Não é possível excluir um administrador.', 400);
+    }
+    await this.repo.delete(id);
+    return { message: 'Usuário excluído com sucesso.' };
   }
 }
 

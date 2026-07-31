@@ -701,3 +701,305 @@ body.dark-mode #loading-overlay { background: rgba(15, 23, 42, 0.7); }
   .navbar-link span { display: none; }
   .navbar-link { padding: 12px 16px; }
 }
+
+/* =============================================
+   MELHORIAS VISUAIS — SPRINT 3
+   ============================================= */
+
+/* Fonte Poppins garantida em todos os elementos de texto */
+h1, h2, h3, h4, h5, h6,
+p, span, label, input, select, textarea, button, a {
+  font-family: 'Poppins', 'Inter', 'Segoe UI', sans-serif;
+}
+
+/* Títulos de página com melhor hierarquia */
+header h2 {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+/* =============================================
+   NAVBAR — MELHORIAS VISUAIS
+   ============================================= */
+.navbar {
+  padding: 0 24px;
+  border-bottom: 1.5px solid var(--border);
+}
+
+.navbar-nav {
+  gap: 2px;
+}
+
+.navbar-link {
+  padding: 13px 15px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  border-radius: 8px 8px 0 0;
+  transition: color 0.2s, background 0.15s;
+}
+
+.navbar-link:hover {
+  background: #f0f9ff;
+  color: var(--primary);
+}
+
+.navbar-link.active {
+  color: var(--primary);
+  font-weight: 600;
+  background: #eff6ff;
+}
+
+.navbar-link::after {
+  left: 8px;
+  right: 8px;
+}
+
+.navbar-submenu {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) var(--radius-sm);
+  min-width: 190px;
+  padding: 8px 0;
+}
+
+.navbar-submenu-link {
+  padding: 9px 16px;
+  font-size: 13px;
+  border-radius: 0;
+  gap: 10px;
+}
+
+/* Dark mode navbar */
+body.dark-mode .navbar-link:hover {
+  background: #1e293b;
+}
+
+body.dark-mode .navbar-link.active {
+  background: #1e3a6e22;
+}
+
+/* =============================================
+   CARDS — MELHORIAS
+   ============================================= */
+.card {
+  border-radius: 14px;
+  padding: 20px 16px;
+  gap: 12px;
+}
+
+.card i {
+  font-size: 26px;
+}
+
+.card p {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+/* =============================================
+   FORMULÁRIOS — MELHORIAS
+   ============================================= */
+.form-box {
+  border-radius: 16px;
+  padding: 36px;
+}
+
+.form-box h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-box label {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  margin-top: 16px;
+  margin-bottom: 5px;
+}
+
+.form-box input,
+.form-box select,
+.form-box textarea {
+  font-size: 14px;
+  padding: 11px 14px;
+  border-radius: 9px;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.15s;
+}
+
+.form-box input:focus,
+.form-box select:focus,
+.form-box textarea:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.10);
+}
+
+/* =============================================
+   BOTÕES — MELHORIAS
+   ============================================= */
+button {
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  padding: 12px 22px;
+  transition: background 0.18s, transform 0.15s, box-shadow 0.15s;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* =============================================
+   BADGES — MELHORIAS
+   ============================================= */
+.badge {
+  font-size: 11px;
+  padding: 3px 10px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+/* =============================================
+   DASHBOARD STATS — MELHORIAS
+   ============================================= */
+.dash-stat {
+  border-radius: 12px;
+  padding: 16px 20px;
+  gap: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.dash-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent);
+}
+
+.dash-stat-val {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.dash-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* =============================================
+   TOAST — MELHORIAS
+   ============================================= */
+.toast {
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 100px;
+  box-shadow: 0 8px 28px rgba(30, 58, 138, 0.20);
+  letter-spacing: 0.1px;
+}
+
+/* =============================================
+   EMPTY STATE — MELHORIAS
+   ============================================= */
+.empty-state {
+  padding: 56px 32px;
+  gap: 14px;
+}
+
+.empty-state i {
+  font-size: 52px;
+  color: var(--accent);
+}
+
+.empty-state p {
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 320px;
+}
+
+/* =============================================
+   SCROLLBAR CUSTOMIZADA
+   ============================================= */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 100px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* =============================================
+   RESPONSIVIDADE APRIMORADA
+   ============================================= */
+@media (max-width: 1024px) {
+  .navbar { padding: 0 12px; }
+  .navbar-link { padding: 12px 12px; font-size: 12.5px; }
+}
+
+@media (max-width: 900px) {
+  header { padding: 0 20px; }
+  header h2 { font-size: 15px; }
+  .navbar { padding: 0 8px; overflow-x: auto; scrollbar-width: none; }
+  .navbar::-webkit-scrollbar { display: none; }
+  .navbar-nav { justify-content: flex-start; gap: 0; }
+  .navbar-link { padding: 12px 10px; font-size: 12px; }
+  .form-box { padding: 24px 20px; }
+}
+
+@media (max-width: 768px) {
+  .container { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .card { height: 120px; padding: 16px 12px; }
+  .wrapper { padding: 20px 12px; }
+  .form-box { max-width: 100%; border-radius: 14px; }
+  .dash-stat { min-width: 110px; padding: 12px 14px; }
+  .dash-stat-val { font-size: 20px; }
+}
+
+@media (max-width: 600px) {
+  header h2 { font-size: 14px; }
+  .navbar-link span { display: none; }
+  .navbar-link { padding: 13px 14px; }
+  .navbar-link i { font-size: 15px; }
+  .navbar-chevron { display: none; }
+  .user-dropdown { min-width: 200px; right: -8px; }
+}
+
+@media (max-width: 400px) {
+  .wrapper { padding: 14px 10px; }
+  .container { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .card { height: 110px; }
+}
+
+/* =============================================
+   DARK MODE — MELHORIAS ADICIONAIS
+   ============================================= */
+body.dark-mode .dash-stat:hover {
+  border-color: #60a5fa44;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}

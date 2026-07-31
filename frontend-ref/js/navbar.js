@@ -44,7 +44,7 @@ function aplicarPermissoesNav() {
   const user = getUser();
   if (!user) return;
 
-  // Elementos visíveis apenas para administradores
+  // Elementos visíveis apenas para administradores (data-role="admin")
   document.querySelectorAll('[data-role="admin"]').forEach(el => {
     el.style.display = isAdmin() ? '' : 'none';
   });
@@ -54,21 +54,11 @@ function aplicarPermissoesNav() {
     el.style.display = isColaborador() ? '' : 'none';
   });
 
-  // Gestor e Colaborador veem apenas Avaliações no menu principal
+  // Gestor e Colaborador: ocultar toda a navbar — eles têm fluxo próprio
+  // (são redirecionados para avaliacoes.html que tem layout sem navbar)
   if ((isGestor() || isColaborador()) && !isAdmin()) {
-    document.querySelectorAll('.navbar-item').forEach(el => {
-      const link = el.querySelector('a');
-      if (link && !el.closest('.navbar-item-dropdown')) {
-        const href = link.getAttribute('href');
-        // Permite apenas Avaliações
-        const allowed = href.includes('avaliacoes.html') || href.includes('avaliacoes-pendentes.html');
-        el.style.display = allowed ? '' : 'none';
-      }
-    });
-
-    // Esconder link de Perfil no dropdown
-    const perfilLink = document.querySelector('a[href="perfil.html"]');
-    if (perfilLink) perfilLink.style.display = 'none';
+    const navbar = document.querySelector('.navbar');
+    if (navbar) navbar.style.display = 'none';
   }
 }
 
