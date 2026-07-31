@@ -23,8 +23,87 @@ import passwordResetRoutes from './modules/auth/password-reset.routes.js';
 import auditRoutes from './modules/audit/audit.routes.js';
 
 const app = express();
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// Middlewares
+// =============================================
+// CORS — Configuração centralizada
+// =============================================
+
+/**
+ * Constrói a lista de origens permitidas a partir de variáveis de ambiente
+ * e de origens fixas para desenvolvimento local.
+ *
+ * Variáveis reconhecidas:
+ *   FRONTEND_URL   — URL principal do frontend (ex: https://meu-app.vercel.app)
+ *   CORS_ORIGINS   — Lista extra separada por vírgula, para múltiplos domínios
+ */
+function buildAllowedOrigins() {
+  const origins = new Set([
+    // Desenvolvimento local — live-server padrão
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    // Desenvolvimento local — porta do próprio backend
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    // Variações comuns de porta em dev
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+    'http://localhost:4200',
+    'http://127.0.0.1:4200',
+  ]);
+
+  // URL principal do frontend definida em variável de ambiente
+  if (process.env.FRONTEND_URL) {
+    origins.add(process.env.FRONTEND_URL.trim());
+  }
+
+  // Lista extra separada por vírgula (ex: "https://a.vercel.app,https://b.vercel.app")
+  if (process.env.CORS_ORIGINS) {
+    process.env.CORS_ORIGINS.split(',').forEach(o => {
+      const trimmed = o.trim();
+      if (trimmed) origins.add(trimmed);
+    });
+  }
+
+  return [...origins];
+}
+
+const allowedOrigins = buildAllowedOrigins();
+
+if (NODE_ENV === 'development') {
+  console.log('[CORS] Origens permitidas:', allowedOrigins);
+}
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Sem origin → Postman, curl, same-origin, mobile apps → permitir
+    if (!origin) {
+      if (NODE_ENV === 'development') {
+        console.log('[CORS] Requisição sem origin → permitida');
+      }
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      if (NODE_ENV === 'development') {
+        console.log(`[CORS] Origin permitida: ${origin}`);
+      }
+      return callback(null, true);
+    }
+
+    // Em desenvolvimento, logar a origem bloqueada para facilitar debug
+    console.warn(`[CORS] Origin BLOQUEADA: ${origin}`);
+    console.warn(`[CORS] Adicione esta URL em FRONTEND_URL ou CORS_ORIGINS no .env`);
+    return callback(new Error(`Not allowed by CORS: ${origin}`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+}));
+
+// =============================================
+// HELMET — Content Security Policy
+// =============================================
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -50,42 +129,20 @@ app.use(helmet({
         "https://cdnjs.cloudflare.com",
         "https://cdn.jsdelivr.net"
       ],
-      imgSrc: ["'self'", "data:", "blob:"],
-      connectSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "blob:", "https:"],
+      // connectSrc precisa incluir o backend explicitamente quando o frontend
+      // roda em porta diferente (dev com live-server) e também o domínio
+      // do Render em produção.
+      connectSrc: [
+        "'self'",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        ...(process.env.BACKEND_URL ? [process.env.BACKEND_URL] : []),
+        ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+      ],
       workerSrc: ["'self'", "blob:"],
     },
   },
-}));
-
-// CORS com credentials para aceitar cookies
-// Aceitar múltiplas origens (localhost e 127.0.0.1)
-const allowedOrigins = [
-  'http://localhost:5500',
-  'http://127.0.0.1:5500',
-  'http://localhost:3000',
-  'http://127.0.0.1:3000'
-];
-
-// Adicionar origens do ambiente se existirem
-if (process.env.FRONTEND_URL) {
-  allowedOrigins.push(process.env.FRONTEND_URL);
-}
-if (process.env.CORS_ORIGIN) {
-  allowedOrigins.push(process.env.CORS_ORIGIN);
-}
-
-app.use(cors({
-  origin: (origin, callback) => {
-    // Permitir requisições sem origin (como Postman, curl, etc)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
 }));
 
 app.use(express.json({ limit: '10mb' }));

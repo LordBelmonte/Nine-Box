@@ -1,0 +1,32 @@
+# render.yaml — Configuração de deploy no Render
+# Documentação: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: ninebox-backend
+    env: node
+    region: oregon           # Altere para a região mais próxima se necessário
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      # Configure as variáveis abaixo no painel do Render (Environment > Add Variable)
+      # NÃO coloque valores secretos aqui — use o painel do Render.
+      - key: DATABASE_URL
+        sync: false          # Será preenchido manualmente no painel
+      - key: DIRECT_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false          # OBRIGATÓRIO: defina um secret seguro no painel
+      - key: JWT_EXPIRES_IN
+        value: 30d
+      - key: FRONTEND_URL
+        sync: false          # URL do frontend Vercel (ex: https://meu-app.vercel.app)
+      - key: CORS_ORIGINS
+        sync: false          # URLs extras separadas por vírgula (opcional)
+      - key: BACKEND_URL
+        sync: false          # URL pública deste serviço (ex: https://ninebox.onrender.com)
