@@ -116,6 +116,15 @@ class UserController {
       next(error);
     }
   }
+
+  async resetPassword(req, res, next) {
+    try {
+      const result = await userService.resetPassword(req.params.id, req.body.novaSenha);
+      return res.json({ success: true, message: result.message });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export { UserController };

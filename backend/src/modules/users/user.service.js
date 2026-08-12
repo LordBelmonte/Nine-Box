@@ -199,6 +199,27 @@ class UserService {
     return updated;
   }
 
+  // ─── Redefinição de senha pelo admin ─────────────────────────────────────
+
+  async resetPassword(id, novaSenha) {
+    const user = await this.repo.findById(id);
+    if (!user) throw new AppError('Usuário não encontrado.', 404);
+
+    // Admin não pode ter a própria senha redefinida via este endpoint
+    // (deve usar updateProfile)
+    if (user.tipo === 'admin') {
+      throw new AppError('Não é permitido redefinir a senha de um administrador por este endpoint.', 403);
+    }
+
+    // Hash usando o mesmo mecanismo do cadastro (bcryptjs)
+    const { default: bcrypt } = await import('bcryptjs');
+    const senhaHash = await bcrypt.hash(novaSenha, 10);
+
+    // Atualiza apenas a senha — nunca retorna o hash na resposta
+    await this.repo.update(id, { senha: senhaHash });
+    return { message: 'Senha redefinida com sucesso.' };
+  }
+
   // ─── Exclusão ─────────────────────────────────────────────────────────────
 
   async delete(id) {

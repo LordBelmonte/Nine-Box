@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Campanhas de Avaliacao</title>
+  <title>Campanhas — Portal de Gestão de Pessoas</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
@@ -11,50 +11,158 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script>(function(){const dm=localStorage.getItem('darkMode');if(dm==='1'||(dm===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark-mode');if(document.body)document.body.classList.add('dark-mode');}})();</script>
   <style>
-    .camp-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600}
-    .camp-badge.planejamento{background:#fef3c7;color:#92400e}
-    .camp-badge.ativa{background:#d1fae5;color:#065f46}
-    .camp-badge.finalizada{background:#f1f5f9;color:#64748b}
-    .camp-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:20px 24px;display:flex;flex-direction:column;gap:10px;transition:box-shadow .2s}
-    .camp-card:hover{box-shadow:var(--shadow-md)}
-    .camp-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
-    .camp-card-nome{font-weight:600;font-size:15px;color:var(--text)}
-    .camp-card-desc{font-size:13px;color:var(--text-muted)}
-    .camp-card-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-muted)}
-    .camp-card-meta span{display:flex;align-items:center;gap:5px}
-    .camp-card-acoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
-    .camp-criterio-tag{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:11px;color:var(--text-muted)}
-    .camp-criterios-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
-    .form-section{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
-    .form-section-title{font-weight:600;font-size:14px;color:var(--primary);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-    .competencia-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1.5px solid var(--border);border-radius:100px;padding:6px 14px;font-size:12px;cursor:pointer;transition:all .15s;user-select:none}
-    .competencia-chip.selected{background:#ede9fe;border-color:#7c3aed;color:#5b21b6;font-weight:600}
-    .competencia-chip:hover:not(.selected){border-color:var(--primary)}
-    .gestor-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1.5px solid var(--border);border-radius:100px;padding:6px 14px;font-size:12px;cursor:pointer;transition:all .15s;user-select:none}
-    .gestor-chip.selected{background:#ede9fe;border-color:#7c3aed;color:#5b21b6;font-weight:600}
-    .gestor-chip:hover:not(.selected){border-color:var(--primary)}
-    .colaborador-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1.5px solid var(--border);border-radius:100px;padding:6px 14px;font-size:12px;cursor:pointer;transition:all .15s;user-select:none}
-    .colaborador-chip.selected{background:#dbeafe;border-color:#0284c7;color:#075985;font-weight:600}
-    .colaborador-chip:hover:not(.selected){border-color:var(--primary)}
-    .filtros-bar{display:flex !important;flex-direction:row !important;flex-wrap:wrap !important;align-items:center;gap:8px;margin-bottom:20px}
-    .filtro-btn{display:inline-flex !important;width:auto !important;flex:0 0 auto !important;white-space:nowrap;padding:6px 16px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;margin-top:0 !important}
-    .filtro-btn.active{background:var(--primary);color:white;border-color:var(--primary)}
-    .btn-acao{padding:5px 12px;font-size:11px;border-radius:6px;cursor:pointer;font-weight:600;border:1.5px solid;transition:all .15s}
-    .btn-acao.editar{background:#fef3c7;color:#92400e;border-color:#fde68a}
-    .btn-acao.ativar{background:#d1fae5;color:#065f46;border-color:#6ee7b7}
-    .btn-acao.finalizar{background:#f1f5f9;color:#475569;border-color:#cbd5e1}
-    .btn-acao.excluir{background:transparent;color:#ef4444;border-color:#fecaca}
-    .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1100;align-items:center;justify-content:center}
-    .modal-overlay.show{display:flex}
-    .comp-field select{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");background-repeat:no-repeat;background-position:right.7em top 50%;background-size:.65em auto;padding-right:2.5em}
-    .camp-card-acoes{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;gap:8px;margin-top:4px}
-    .btn-acao{display:inline-flex!important;align-items:center;gap:6px;width:auto!important;flex:0 0 auto!important;white-space:nowrap;padding:5px 12px;font-size:11px;border-radius:6px;cursor:pointer;font-weight:600;border:1.5px solid;transition:all .15s;margin-top:0!important}
+    /* ── Layout ── */
+    .camp-main { flex:1; padding:28px 20px; display:flex; flex-direction:column; gap:0; max-width:1000px; margin:0 auto; width:100%; }
+
+    /* ── Badges de status ── */
+    .camp-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 12px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.3px }
+    .camp-badge.planejamento { background:#fef3c7;color:#92400e }
+    .camp-badge.ativa        { background:#d1fae5;color:#065f46 }
+    .camp-badge.finalizada   { background:#f1f5f9;color:#64748b }
+
+    /* ── Cards de campanha ── */
+    .camp-card { background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:20px 24px;display:flex;flex-direction:column;gap:12px;transition:box-shadow .2s;margin-bottom:12px }
+    .camp-card:hover { box-shadow:var(--shadow-md) }
+    .camp-card-header { display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap }
+    .camp-card-nome { font-weight:700;font-size:15px;color:var(--text) }
+    .camp-card-desc { font-size:13px;color:var(--text-muted);margin-top:2px }
+    .camp-card-meta { display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text-muted) }
+    .camp-card-meta span { display:flex;align-items:center;gap:5px }
+    .camp-tag { display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--text-muted) }
+    .camp-tags { display:flex;flex-wrap:wrap;gap:6px }
+    .camp-acoes { display:flex;gap:7px;flex-wrap:wrap }
+    .btn-camp { display:inline-flex;align-items:center;gap:5px;padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;font-weight:600;border:1.5px solid;transition:all .15s;margin:0;width:auto;white-space:nowrap }
+    .btn-camp:hover { transform:none;box-shadow:none }
+    .btn-camp.editar   { background:#fef3c7;color:#92400e;border-color:#fde68a }
+    .btn-camp.ativar   { background:#d1fae5;color:#065f46;border-color:#6ee7b7 }
+    .btn-camp.finalizar{ background:#f1f5f9;color:#475569;border-color:#cbd5e1 }
+    .btn-camp.duplicar { background:#eff6ff;color:#2563eb;border-color:#bfdbfe }
+    .btn-camp.excluir  { background:transparent;color:#ef4444;border-color:#fecaca }
+
+    /* ── Filtros ── */
+    .filtros-bar { display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:20px }
+    .filtro-btn { display:inline-flex;width:auto;flex:0 0 auto;white-space:nowrap;padding:7px 18px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;margin:0 }
+    .filtro-btn:hover { border-color:var(--primary-light);color:var(--primary);transform:none;box-shadow:none }
+    .filtro-btn.active { background:var(--primary);color:white;border-color:var(--primary) }
+
+    /* ── Tela de formulário ── */
+    .form-wrap { display:flex;flex-direction:column;gap:16px }
+    .form-section { background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:24px }
+    .form-section-title { font-weight:700;font-size:14px;color:var(--primary);margin-bottom:18px;display:flex;align-items:center;gap:8px }
+    .form-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px }
+    .form-grid .full { grid-column:1/-1 }
+    .form-field { display:flex;flex-direction:column;gap:6px }
+    .form-field label { font-size:13px;font-weight:600;color:var(--text) }
+    .form-field input, .form-field select, .form-field textarea {
+      padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;
+      font-size:14px;font-family:inherit;color:var(--text);background:var(--surface);
+      transition:border-color .2s,box-shadow .2s;width:100%;box-sizing:border-box
+    }
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+      border-color:var(--primary-light);box-shadow:0 0 0 3px rgba(59,130,246,.1);outline:none
+    }
+    .form-field input.field-invalid, .form-field select.field-invalid { border-color:var(--danger)!important }
+    .field-error { font-size:12px;color:var(--danger);font-weight:500;margin-top:2px;display:block }
+    .form-hint  { font-size:11px;color:var(--text-muted);margin-top:2px }
+
+    /* ── Chips ── */
+    .chip-wrap { display:flex;flex-wrap:wrap;gap:8px;min-height:36px;align-items:flex-start }
+    .chip { display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1.5px solid var(--border);border-radius:100px;padding:6px 14px;font-size:12px;cursor:pointer;transition:all .15s;user-select:none;font-weight:500 }
+    .chip:hover { border-color:var(--primary-light) }
+    .chip.selected-purple { background:#ede9fe;border-color:#7c3aed;color:#5b21b6;font-weight:600 }
+    .chip.selected-blue   { background:#dbeafe;border-color:#0284c7;color:#075985;font-weight:600 }
+    .chip-count { font-size:11px;background:#7c3aed;color:white;border-radius:100px;padding:1px 7px;font-weight:700 }
+
+    /* ── Botões de ação do formulário ── */
+    .btn-add-comp { display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin:8px 0 0;transition:all .15s;width:auto }
+    .btn-add-comp:hover { background:#1d4ed8;transform:translateY(-1px) }
+
+    /* ── Seção colaboradores por gestor ── */
+    .gestor-colab-card { background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px }
+    .gestor-colab-header { display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px }
+    .gestor-colab-nome { font-size:13px;font-weight:700;color:var(--text) }
+    .btn-sel-all, .btn-clear-all { padding:3px 10px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;border:1.5px solid;transition:all .15s;margin:0;width:auto }
+    .btn-sel-all   { border-color:var(--primary);color:var(--primary);background:transparent }
+    .btn-sel-all:hover { background:var(--primary);color:white;transform:none;box-shadow:none }
+    .btn-clear-all { border-color:var(--border);color:var(--text-muted);background:transparent }
+    .btn-clear-all:hover { border-color:var(--danger);color:var(--danger);transform:none;box-shadow:none }
+    .no-colabs-warn { font-size:12px;color:var(--warning);display:flex;align-items:center;gap:6px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px }
+
+    /* ── Modal de competências ── */
+    .modal-comp-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1200;align-items:center;justify-content:center;padding:20px }
+    .modal-comp-overlay.open { display:flex }
+    .modal-comp-box { background:var(--surface);border-radius:16px;box-shadow:0 24px 64px rgba(0,0,0,.3);width:100%;max-width:600px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden }
+    .modal-comp-head { padding:20px 24px;border-bottom:1.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0 }
+    .modal-comp-head h3 { font-size:17px;font-weight:700;color:var(--primary);margin:0 }
+    .modal-comp-search { padding:12px 24px;border-bottom:1.5px solid var(--border);flex-shrink:0 }
+    .modal-comp-search-wrap { display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:9px 14px }
+    .modal-comp-search-wrap i { color:var(--text-muted);font-size:13px }
+    .modal-comp-search-wrap input { border:none;background:transparent;font-size:14px;font-family:inherit;color:var(--text);width:100%;outline:none }
+    .modal-comp-counter { padding:8px 24px;font-size:12px;color:var(--text-muted);font-weight:600;flex-shrink:0;border-bottom:1px solid var(--border) }
+    .modal-comp-list { flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:6px }
+    .modal-comp-item { display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;background:var(--surface) }
+    .modal-comp-item:hover { border-color:var(--primary-light);background:var(--bg) }
+    .modal-comp-item.selected { background:#ede9fe;border-color:#7c3aed }
+    .modal-comp-item-info { flex:1;min-width:0 }
+    .modal-comp-item-nome { font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;flex-wrap:wrap }
+    .modal-comp-item-desc { font-size:11px;color:var(--text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
+    .modal-comp-item-check { color:#7c3aed;font-size:16px;flex-shrink:0 }
+    .tipo-badge { display:inline-flex;align-items:center;padding:1px 8px;border-radius:100px;font-size:10px;font-weight:700 }
+    .tipo-badge.desempenho { background:#dbeafe;color:#1e40af }
+    .tipo-badge.potencial  { background:#ede9fe;color:#5b21b6 }
+    .modal-comp-empty { text-align:center;padding:32px;color:var(--text-muted);font-size:13px }
+    .modal-comp-footer { padding:16px 24px;border-top:1.5px solid var(--border);display:flex;justify-content:flex-end;gap:10px;flex-shrink:0 }
+    .btn-modal-cancel { margin:0;width:auto;padding:9px 20px;font-size:13px;font-weight:600;background:var(--bg);color:var(--text);border:1.5px solid var(--border);border-radius:8px;cursor:pointer }
+    .btn-modal-cancel:hover { background:#e2e8f0;transform:none;box-shadow:none }
+    .btn-modal-confirm { margin:0;width:auto;padding:9px 22px;font-size:13px;font-weight:600;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer }
+    .btn-modal-confirm:hover { background:#1d4ed8;transform:none;box-shadow:none }
+
+    /* ── Modal de confirmação ── */
+    .modal-confirm-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1100;align-items:center;justify-content:center;padding:20px }
+    .modal-confirm-overlay.open { display:flex }
+    .modal-confirm-box { background:var(--surface);border-radius:14px;box-shadow:var(--shadow-lg);padding:28px;width:100%;max-width:400px }
+    .modal-confirm-box h3 { font-size:17px;font-weight:700;color:var(--text);margin:0 0 10px }
+    .modal-confirm-box p { font-size:14px;color:var(--text-muted);margin:0 0 20px }
+    .modal-confirm-actions { display:flex;gap:10px;justify-content:flex-end }
+
+    /* ── Cabeçalho de lista / form ── */
+    .page-header { display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap }
+    .page-header h3 { font-size:20px;font-weight:700;color:var(--primary);margin:0 }
+    .page-header p  { font-size:13px;color:var(--text-muted);margin:4px 0 0 }
+    .btn-primary { display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;margin:0;width:auto }
+    .btn-primary:hover { background:#1d4ed8;transform:translateY(-1px);box-shadow:0 6px 20px rgba(30,58,138,.25) }
+    .btn-secondary { display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:var(--bg);color:var(--text);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;margin:0;width:auto }
+    .btn-secondary:hover { border-color:var(--primary-light);color:var(--primary);transform:none;box-shadow:none }
+    .btn-save { display:inline-flex;align-items:center;gap:7px;padding:11px 26px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin:0;width:auto }
+    .btn-save:hover { background:#1d4ed8 }
+    .btn-save:disabled { background:var(--text-muted);cursor:not-allowed }
+
+    /* ── Formulário: ações finais ── */
+    .form-actions { display:flex;gap:10px;justify-content:flex-end;padding:4px 0 }
+
+    /* ── Dark mode ── */
+    body.dark-mode .form-section { background:#1e293b }
+    body.dark-mode .gestor-colab-card { background:#0f172a }
+    body.dark-mode .camp-card { background:#1e293b }
+    body.dark-mode .modal-comp-box, body.dark-mode .modal-confirm-box { background:#1e293b }
+    body.dark-mode .modal-comp-search-wrap { background:#0f172a }
+    body.dark-mode .modal-comp-item { background:#1e293b }
+    body.dark-mode .modal-comp-item.selected { background:#2e1065 }
+    body.dark-mode .form-field input, body.dark-mode .form-field select, body.dark-mode .form-field textarea { background:#0f172a;color:#f1f5f9;border-color:#334155 }
+    body.dark-mode .chip { background:#1e293b }
+    body.dark-mode .no-colabs-warn { background:#1c1100;border-color:#92400e;color:#fde68a }
+
+    @media(max-width:600px) {
+      .form-grid { grid-template-columns:1fr }
+      .form-grid .full { grid-column:1 }
+      .camp-acoes { flex-direction:row }
+    }
   </style>
 </head>
 <body>
 
 <header>
-  <h2 id="page-title">Campanhas de Avaliacao</h2>
+  <h2>Campanhas de Avaliação</h2>
   <button id="dark-mode-btn" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i></button>
   <div class="user-menu" id="user-menu">
     <div class="user" id="user-btn" onclick="toggleUserMenu()"><i class="fa-solid fa-user"></i></div>
@@ -107,942 +215,725 @@
   </ul>
 </nav>
 
-<main class="comp-main">
+<main class="camp-main">
 
-  <!-- TELA LISTA -->
-  <div id="tela-lista" class="comp-tela">
-    <div class="comp-lista-header">
+  <!-- ═══ TELA LISTA ═══ -->
+  <div id="tela-lista">
+    <div class="page-header">
       <div>
-        <h3>Campanhas de Avaliacao</h3>
-        <p>Crie e gerencie campanhas usando competencias do sistema</p>
+        <h3>Campanhas de Avaliação</h3>
+        <p>Crie e gerencie campanhas usando as competências do sistema</p>
       </div>
-      <button class="comp-btn-novo" onclick="abrirFormulario()">
+      <button class="btn-primary" onclick="abrirFormulario()">
         <i class="fa-solid fa-plus"></i> Nova Campanha
       </button>
     </div>
 
     <div class="filtros-bar">
-      <button class="filtro-btn active" data-status="" onclick="filtrar(this,'')">Todas</button>
-      <button class="filtro-btn" data-status="planejamento" onclick="filtrar(this,'planejamento')"><i class="fa-solid fa-pencil"></i> Planejamento</button>
-      <button class="filtro-btn" data-status="ativa" onclick="filtrar(this,'ativa')"><i class="fa-solid fa-circle-play"></i> Ativas</button>
-      <button class="filtro-btn" data-status="finalizada" onclick="filtrar(this,'finalizada')"><i class="fa-solid fa-flag-checkered"></i> Finalizadas</button>
+      <button class="filtro-btn active" data-s="" onclick="filtrar(this,'')">Todas</button>
+      <button class="filtro-btn" data-s="planejamento" onclick="filtrar(this,'planejamento')">
+        <i class="fa-solid fa-pencil"></i> Planejamento
+      </button>
+      <button class="filtro-btn" data-s="ativa" onclick="filtrar(this,'ativa')">
+        <i class="fa-solid fa-circle-play"></i> Ativas
+      </button>
+      <button class="filtro-btn" data-s="finalizada" onclick="filtrar(this,'finalizada')">
+        <i class="fa-solid fa-flag-checkered"></i> Finalizadas
+      </button>
     </div>
 
-    <div id="campanhas-container" style="display:flex;flex-direction:column;gap:12px">
-      <p class="comp-empty">Carregando campanhas...</p>
+    <div id="campanhas-container">
+      <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><p>Carregando campanhas...</p></div>
     </div>
   </div>
 
-  <!-- TELA FORMULARIO -->
-  <div id="tela-form" class="comp-tela" style="display:none">
-    <div class="comp-lista-header" style="margin-bottom:24px">
+  <!-- ═══ TELA FORMULÁRIO ═══ -->
+  <div id="tela-form" style="display:none">
+    <div class="page-header">
       <div>
         <h3 id="form-titulo">Nova Campanha</h3>
-        <p id="form-subtitulo">Selecione as competencias e responsaveis pela avaliacao</p>
+        <p id="form-subtitulo">Preencha os dados e selecione competências e responsáveis</p>
       </div>
-      <button onclick="voltarParaLista()" style="padding:8px 16px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;color:var(--text);font-weight:600;display:flex;align-items:center;gap:6px">
+      <button class="btn-secondary" onclick="voltarParaLista()">
         <i class="fa-solid fa-arrow-left"></i> Voltar
       </button>
     </div>
 
-    <div class="form-section">
-      <div class="form-section-title"><i class="fa-solid fa-info-circle"></i> Dados da Campanha</div>
-      <div class="comp-form-grid">
-        <div class="comp-field" style="grid-column:1/-1">
-          <label>Nome da campanha *</label>
-          <input type="text" id="f-nome" placeholder="Ex: Avaliacao Semestral TI - 2026/1" maxlength="150">
-        </div>
-        <div class="comp-field" style="grid-column:1/-1">
-          <label>Descricao <span style="font-weight:400;color:var(--text-muted)">(opcional)</span></label>
-          <textarea id="f-descricao" rows="2" placeholder="Descreva o objetivo desta campanha..." style="resize:vertical;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;background:var(--surface);color:var(--text);width:100%;box-sizing:border-box"></textarea>
-        </div>
-        <div class="comp-field">
-          <label>Data de inicio *</label>
-          <input type="date" id="f-inicio">
-        </div>
-        <div class="comp-field">
-          <label>Data de fim *</label>
-          <input type="date" id="f-fim">
-        </div>
-        <div class="comp-field">
-          <label>Quem sera avaliado *</label>
-          <select id="f-alvo" onchange="atualizarTextoGestores()" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;background:var(--surface);color:var(--text);width:100%">
-            <option value="colaborador">Colaboradores</option>
-            <option value="gestor">Gestores</option>
-            <option value="todos">Todos</option>
-          </select>
-        </div>
-      </div>
-    </div>
+    <div class="form-wrap">
 
-    <div class="form-section">
-      <div class="form-section-title"><i class="fa-solid fa-clipboard-check"></i> Competencias de Avaliacao</div>
-      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">
-        Selecione as competencias que serao usadas nesta campanha.
-      </p>
-      <div id="competencias-chips" style="display:flex;flex-wrap:wrap;gap:8px">
-        <p style="font-size:13px;color:var(--text-muted)">Carregando competencias...</p>
-      </div>
-      <button onclick="abrirModalCompetencias()" style="margin-top:12px;padding:8px 12px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;width:fit-content">
-        <i class="fa-solid fa-plus"></i>
-      </button>
-    </div>
-
-    <div class="form-section">
-      <div class="form-section-title"><i class="fa-solid fa-user-tie"></i> <span id="gestores-titulo">Gestores Responsaveis</span></div>
-      <p id="gestores-descricao" style="font-size:12px;color:var(--text-muted);margin-bottom:14px">
-        Selecione quais gestores poderao realizar avaliacoes nesta campanha.
-      </p>
-      <div id="gestores-chips" style="display:flex;flex-wrap:wrap;gap:8px">
-        <p style="font-size:13px;color:var(--text-muted)">Carregando gestores...</p>
-      </div>
-    </div>
-
-    <div class="form-section" id="colaboradores-por-gestor-section" style="display:none">
-      <div class="form-section-title"><i class="fa-solid fa-users"></i> Colaboradores Vinculados por Gestor</div>
-      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">
-        Para cada gestor responsável, selecione quais colaboradores estão vinculados a ele nesta campanha (eles avaliarão ou serão avaliados pelo gestor, dependendo do tipo da campanha).
-      </p>
-      <div id="colaboradores-por-gestor-container" style="display:flex;flex-direction:column;gap:16px">
-        <!-- Será preenchido dinamicamente -->
-      </div>
-    </div>
-
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
-      <button onclick="voltarParaLista()" style="padding:11px 24px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;cursor:pointer;color:var(--text);font-weight:600">Cancelar</button>
-      <button id="btn-salvar" onclick="salvarCampanha()" style="padding:11px 28px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px">
-        <i class="fa-solid fa-save"></i> <span id="btn-salvar-txt">Criar Campanha</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Modal de Seleção de Competências -->
-  <div id="modal-competencias" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
-    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <h3 style="margin:0;font-size:18px;font-weight:700;color:var(--text)">Selecionar Competências</h3>
-        <button id="btn-criar-competencia" style="padding:8px 12px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px" title="Criar nova competência">
-          <i class="fa-solid fa-plus"></i>
-        </button>
-      </div>
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Escolha as competências que deseja adicionar à campanha:</p>
-      <div id="modal-competencias-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
-        <p style="font-size:13px;color:var(--text-muted)">Carregando competências...</p>
-      </div>
-      <div style="display:flex;gap:10px;justify-content:flex-end">
-        <button onclick="fecharModalCompetencias()" style="padding:8px 16px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;color:var(--text);font-weight:600">Cancelar</button>
-        <button onclick="confirmarSelecaoCompetencias()" style="padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer">Adicionar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal de Criação de Competência -->
-  <div id="modal-criar-competencia" class="modal-overlay">
-    <div class="comp-form-card" style="max-width:700px;width:90%;max-height:90vh;overflow-y:auto">
-      <div class="comp-form-header">
-        <div>
-          <h3>Nova Competência</h3>
-          <p class="comp-form-sub">
-            <i class="fa-solid fa-circle-dot" style="color:var(--success)"></i>
-            Crie uma nova competência para sua avaliação
-          </p>
-        </div>
-        <button class="comp-btn-cancelar" onclick="fecharModalCriarCompetencia()">
-          <i class="fa-solid fa-xmark"></i> Cancelar
-        </button>
-      </div>
-      
-      <form id="formNovaCompetencia">
-        <div class="comp-row">
-          <div class="comp-field" style="flex:2">
-            <label for="nova-competencia-nome">Nome da competência:</label>
-            <input type="text" id="nova-competencia-nome" placeholder="Ex: Delegar tarefas" required>
+      <!-- Dados básicos -->
+      <div class="form-section">
+        <div class="form-section-title"><i class="fa-solid fa-info-circle"></i> Dados da Campanha</div>
+        <div class="form-grid">
+          <div class="form-field full">
+            <label for="f-nome">Nome da campanha <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="f-nome" placeholder="Ex: Avaliação Semestral TI — 2026/1" maxlength="200">
           </div>
-          <div class="comp-field">
-            <label for="nova-competencia-de">Competência de:</label>
-            <select id="nova-competencia-de" required>
-              <option value="">Selecione...</option>
-              <option value="gestor">Gestor</option>
-              <option value="colaborador">Colaborador</option>
-            </select>
+          <div class="form-field full">
+            <label for="f-descricao">Descrição <span style="color:var(--text-muted);font-weight:400">(opcional)</span></label>
+            <textarea id="f-descricao" rows="2" placeholder="Descreva o objetivo desta campanha..." style="resize:vertical"></textarea>
           </div>
-          <div class="comp-field">
-            <label for="nova-competencia-tipo">Tipo:</label>
-            <select id="nova-competencia-tipo" required>
-              <option value="">Selecione...</option>
-              <option value="desempenho">Desempenho</option>
-              <option value="potencial">Potencial</option>
+          <div class="form-field">
+            <label for="f-inicio">Data de início <span style="color:var(--danger)">*</span></label>
+            <input type="date" id="f-inicio">
+            <span class="field-error" id="err-inicio"></span>
+          </div>
+          <div class="form-field">
+            <label for="f-fim">Data de fim <span style="color:var(--danger)">*</span></label>
+            <input type="date" id="f-fim">
+            <span class="field-error" id="err-fim"></span>
+          </div>
+          <div class="form-field">
+            <label for="f-alvo">Quem será avaliado <span style="color:var(--danger)">*</span></label>
+            <select id="f-alvo" onchange="atualizarTextoGestores()">
+              <option value="colaborador">Colaboradores</option>
+              <option value="gestor">Gestores</option>
+              <option value="todos">Todos</option>
             </select>
           </div>
         </div>
-        
-        <div class="comp-field">
-          <label for="nova-competencia-descricao">Descrição:</label>
-          <textarea id="nova-competencia-descricao" placeholder="Quanto à habilidade de delegar tarefas ao time, avalie:" rows="3" required></textarea>
-        </div>
-        
-        <!-- Critérios -->
-        <div class="comp-criterios-section">
-          <div class="comp-criterios-header">
-            <h4>Critérios de Avaliação:</h4>
-          </div>
-          <div class="comp-criterios-grid" id="nova-competencia-criterios">
-            <!-- Critérios gerados dinamicamente -->
-          </div>
-          
-          <div class="comp-escala-info">
-            <i class="fa-solid fa-circle-info"></i>
-            Os critérios são avaliados de 1 a 4, segundo a seguinte métrica:
-          </div>
-          <div class="comp-escala-grid">
-            <div class="comp-escala-item nota-1"><span>Nota 1 – Não cumpre o requisito</span></div>
-            <div class="comp-escala-item nota-3"><span>Nota 3 – Cumpre sempre</span></div>
-            <div class="comp-escala-item nota-2"><span>Nota 2 – Cumpre moderadamente</span></div>
-            <div class="comp-escala-item nota-4"><span>Nota 4 – Cumpre o requisito e supera expectativas</span></div>
-          </div>
-        </div>
-        
-        <div class="comp-form-actions">
-          <button type="button" class="comp-btn-voltar" onclick="fecharModalCriarCompetencia()">Voltar</button>
-          <button type="submit" class="comp-btn-salvar">
-            <i class="fa-solid fa-floppy-disk"></i> <span>Criar Competência</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal de Confirmação -->
-  <div id="modal-confirmacao" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
-    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:24px;max-width:400px;width:90%">
-      <h3 id="confirmacao-titulo" style="margin:0 0 12px 0;font-size:18px;font-weight:700;color:var(--text)">Confirmação</h3>
-      <p id="confirmacao-mensagem" style="font-size:14px;color:var(--text);margin-bottom:20px">Deseja continuar?</p>
-      <div style="display:flex;gap:10px;justify-content:flex-end">
-        <button id="btn-cancelar-confirmacao" style="padding:10px 20px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;cursor:pointer;color:var(--text);font-weight:600">Cancelar</button>
-        <button id="btn-confirmar-acao" style="padding:10px 20px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer">Confirmar</button>
       </div>
+
+      <!-- Competências -->
+      <div class="form-section">
+        <div class="form-section-title"><i class="fa-solid fa-clipboard-check"></i> Competências de Avaliação</div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+          Selecione as competências que serão usadas nesta campanha.
+        </p>
+        <div class="chip-wrap" id="competencias-chips">
+          <span style="font-size:13px;color:var(--text-muted)">Nenhuma competência selecionada.</span>
+        </div>
+        <button class="btn-add-comp" onclick="abrirModalCompetencias()">
+          <i class="fa-solid fa-plus"></i> Selecionar competências
+          <span class="chip-count" id="comp-count" style="display:none">0</span>
+        </button>
+        <span class="field-error" id="err-comp"></span>
+      </div>
+
+      <!-- Gestores -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <i class="fa-solid fa-user-tie"></i>
+          <span id="gestores-titulo">Gestores Responsáveis</span>
+        </div>
+        <p id="gestores-descricao" style="font-size:12px;color:var(--text-muted);margin-bottom:12px"></p>
+        <div class="chip-wrap" id="gestores-chips">
+          <span style="font-size:13px;color:var(--text-muted)">Carregando gestores...</span>
+        </div>
+        <span class="field-error" id="err-gestores"></span>
+      </div>
+
+      <!-- Colaboradores por gestor -->
+      <div class="form-section" id="colaboradores-section" style="display:none">
+        <div class="form-section-title"><i class="fa-solid fa-users"></i> Colaboradores por Gestor</div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">
+          Para cada gestor, selecione os colaboradores que participarão desta campanha.
+        </p>
+        <div id="colaboradores-container" style="display:flex;flex-direction:column;gap:12px"></div>
+        <span class="field-error" id="err-colabs"></span>
+      </div>
+
+      <!-- Ações -->
+      <div class="form-actions">
+        <button class="btn-secondary" onclick="voltarParaLista()">Cancelar</button>
+        <button class="btn-save" id="btn-salvar" onclick="salvarCampanha()">
+          <i class="fa-solid fa-floppy-disk"></i> <span id="btn-salvar-txt">Criar Campanha</span>
+        </button>
+      </div>
+
     </div>
   </div>
-
 </main>
 
+<!-- ═══ MODAL DE COMPETÊNCIAS ═══ -->
+<div class="modal-comp-overlay" id="modal-comp">
+  <div class="modal-comp-box">
+    <div class="modal-comp-head">
+      <h3><i class="fa-solid fa-clipboard-check" style="color:#7c3aed"></i> Selecionar Competências</h3>
+      <button onclick="fecharModalComp()" style="margin:0;padding:6px 10px;background:transparent;border:none;cursor:pointer;color:var(--text-muted);font-size:18px;width:auto">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div class="modal-comp-search">
+      <div class="modal-comp-search-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="comp-search" placeholder="Buscar por nome ou descrição..." oninput="filtrarComps()" autocomplete="off">
+      </div>
+    </div>
+    <div class="modal-comp-counter" id="comp-counter">0 competências · 0 selecionadas</div>
+    <div class="modal-comp-list" id="modal-comp-list">
+      <div class="modal-comp-empty"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>
+    </div>
+    <div class="modal-comp-footer">
+      <button class="btn-modal-cancel" onclick="fecharModalComp()">Cancelar</button>
+      <button class="btn-modal-confirm" onclick="confirmarComp()">Adicionar selecionadas</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL DE CONFIRMAÇÃO ═══ -->
+<div class="modal-confirm-overlay" id="modal-confirm">
+  <div class="modal-confirm-box">
+    <h3 id="confirm-titulo">Confirmação</h3>
+    <p id="confirm-msg">Deseja continuar?</p>
+    <div class="modal-confirm-actions">
+      <button class="btn-modal-cancel" onclick="fecharConfirm()">Cancelar</button>
+      <button id="confirm-ok" class="btn-modal-confirm" onclick="executarConfirm()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
-  import { requireAuth, getUser, isAdmin } from '../js/auth.js';
-  import { campaignsApi, usersApi, competenciesApi, groupsApi } from '../js/api.js';
-  import { showToast } from '../js/components/toast.js';
-  import '../js/navbar.js';
+import { requireAdmin } from '../js/auth.js';
+import { campaignsApi, usersApi, competenciesApi, groupsApi } from '../js/api.js';
+import { showToast } from '../js/components/toast.js';
+import '../js/navbar.js';
 
-  requireAuth();
-  if (!isAdmin()) { window.location.href = 'avaliacoes.html'; }
+requireAdmin();
 
-  // Estado
-  let campanhas = [];
-  let gestores  = [];
-  let competencias = [];
-  let gestoresSelecionados = new Set();
-  let colaboradoresPorGestor = {}; // { gestorId: Set(colaboradorId) }
-  let competenciasSelecionadas = new Set();
-  let editandoId = null;
-  let filtroAtual = '';
-  let criterioCount = 0;
+// ── Estado global ──────────────────────────────────────────────────────────
+let campanhas = [];
+let gestores  = [];
+let todasComps = [];        // cache de todas as competências
+let filtroAtual = '';
+let editandoId  = null;
 
-  // Cache de colaboradores do Grupo por gestor (evita múltiplas chamadas ao backend)
-  const colaboradoresPorGestorCache = {}; // { [gestorId]: [colaborador, ...] }
+let compsSelecionadas    = new Set(); // IDs selecionados no formulário
+let compsTempModal       = new Set(); // IDs selecionados no modal (temp)
+let gestoresSelecionados = new Set();
+let colabsPorGestor      = {};        // { gestorId: Set(colabId) }
+let colabsCache          = {};        // { gestorId: [colaborador] }
 
-  async function getColaboradoresDoGestor(gestorId) {
-    if (colaboradoresPorGestorCache[gestorId]) {
-      return colaboradoresPorGestorCache[gestorId];
-    }
-    try {
-      const res = await groupsApi.getColaboradores(gestorId);
-      const lista = res.data || [];
-      colaboradoresPorGestorCache[gestorId] = lista;
-      return lista;
-    } catch {
-      showToast('Erro ao carregar colaboradores do grupo deste gestor.', 'error');
-      return [];
-    }
-  }
+let confirmCallback = null;
 
-  // ─── LISTA ────────────────────────────────────────────────────────────────────
+// ── Data helpers ───────────────────────────────────────────────────────────
+function dataHoje() {
+  return new Date().toISOString().split('T')[0];
+}
+function setMinDates() {
+  const hoje = dataHoje();
+  document.getElementById('f-inicio').min = hoje;
+  document.getElementById('f-fim').min    = hoje;
+}
+function setFieldErr(id, msg) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = msg;
+}
+function clearErrs() {
+  ['err-inicio','err-fim','err-comp','err-gestores','err-colabs'].forEach(id => setFieldErr(id,''));
+  document.getElementById('f-inicio').classList.remove('field-invalid');
+  document.getElementById('f-fim').classList.remove('field-invalid');
+}
 
-  async function carregarCampanhas() {
-    const container = document.getElementById('campanhas-container');
-    try {
-      const res = await campaignsApi.list({ limit: 100 });
-      campanhas = res.data?.campaigns || res.data || [];
-      renderLista();
-    } catch {
-      container.innerHTML = '<p class="comp-empty">Erro ao carregar campanhas.</p>';
-    }
-  }
-
-  function renderLista() {
-    const container = document.getElementById('campanhas-container');
-    let lista = filtroAtual ? campanhas.filter(c => c.status === filtroAtual) : campanhas;
-    if (!lista.length) {
-      container.innerHTML = '<p class="comp-empty">Nenhuma campanha encontrada.</p>';
-      return;
-    }
-    container.innerHTML = lista.map(c => {
-      const ini = new Date(c.dataInicio).toLocaleDateString('pt-BR');
-      const fim = new Date(c.dataFim).toLocaleDateString('pt-BR');
-      const qtdAv = c._count?.avaliacoes ?? 0;
-      const gestNomes = (c.gestores || []).map(g => g.gestor?.nome || '').filter(Boolean).join(', ') || 'Nenhum';
-      const compTags = (c.competencias || []).map(comp =>
-        '<span class="camp-criterio-tag"><i class="fa-solid fa-circle-dot" style="font-size:8px"></i>' + comp.competency?.nome + '</span>'
-      ).join('');
-
-      const btnAtivar   = c.status === 'planejamento' ? '<button class="btn-acao ativar" onclick="mudarStatus(\'' + c.id + '\',\'ativa\')"><i class="fa-solid fa-circle-play"></i> Ativar</button>' : '';
-      const btnFinalizar = c.status === 'ativa' ? '<button class="btn-acao finalizar" onclick="mudarStatus(\'' + c.id + '\',\'finalizada\')"><i class="fa-solid fa-flag-checkered"></i> Finalizar</button>' : '';
-      const btnEditar   = c.status !== 'finalizada' ? '<button class="btn-acao editar" onclick="editarCampanha(\'' + c.id + '\')"><i class="fa-solid fa-pen"></i> Editar</button>' : '';
-      const btnDuplicar = c.status === 'ativa' ? '<button class="btn-acao" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe" onclick="duplicarCampanha(\'' + c.id + '\',\'' + c.nome.replace(/'/g,"\\'") + '\')"><i class="fa-solid fa-copy"></i> Duplicar</button>' : '';
-      const btnExcluir  = c.status !== 'ativa' ? '<button class="btn-acao excluir" onclick="excluirCampanha(\'' + c.id + '\',\'' + c.nome.replace(/'/g,"\\'") + '\')"><i class="fa-solid fa-trash"></i> Excluir</button>' : '';
-
-      return '<div class="camp-card">' +
-        '<div class="camp-card-header">' +
-          '<div>' +
-            '<div class="camp-card-nome">' + c.nome + '</div>' +
-            (c.descricao ? '<div class="camp-card-desc">' + c.descricao + '</div>' : '') +
-          '</div>' +
-          '<span class="camp-badge ' + c.status + '">' + labelStatus(c.status) + '</span>' +
-        '</div>' +
-        '<div class="camp-card-meta">' +
-          '<span><i class="fa-regular fa-calendar"></i> ' + ini + ' a ' + fim + '</span>' +
-          '<span><i class="fa-solid fa-users"></i> ' + labelAlvo(c.tipoAlvo) + '</span>' +
-          '<span><i class="fa-solid fa-user-tie"></i> ' + gestNomes + '</span>' +
-          '<span><i class="fa-solid fa-check-circle" style="color:#10b981"></i> ' + qtdAv + ' avaliacao(oes)</span>' +
-        '</div>' +
-        (compTags ? '<div class="camp-criterios-list">' + compTags + '</div>' : '') +
-        '<div class="camp-card-acoes">' + btnEditar + btnAtivar + btnFinalizar + btnDuplicar + btnExcluir + '</div>' +
-      '</div>';
-    }).join('');
-  }
-
-  function labelStatus(s) {
-    return { planejamento: 'Planejamento', ativa: 'Ativa', finalizada: 'Finalizada' }[s] || s;
-  }
-  function labelAlvo(a) {
-    return { colaborador: 'Colaboradores', gestor: 'Gestores', todos: 'Todos' }[a] || a;
-  }
-
-  window.filtrar = function(btn, status) {
-    filtroAtual = status;
-    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.toggle('active', b === btn));
+// ── Lista de campanhas ─────────────────────────────────────────────────────
+async function carregarCampanhas() {
+  const cont = document.getElementById('campanhas-container');
+  try {
+    const res = await campaignsApi.list({ limit: 100 });
+    campanhas = res.data?.campaigns || [];
     renderLista();
-  };
+  } catch {
+    cont.innerHTML = '<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Erro ao carregar campanhas.</p></div>';
+  }
+}
 
-  // ─── MODAL DE CONFIRMAÇÃO ─────────────────────────────────────────────────────
+function renderLista() {
+  const cont = document.getElementById('campanhas-container');
+  const lista = filtroAtual ? campanhas.filter(c => c.status === filtroAtual) : campanhas;
 
-  let confirmacaoCallback = null;
-
-  function mostrarConfirmacao(titulo, mensagem, callback) {
-    document.getElementById('confirmacao-titulo').textContent = titulo;
-    document.getElementById('confirmacao-mensagem').textContent = mensagem;
-    document.getElementById('modal-confirmacao').style.display = 'flex';
-    confirmacaoCallback = callback;
+  if (!lista.length) {
+    cont.innerHTML = '<div class="empty-state"><i class="fa-solid fa-bullhorn"></i><p>Nenhuma campanha encontrada.</p></div>';
+    return;
   }
 
-  function fecharConfirmacao() {
-    document.getElementById('modal-confirmacao').style.display = 'none';
-    confirmacaoCallback = null;
-  }
+  const labelStatus = s => ({ planejamento:'Planejamento', ativa:'Ativa', finalizada:'Finalizada' }[s] || s);
+  const labelAlvo   = a => ({ colaborador:'Colaboradores', gestor:'Gestores', todos:'Todos' }[a] || a);
 
-  document.getElementById('btn-cancelar-confirmacao').addEventListener('click', fecharConfirmacao);
-  document.getElementById('btn-confirmar-acao').addEventListener('click', () => {
-    if (confirmacaoCallback) {
-      confirmacaoCallback();
-    }
-    fecharConfirmacao();
-  });
-
-  // ─── MUDAR STATUS ─────────────────────────────────────────────────────────────
-
-  window.mudarStatus = async function(id, novoStatus) {
-    const label = novoStatus === 'ativa' ? 'ativar' : 'finalizar';
-    mostrarConfirmacao(
-      'Confirmar Ação',
-      `Deseja ${label} esta campanha?`,
-      async () => {
-        try {
-          await campaignsApi.updateStatus(id, novoStatus);
-          showToast('Campanha ' + (novoStatus === 'ativa' ? 'ativada' : 'finalizada') + ' com sucesso!', 'success');
-          await carregarCampanhas();
-        } catch (e) { showToast(e.message || 'Erro ao alterar status.', 'error'); }
-      }
-    );
-  };
-
-  // ─── EXCLUIR ──────────────────────────────────────────────────────────────────
-
-  window.excluirCampanha = async function(id, nome) {
-    mostrarConfirmacao(
-      'Excluir Campanha',
-      `Excluir a campanha "${nome}"? Esta ação não pode ser desfeita.`,
-      async () => {
-        try {
-          await campaignsApi.delete(id);
-          showToast('Campanha excluída.', 'success');
-          await carregarCampanhas();
-        } catch (e) { showToast(e.message || 'Erro ao excluir.', 'error'); }
-      }
-    );
-  };
-
-  // ─── DUPLICAR ─────────────────────────────────────────────────────────────────
-
-  window.duplicarCampanha = async function(id, nome) {
-    mostrarConfirmacao(
-      'Duplicar Campanha',
-      `Criar uma cópia de "${nome}"? A cópia será criada em status Planejamento com os mesmos gestores, colaboradores e competências.`,
-      async () => {
-        try {
-          await campaignsApi.duplicate(id);
-          showToast('Campanha duplicada com sucesso! A cópia está em Planejamento.', 'success');
-          await carregarCampanhas();
-        } catch (e) { showToast(e.message || 'Erro ao duplicar campanha.', 'error'); }
-      }
-    );
-  };
-
-  // ─── FORMULARIO ───────────────────────────────────────────────────────────────
-
-  window.abrirFormulario = async function(campanha) {
-    editandoId = campanha?.id || null;
-    competenciasSelecionadas = new Set(campanha ? (campanha.competencias || []).map(c => c.competencyId) : []);
-    gestoresSelecionados = new Set(campanha ? (campanha.gestores || []).map(g => g.gestorId) : []);
-    
-    // Carrega colaboradores por gestor existentes
-    colaboradoresPorGestor = {};
-    if (campanha?.gestores) {
-      for (const g of campanha.gestores) {
-        if (g.colaboradoresAvaliaveis && g.colaboradoresAvaliaveis.length > 0) {
-          colaboradoresPorGestor[g.gestorId] = new Set(g.colaboradoresAvaliaveis.map(c => c.colaboradorId));
-        }
-      }
-    }
-    console.log('[abrirFormulario] colaboradoresPorGestor:', colaboradoresPorGestor);
-
-    document.getElementById('form-titulo').textContent = campanha ? 'Editar Campanha' : 'Nova Campanha';
-    document.getElementById('form-subtitulo').textContent = campanha ? campanha.nome : 'Selecione as competencias e responsaveis';
-    document.getElementById('btn-salvar-txt').textContent = campanha ? 'Salvar Alteracoes' : 'Criar Campanha';
-
-    document.getElementById('f-nome').value = campanha?.nome || '';
-    document.getElementById('f-descricao').value = campanha?.descricao || '';
-    document.getElementById('f-inicio').value = campanha ? campanha.dataInicio.split('T')[0] : '';
-    document.getElementById('f-fim').value = campanha ? campanha.dataFim.split('T')[0] : '';
-    document.getElementById('f-alvo').value = campanha?.tipoAlvo || 'colaborador';
-
-    await carregarCompetenciasChips();
-    await carregarGestoresChips();
-    atualizarTextoGestores();
-
-    document.getElementById('tela-lista').style.display = 'none';
-    document.getElementById('tela-form').style.display = 'block';
-  };
-
-  window.voltarParaLista = function() {
-    document.getElementById('tela-form').style.display = 'none';
-    document.getElementById('tela-lista').style.display = 'block';
-    editandoId = null; competenciasSelecionadas = new Set(); gestoresSelecionados = new Set(); colaboradoresPorGestor = {};
-    console.log('[voltarParaLista] formulário fechado, estado resetado');
-  };
-
-  window.atualizarTextoGestores = function() {
-    const alvo = document.getElementById('f-alvo').value;
-    const titulo = document.getElementById('gestores-titulo');
-    const descricao = document.getElementById('gestores-descricao');
-    const colaboradoresSection = document.getElementById('colaboradores-por-gestor-section');
-
-    if (alvo === 'colaborador') {
-      titulo.textContent = 'Gestores Responsáveis';
-      descricao.textContent = 'Selecione quais gestores poderão realizar avaliações nesta campanha.';
-    } else if (alvo === 'gestor') {
-      titulo.textContent = 'Gestores a serem Avaliados';
-      descricao.textContent = 'Selecione quais gestores serão avaliados nesta campanha.';
-    } else if (alvo === 'todos') {
-      titulo.textContent = 'Gestores Participantes';
-      descricao.textContent = 'Selecione quais gestores participarão da campanha.';
-    }
-
-    // A seção de colaboradores por gestor aparece SEMPRE que houver gestores selecionados,
-    // independente do tipoAlvo — CampaignGestorColaborador é a fonte de verdade para todos os tipos.
-    if (gestoresSelecionados.size > 0) {
-      colaboradoresSection.style.display = 'block';
-      renderColaboradoresPorGestor();
-    } else {
-      colaboradoresSection.style.display = 'none';
-    }
-  };
-
-  // ─── COLABORADORES POR GESTOR ─────────────────────────────────────────────────────
-
-  async function renderColaboradoresPorGestor() {
-    const container = document.getElementById('colaboradores-por-gestor-container');
-    if (!gestoresSelecionados.size) {
-      container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Selecione gestores responsáveis primeiro.</p>';
-      return;
-    }
-
-    // Mostra loading enquanto carrega
-    container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)"><i class="fa-solid fa-spinner fa-spin"></i> Carregando colaboradores...</p>';
-
-    const gestoresSelecionadosArray = Array.from(gestoresSelecionados);
-    const partes = [];
-
-    for (const gestorId of gestoresSelecionadosArray) {
-      const gestor = gestores.find(g => g.id === gestorId);
-      if (!gestor) continue;
-
-      const lista = await getColaboradoresDoGestor(gestorId);
-
-      if (lista.length === 0) {
-        partes.push(`
-          <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px">
-            <label style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;display:block">
-              ${gestor.nome} — Colaboradores Vinculados
-            </label>
-            <p style="font-size:12px;color:var(--text-muted);margin:0">
-              <i class="fa-solid fa-circle-info" style="color:#f59e0b"></i>
-              Este gestor não possui colaboradores cadastrados no Grupo.
-              Cadastre colaboradores na tela
-              <a href="grupos.html" style="color:var(--primary);font-weight:600">Grupos</a>
-              antes de vinculá-los a esta campanha.
-            </p>
-          </div>
-        `);
-        continue;
-      }
-
-      const colaboradoresSelecionados = colaboradoresPorGestor[gestorId] instanceof Set
-        ? colaboradoresPorGestor[gestorId]
-        : new Set();
-
-      const chipsHtml = lista.map(c => {
-        const isSelected = colaboradoresSelecionados.has(c.id);
-        return `
-          <div class="colaborador-chip${isSelected ? ' selected' : ''}"
-               onclick="toggleColaboradorGestor('${gestorId}', '${c.id}')"
-               id="colab-chip-${gestorId}-${c.id}" title="${c.nome}">
-            <i class="fa-solid fa-user" style="font-size:10px"></i>
-            ${c.nome}
-          </div>
-        `;
-      }).join('');
-
-      partes.push(`
-        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-            <label style="font-size:13px;font-weight:600;color:var(--text);margin:0">
-              ${gestor.nome} — Colaboradores Vinculados
-            </label>
-            <div style="display:flex;gap:6px">
-              <button type="button"
-                onclick="selecionarTodosGestor('${gestorId}')"
-                style="padding:3px 10px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;border:1.5px solid var(--primary);background:transparent;color:var(--primary);transition:all .15s"
-                onmouseover="this.style.background='var(--primary)';this.style.color='white'"
-                onmouseout="this.style.background='transparent';this.style.color='var(--primary)'">
-                Selecionar todos
-              </button>
-              <button type="button"
-                onclick="removerTodosGestor('${gestorId}')"
-                style="padding:3px 10px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);transition:all .15s"
-                onmouseover="this.style.borderColor='var(--danger)';this.style.color='var(--danger)'"
-                onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
-                Remover todos
-              </button>
-            </div>
-          </div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px">
-            ${chipsHtml}
-          </div>
-        </div>
-      `);
-    }
-
-    container.innerHTML = partes.join('');
-  }
-
-  window.toggleColaboradorGestor = function(gestorId, colaboradorId) {
-    if (!colaboradoresPorGestor[gestorId]) {
-      colaboradoresPorGestor[gestorId] = new Set();
-    }
-    const set = colaboradoresPorGestor[gestorId];
-    if (set.has(colaboradorId)) {
-      set.delete(colaboradorId);
-    } else {
-      set.add(colaboradorId);
-    }
-    const chip = document.getElementById(`colab-chip-${gestorId}-${colaboradorId}`);
-    if (chip) {
-      chip.classList.toggle('selected');
-    }
-    console.log('[toggleColaboradorGestor] gestorId:', gestorId, 'colaboradorId:', colaboradorId, 'novoEstado:', set);
-  };
-
-  // Seleciona todos os colaboradores do grupo de um gestor específico
-  window.selecionarTodosGestor = async function(gestorId) {
-    const lista = await getColaboradoresDoGestor(gestorId);
-    colaboradoresPorGestor[gestorId] = new Set(lista.map(c => c.id));
-    // Atualiza chips visualmente sem re-renderizar tudo
-    lista.forEach(c => {
-      const chip = document.getElementById(`colab-chip-${gestorId}-${c.id}`);
-      if (chip) chip.classList.add('selected');
-    });
-  };
-
-  // Remove todos os colaboradores do grupo de um gestor específico
-  window.removerTodosGestor = async function(gestorId) {
-    const lista = await getColaboradoresDoGestor(gestorId);
-    colaboradoresPorGestor[gestorId] = new Set();
-    lista.forEach(c => {
-      const chip = document.getElementById(`colab-chip-${gestorId}-${c.id}`);
-      if (chip) chip.classList.remove('selected');
-    });
-  };
-
-  // ─── COMPETENCIAS CHIPS ─────────────────────────────────────────────────────────
-
-  async function carregarCompetenciasChips() {
-    const container = document.getElementById('competencias-chips');
-    try {
-      if (!competencias.length) {
-        const res = await competenciesApi.list({ limit: 100 });
-        competencias = res.data?.competencies || [];
-      }
-      if (!competencias.length) {
-        container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Nenhuma competencia cadastrada. <a href="competencias.html" style="color:var(--primary)">Criar competencias</a></p>';
-        return;
-      }
-      renderCompetenciasChips();
-    } catch { container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Erro ao carregar competencias.</p>'; }
-  }
-
-  const TIPO_COMP_LABELS = { desempenho: 'Desempenho', potencial: 'Potencial' };
-  const TIPO_COMP_CORES  = { desempenho: '#2563eb', potencial: '#7c3aed' };
-
-  function tipoBadge(tipo) {
-    const label = TIPO_COMP_LABELS[tipo] || tipo;
-    const cor   = TIPO_COMP_CORES[tipo] || '#64748b';
-    return `<span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700;background:${cor}1a;color:${cor};margin-left:4px;">${label}</span>`;
-  }
-
-  function renderCompetenciasChips() {
-    const container = document.getElementById('competencias-chips');
-    
-    if (competenciasSelecionadas.size === 0) {
-      container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Nenhuma competência selecionada. Clique no botão "+" para adicionar.</p>';
-      return;
-    }
-    
-    const competenciasSelecionadasArray = competencias.filter(c => competenciasSelecionadas.has(c.id));
-    
-    container.innerHTML = competenciasSelecionadasArray.map(c =>
-      '<div class="competencia-chip selected" onclick="toggleCompetencia(\'' + c.id + '\')" id="comp-chip-' + c.id + '">' +
-        '<i class="fa-solid fa-clipboard-check" style="font-size:11px"></i>' +
-        c.nome +
-        tipoBadge(c.tipo) +
-      '</div>'
+  cont.innerHTML = lista.map(c => {
+    const ini = new Date(c.dataInicio).toLocaleDateString('pt-BR');
+    const fim = new Date(c.dataFim).toLocaleDateString('pt-BR');
+    const qtd = c._count?.avaliacoes ?? 0;
+    const gestNomes = (c.gestores || []).map(g => g.gestor?.nome || '').filter(Boolean).join(', ') || 'Nenhum';
+    const compTags  = (c.competencias || []).map(cp =>
+      `<span class="camp-tag"><i class="fa-solid fa-circle-dot" style="font-size:8px"></i>${cp.competency?.nome || ''}</span>`
     ).join('');
-  }
 
-  window.toggleCompetencia = function(id) {
-    if (competenciasSelecionadas.has(id)) competenciasSelecionadas.delete(id);
-    else competenciasSelecionadas.add(id);
-    renderCompetenciasChips();
-  };
+    const btnEditar   = c.status !== 'finalizada'
+      ? `<button class="btn-camp editar"   onclick="editarCampanha('${c.id}')"><i class="fa-solid fa-pen"></i> Editar</button>` : '';
+    const btnAtivar   = c.status === 'planejamento'
+      ? `<button class="btn-camp ativar"   onclick="mudarStatus('${c.id}','ativa')"><i class="fa-solid fa-circle-play"></i> Ativar</button>` : '';
+    const btnFinalizar = c.status === 'ativa'
+      ? `<button class="btn-camp finalizar" onclick="mudarStatus('${c.id}','finalizada')"><i class="fa-solid fa-flag-checkered"></i> Finalizar</button>` : '';
+    const btnDuplicar = c.status === 'ativa'
+      ? `<button class="btn-camp duplicar" onclick="confirmar('Duplicar Campanha','Criar uma cópia de &quot;${c.nome.replace(/"/g,'&quot;')}&quot;?',()=>duplicar('${c.id}'))"><i class="fa-solid fa-copy"></i> Duplicar</button>` : '';
+    const btnExcluir  = c.status !== 'ativa'
+      ? `<button class="btn-camp excluir"  onclick="confirmar('Excluir Campanha','Excluir &quot;${c.nome.replace(/"/g,'&quot;')}&quot;? Esta ação não pode ser desfeita.',()=>excluir('${c.id}'))"><i class="fa-solid fa-trash"></i></button>` : '';
 
-  // ─── MODAL DE COMPETÊNCIAS ────────────────────────────────────────────────────────
-
-  let competenciasModalSelecionadas = new Set();
-
-  window.abrirModalCompetencias = async function() {
-    const modal = document.getElementById('modal-competencias');
-    const list = document.getElementById('modal-competencias-list');
-    competenciasModalSelecionadas = new Set(competenciasSelecionadas);
-    
-    try {
-      if (!competencias.length) {
-        const res = await competenciesApi.list({ limit: 100 });
-        competencias = res.data?.competencies || [];
-      }
-      
-      if (!competencias.length) {
-        list.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Nenhuma competência cadastrada. <a href="competencias.html" style="color:var(--primary)">Criar competências</a></p>';
-      } else {
-        list.innerHTML = competencias.map(c =>
-          '<div class="competencia-item' + (competenciasModalSelecionadas.has(c.id) ? ' selected' : '') + '" onclick="toggleCompetenciaModal(\'' + c.id + '\')" id="modal-comp-' + c.id + '" style="padding:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--bg)' + (competenciasModalSelecionadas.has(c.id) ? ';background:rgba(59,130,246,0.1);border-color:var(--primary)' : '') + '">' +
-            '<i class="fa-solid fa-clipboard-check" style="font-size:12px;color:var(--primary)"></i>' +
-            '<div style="flex:1">' +
-              '<div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:4px;">' + c.nome + tipoBadge(c.tipo) + '</div>' +
-              '<div style="font-size:11px;color:var(--text-muted)">' + (c.descricao || '') + '</div>' +
-            '</div>' +
-            '<i class="fa-solid fa-check" style="font-size:14px;color:var(--primary);display:' + (competenciasModalSelecionadas.has(c.id) ? 'block' : 'none') + '"></i>' +
-          '</div>'
-        ).join('');
-      }
-      
-      modal.style.display = 'flex';
-    } catch (e) {
-      list.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Erro ao carregar competências.</p>';
-      modal.style.display = 'flex';
-    }
-  };
-
-  window.fecharModalCompetencias = function() {
-    document.getElementById('modal-competencias').style.display = 'none';
-  };
-
-  window.toggleCompetenciaModal = function(id) {
-    if (competenciasModalSelecionadas.has(id)) {
-      competenciasModalSelecionadas.delete(id);
-    } else {
-      competenciasModalSelecionadas.add(id);
-    }
-    
-    const item = document.getElementById('modal-comp-' + id);
-    const check = item.querySelector('.fa-check');
-    
-    if (competenciasModalSelecionadas.has(id)) {
-      item.style.background = 'rgba(59,130,246,0.1)';
-      item.style.borderColor = 'var(--primary)';
-      check.style.display = 'block';
-    } else {
-      item.style.background = 'var(--bg)';
-      item.style.borderColor = 'var(--border)';
-      check.style.display = 'none';
-    }
-  };
-
-  window.confirmarSelecaoCompetencias = function() {
-    competenciasSelecionadas = new Set(competenciasModalSelecionadas);
-    renderCompetenciasChips();
-    fecharModalCompetencias();
-  };
-
-  // ─── MODAL DE CRIAÇÃO DE COMPETÊNCIA ───────────────────────────────────────────────
-
-  window.abrirModalCriarCompetencia = function() {
-    const modal = document.getElementById('modal-criar-competencia');
-    modal.classList.add('show');
-    // Limpar formulário
-    document.getElementById('formNovaCompetencia').reset();
-    // Inicializar sempre exatamente 4 critérios fixos (sem botão de remover)
-    const container = document.getElementById('nova-competencia-criterios');
-    container.innerHTML = '';
-    criterioCount = 0;
-    for (let i = 1; i <= 4; i++) {
-      const div = document.createElement('div');
-      div.className = 'comp-criterio-item';
-      div.innerHTML = `
-        <div class="comp-criterio-label-row">
-          <label><i class="fa-solid fa-square-check"></i> Critério ${i}</label>
+    return `<div class="camp-card">
+      <div class="camp-card-header">
+        <div>
+          <div class="camp-card-nome">${c.nome}</div>
+          ${c.descricao ? `<div class="camp-card-desc">${c.descricao}</div>` : ''}
         </div>
-        <textarea placeholder="Descreva o critério ${i}..." class="criterio-input" rows="2"></textarea>
-      `;
-      container.appendChild(div);
-    }
-  };
+        <span class="camp-badge ${c.status}">${labelStatus(c.status)}</span>
+      </div>
+      <div class="camp-card-meta">
+        <span><i class="fa-regular fa-calendar"></i> ${ini} → ${fim}</span>
+        <span><i class="fa-solid fa-users"></i> ${labelAlvo(c.tipoAlvo)}</span>
+        <span><i class="fa-solid fa-user-tie"></i> ${gestNomes}</span>
+        <span><i class="fa-solid fa-check-circle" style="color:#10b981"></i> ${qtd} avaliação(ões)</span>
+      </div>
+      ${compTags ? `<div class="camp-tags">${compTags}</div>` : ''}
+      <div class="camp-acoes">${btnEditar}${btnAtivar}${btnFinalizar}${btnDuplicar}${btnExcluir}</div>
+    </div>`;
+  }).join('');
+}
 
-  window.fecharModalCriarCompetencia = function() {
-    document.getElementById('modal-criar-competencia').classList.remove('show');
-  };
+window.filtrar = function(btn, s) {
+  filtroAtual = s;
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.toggle('active', b === btn));
+  renderLista();
+};
 
-  // Formulário de criação de competência
-  document.getElementById('formNovaCompetencia').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const nome = document.getElementById('nova-competencia-nome').value.trim();
-    const competenciaDe = document.getElementById('nova-competencia-de').value;
-    const tipo = document.getElementById('nova-competencia-tipo').value;
-    const descricao = document.getElementById('nova-competencia-descricao').value.trim();
-    
-    if (!nome || !competenciaDe || !tipo || !descricao) {
-      showToast('Preencha todos os campos obrigatórios.', 'error');
-      return;
-    }
-    
-    // Coletar e validar exatamente 4 critérios preenchidos
-    const criterioInputs = document.querySelectorAll('.criterio-input');
-    const criterios = Array.from(criterioInputs).map(t => t.value.trim());
-    if (criterios.length !== 4 || criterios.some(c => !c)) {
-      showToast('Preencha os 4 critérios de avaliação.', 'error');
-      return;
-    }
-    
+// ── Ações da lista ─────────────────────────────────────────────────────────
+window.mudarStatus = async function(id, novoStatus) {
+  const label = novoStatus === 'ativa' ? 'ativar' : 'finalizar';
+  confirmar('Confirmar Ação', `Deseja ${label} esta campanha?`, async () => {
     try {
-      const payload = {
-        nome,
-        competenciaDe,
-        tipo,
-        descricao,
-        criterios
-      };
-      
-      await competenciesApi.create(payload);
-      showToast('Competência criada com sucesso!', 'success');
-      
-      // Recarregar competências
-      competencias = [];
-      await competenciesApi.list({ limit: 100 }).then(res => {
-        competencias = res.data?.competencies || [];
-      });
-      
-      // Atualizar modal de seleção
-      await abrirModalCompetencias();
-      
-      // Fechar modal de criação
-      fecharModalCriarCompetencia();
-      
-    } catch (error) {
-      showToast(error.message || 'Erro ao criar competência.', 'error');
-    }
-  });
-
-  // ─── GESTORES CHIPS ───────────────────────────────────────────────────────────
-
-  async function carregarGestoresChips() {
-    const container = document.getElementById('gestores-chips');
-    try {
-      if (!gestores.length) {
-        const res = await usersApi.list({ tipo: 'gestor', limit: 100 });
-        gestores = res.data?.users || [];
-      }
-      if (!gestores.length) {
-        container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Nenhum gestor cadastrado.</p>';
-        return;
-      }
-      renderGestoresChips();
-    } catch { container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Erro ao carregar gestores.</p>'; }
-  }
-
-  function renderGestoresChips() {
-    const container = document.getElementById('gestores-chips');
-    container.innerHTML = gestores.map(g =>
-      '<div class="gestor-chip' + (gestoresSelecionados.has(g.id) ? ' selected' : '') + '" onclick="toggleGestor(\'' + g.id + '\')" id="chip-' + g.id + '">' +
-        '<i class="fa-solid fa-user-tie" style="font-size:11px"></i>' +
-        g.nome +
-        (g.departamento ? '<span style="font-size:10px;opacity:.7">(' + g.departamento + ')</span>' : '') +
-      '</div>'
-    ).join('');
-  }
-
-  window.toggleGestor = async function(id) {
-    const foiAdicionado = !gestoresSelecionados.has(id);
-
-    if (gestoresSelecionados.has(id)) gestoresSelecionados.delete(id);
-    else gestoresSelecionados.add(id);
-
-    // Pré-seleção automática: apenas quando o gestor é ADICIONADO pela primeira
-    // vez na sessão atual (colaboradoresPorGestor[id] ainda não existe).
-    // Não sobrescreve seleções manuais nem dados carregados de uma campanha existente.
-    if (foiAdicionado && !colaboradoresPorGestor[id]) {
-      const lista = await getColaboradoresDoGestor(id);
-      colaboradoresPorGestor[id] = new Set(lista.map(c => c.id));
-    }
-
-    renderGestoresChips();
-    atualizarTextoGestores(); // controla visibilidade da seção + renderiza colaboradores
-  };
-
-  // ─── SALVAR ───────────────────────────────────────────────────────────────────
-
-  window.salvarCampanha = async function() {
-    console.log('[salvarCampanha] chamada iniciada');
-    
-    const btn = document.getElementById('btn-salvar');
-    if (btn.disabled) {
-      console.log('[salvarCampanha] botão já desabilitado, ignorando clique duplicado');
-      return;
-    }
-
-    const nome     = document.getElementById('f-nome').value.trim();
-    const descricao = document.getElementById('f-descricao').value.trim();
-    const inicio   = document.getElementById('f-inicio').value;
-    const fim      = document.getElementById('f-fim').value;
-    const tipoAlvo = document.getElementById('f-alvo').value;
-
-    if (!nome)   { showToast('Informe o nome da campanha.', 'error'); return; }
-    if (!inicio) { showToast('Informe a data de inicio.', 'error'); return; }
-    if (!fim)    { showToast('Informe a data de fim.', 'error'); return; }
-    if (new Date(fim) <= new Date(inicio)) { showToast('Data de fim deve ser posterior ao inicio.', 'error'); return; }
-
-    // Valida competencias
-    if (!competenciasSelecionadas.size) { showToast('Selecione pelo menos 1 competencia de avaliacao.', 'error'); return; }
-
-    const gestorIds = Array.from(gestoresSelecionados);
-    if (!gestorIds.length) {
-      showToast('Selecione pelo menos um gestor.', 'error');
-      return;
-    }
-
-    const gestorColaboradoresPayload = {};
-    for (const gestorId of gestorIds) {
-      const colaboradoresSet = colaboradoresPorGestor[gestorId];
-      gestorColaboradoresPayload[gestorId] = colaboradoresSet instanceof Set ? Array.from(colaboradoresSet) : [];
-    }
-
-    // Valida que cada gestor tem pelo menos 1 colaborador vinculado (vale para todos os tipoAlvo)
-    for (const gestorId of gestorIds) {
-      if (!gestorColaboradoresPayload[gestorId] || gestorColaboradoresPayload[gestorId].length === 0) {
-        const gestor = gestores.find(g => g.id === gestorId);
-        showToast(`Gestor ${gestor?.nome || gestorId} deve possuir pelo menos um colaborador vinculado.`, 'error');
-        return;
-      }
-    }
-
-    const payload = {
-      nome,
-      descricao: descricao || null,
-      dataInicio: inicio,
-      dataFim: fim,
-      tipoAlvo,
-      competencyIds: Array.from(competenciasSelecionadas),
-      gestorIds,
-      gestorColaboradores: gestorColaboradoresPayload
-    };
-    
-    console.log('[salvarCampanha] payload:', payload);
-
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
-
-    try {
-      if (editandoId) {
-        console.log('[salvarCampanha] atualizando campanha:', editandoId);
-        await campaignsApi.update(editandoId, payload);
-        showToast('Campanha atualizada com sucesso!', 'success');
-      } else {
-        console.log('[salvarCampanha] criando nova campanha');
-        await campaignsApi.create(payload);
-        showToast('Campanha criada com sucesso!', 'success');
-      }
-      voltarParaLista();
+      await campaignsApi.updateStatus(id, novoStatus);
+      showToast(`Campanha ${novoStatus === 'ativa' ? 'ativada' : 'finalizada'}!`, 'success');
       await carregarCampanhas();
-    } catch (e) {
-      console.error('[salvarCampanha] erro:', e);
-      showToast(e.message || 'Erro ao salvar campanha.', 'error');
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-save"></i> <span id="btn-salvar-txt">' + (editandoId ? 'Salvar Alteracoes' : 'Criar Campanha') + '</span>';
+    } catch (e) { showToast(e.message || 'Erro.', 'error'); }
+  });
+};
+
+window.excluir = async function(id) {
+  try {
+    await campaignsApi.delete(id);
+    showToast('Campanha excluída.', 'success');
+    await carregarCampanhas();
+  } catch (e) { showToast(e.message || 'Erro.', 'error'); }
+};
+
+window.duplicar = async function(id) {
+  try {
+    await campaignsApi.duplicate(id);
+    showToast('Campanha duplicada!', 'success');
+    await carregarCampanhas();
+  } catch (e) { showToast(e.message || 'Erro.', 'error'); }
+};
+
+// ── Modal confirmação ──────────────────────────────────────────────────────
+function confirmar(titulo, msg, cb) {
+  document.getElementById('confirm-titulo').textContent = titulo;
+  document.getElementById('confirm-msg').innerHTML = msg;
+  confirmCallback = cb;
+  document.getElementById('modal-confirm').classList.add('open');
+}
+window.fecharConfirm = () => { document.getElementById('modal-confirm').classList.remove('open'); confirmCallback = null; };
+window.executarConfirm = () => { const cb = confirmCallback; fecharConfirm(); cb?.(); };
+window.confirmar = confirmar;
+
+// ── Formulário ─────────────────────────────────────────────────────────────
+window.abrirFormulario = async function(campanha) {
+  editandoId         = campanha?.id || null;
+  compsSelecionadas   = new Set(campanha ? (campanha.competencias || []).map(c => c.competencyId) : []);
+  gestoresSelecionados = new Set(campanha ? (campanha.gestores || []).map(g => g.gestorId) : []);
+  colabsPorGestor    = {};
+  colabsCache        = {};
+
+  if (campanha?.gestores) {
+    for (const g of campanha.gestores) {
+      if (g.colaboradoresAvaliaveis?.length) {
+        colabsPorGestor[g.gestorId] = new Set(g.colaboradoresAvaliaveis.map(c => c.colaboradorId));
+      }
     }
-  };
-  
+  }
 
-  // ─── EDITAR ───────────────────────────────────────────────────────────────────
+  document.getElementById('form-titulo').textContent    = campanha ? 'Editar Campanha' : 'Nova Campanha';
+  document.getElementById('form-subtitulo').textContent = campanha ? campanha.nome : 'Preencha os dados da campanha';
+  document.getElementById('btn-salvar-txt').textContent = campanha ? 'Salvar Alterações' : 'Criar Campanha';
 
-  window.editarCampanha = async function(id) {
+  document.getElementById('f-nome').value      = campanha?.nome || '';
+  document.getElementById('f-descricao').value = campanha?.descricao || '';
+  document.getElementById('f-inicio').value    = campanha ? campanha.dataInicio.split('T')[0] : '';
+  document.getElementById('f-fim').value       = campanha ? campanha.dataFim.split('T')[0] : '';
+  document.getElementById('f-alvo').value      = campanha?.tipoAlvo || 'colaborador';
+
+  clearErrs();
+  setMinDates();
+
+  await Promise.all([carregarTodasComps(), carregarGestoresChips()]);
+  renderCompChips();
+  atualizarTextoGestores();
+
+  document.getElementById('tela-lista').style.display = 'none';
+  document.getElementById('tela-form').style.display  = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.voltarParaLista = function() {
+  document.getElementById('tela-form').style.display  = 'none';
+  document.getElementById('tela-lista').style.display = 'block';
+  editandoId = null;
+};
+
+window.editarCampanha = async function(id) {
+  try {
+    const res = await campaignsApi.getById(id);
+    await abrirFormulario(res.data);
+  } catch (e) { showToast(e.message || 'Erro.', 'error'); }
+};
+
+// ── Validação de datas (frontend) ──────────────────────────────────────────
+function validarDatas(inicio, fim) {
+  const hoje  = new Date(); hoje.setHours(0,0,0,0);
+  const dIni  = new Date(inicio);
+  const dFim  = new Date(fim);
+  let ok = true;
+
+  if (!inicio) { setFieldErr('err-inicio','Data de início é obrigatória.'); document.getElementById('f-inicio').classList.add('field-invalid'); ok = false; }
+  else if (!editandoId && dIni < hoje) { setFieldErr('err-inicio','Data de início não pode ser passada.'); document.getElementById('f-inicio').classList.add('field-invalid'); ok = false; }
+  else { setFieldErr('err-inicio',''); document.getElementById('f-inicio').classList.remove('field-invalid'); }
+
+  if (!fim) { setFieldErr('err-fim','Data de fim é obrigatória.'); document.getElementById('f-fim').classList.add('field-invalid'); ok = false; }
+  else if (inicio && dFim <= dIni) { setFieldErr('err-fim','Data de fim deve ser posterior ao início.'); document.getElementById('f-fim').classList.add('field-invalid'); ok = false; }
+  else { setFieldErr('err-fim',''); document.getElementById('f-fim').classList.remove('field-invalid'); }
+
+  return ok;
+}
+
+// ── Salvar campanha ────────────────────────────────────────────────────────
+window.salvarCampanha = async function() {
+  clearErrs();
+  const nome      = document.getElementById('f-nome').value.trim();
+  const descricao = document.getElementById('f-descricao').value.trim();
+  const inicio    = document.getElementById('f-inicio').value;
+  const fim       = document.getElementById('f-fim').value;
+  const tipoAlvo  = document.getElementById('f-alvo').value;
+
+  let valido = true;
+
+  if (!nome) { showToast('Informe o nome da campanha.', 'error'); valido = false; }
+  if (!validarDatas(inicio, fim)) valido = false;
+  if (!compsSelecionadas.size) { setFieldErr('err-comp','Selecione pelo menos 1 competência.'); valido = false; }
+
+  const gestorIds = Array.from(gestoresSelecionados);
+  if (!gestorIds.length) { setFieldErr('err-gestores','Selecione pelo menos um gestor.'); valido = false; }
+
+  const gestorColaboradores = {};
+  for (const gId of gestorIds) {
+    const set = colabsPorGestor[gId];
+    gestorColaboradores[gId] = set instanceof Set ? Array.from(set) : [];
+  }
+
+  for (const gId of gestorIds) {
+    if (!gestorColaboradores[gId].length) {
+      const g = gestores.find(x => x.id === gId);
+      setFieldErr('err-colabs', `Gestor ${g?.nome || gId} precisa de ao menos 1 colaborador.`);
+      valido = false; break;
+    }
+  }
+
+  if (!valido) return;
+
+  const btn = document.getElementById('btn-salvar');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+
+  try {
+    const payload = {
+      nome, descricao: descricao || null,
+      dataInicio: inicio, dataFim: fim,
+      tipoAlvo,
+      competencyIds: Array.from(compsSelecionadas),
+      gestorIds, gestorColaboradores
+    };
+
+    if (editandoId) {
+      await campaignsApi.update(editandoId, payload);
+      showToast('Campanha atualizada!', 'success');
+    } else {
+      await campaignsApi.create(payload);
+      showToast('Campanha criada!', 'success');
+    }
+    voltarParaLista();
+    await carregarCampanhas();
+  } catch (e) {
+    showToast(e.message || 'Erro ao salvar.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> <span id="btn-salvar-txt">${editandoId ? 'Salvar Alterações' : 'Criar Campanha'}</span>`;
+  }
+};
+
+// ── Competências ──────────────────────────────────────────────────────────
+async function carregarTodasComps() {
+  if (todasComps.length) return;
+  try {
+    const res = await competenciesApi.list({ limit: 500 });
+    todasComps = res.data?.competencies || [];
+  } catch { todasComps = []; }
+}
+
+function renderCompChips() {
+  const cont  = document.getElementById('competencias-chips');
+  const count = document.getElementById('comp-count');
+
+  if (!compsSelecionadas.size) {
+    cont.innerHTML = '<span style="font-size:13px;color:var(--text-muted)">Nenhuma competência selecionada.</span>';
+    count.style.display = 'none';
+    return;
+  }
+
+  count.textContent = compsSelecionadas.size;
+  count.style.display = 'inline-flex';
+
+  const selecionadas = todasComps.filter(c => compsSelecionadas.has(c.id));
+  cont.innerHTML = selecionadas.map(c => `
+    <div class="chip selected-purple" onclick="removerComp('${c.id}')">
+      <i class="fa-solid fa-clipboard-check" style="font-size:10px"></i>
+      ${c.nome}
+      <span class="tipo-badge ${c.tipo}">${c.tipo}</span>
+      <i class="fa-solid fa-xmark" style="font-size:10px;opacity:.7"></i>
+    </div>`).join('');
+}
+
+window.removerComp = function(id) {
+  compsSelecionadas.delete(id);
+  renderCompChips();
+};
+
+// ── Modal de competências com busca ────────────────────────────────────────
+window.abrirModalCompetencias = async function() {
+  await carregarTodasComps();
+  compsTempModal = new Set(compsSelecionadas);
+  document.getElementById('comp-search').value = '';
+  renderModalCompList('');
+  document.getElementById('modal-comp').classList.add('open');
+  setTimeout(() => document.getElementById('comp-search').focus(), 100);
+};
+
+window.fecharModalComp = function() {
+  document.getElementById('modal-comp').classList.remove('open');
+};
+
+function renderModalCompList(busca) {
+  const term = busca.trim().toLowerCase();
+  const filtradas = term
+    ? todasComps.filter(c =>
+        c.nome.toLowerCase().includes(term) ||
+        (c.descricao || '').toLowerCase().includes(term))
+    : todasComps;
+
+  const counter = document.getElementById('comp-counter');
+  counter.textContent = `${filtradas.length} competência(s) · ${compsTempModal.size} selecionada(s)`;
+
+  const list = document.getElementById('modal-comp-list');
+  if (!filtradas.length) {
+    list.innerHTML = `<div class="modal-comp-empty"><i class="fa-solid fa-magnifying-glass"></i><br>Nenhuma competência encontrada.</div>`;
+    return;
+  }
+
+  list.innerHTML = filtradas.map(c => {
+    const sel = compsTempModal.has(c.id);
+    return `<div class="modal-comp-item${sel ? ' selected' : ''}" onclick="toggleCompModal('${c.id}')" id="mci-${c.id}">
+      <div class="modal-comp-item-info">
+        <div class="modal-comp-item-nome">
+          ${c.nome}
+          <span class="tipo-badge ${c.tipo}">${c.tipo}</span>
+        </div>
+        ${c.descricao ? `<div class="modal-comp-item-desc">${c.descricao}</div>` : ''}
+      </div>
+      <i class="fa-solid fa-check modal-comp-item-check" style="display:${sel ? 'block' : 'none'}"></i>
+    </div>`;
+  }).join('');
+}
+
+window.filtrarComps = function() {
+  renderModalCompList(document.getElementById('comp-search').value);
+};
+
+window.toggleCompModal = function(id) {
+  if (compsTempModal.has(id)) compsTempModal.delete(id);
+  else compsTempModal.add(id);
+
+  const item = document.getElementById(`mci-${id}`);
+  if (item) {
+    item.classList.toggle('selected', compsTempModal.has(id));
+    const check = item.querySelector('.modal-comp-item-check');
+    if (check) check.style.display = compsTempModal.has(id) ? 'block' : 'none';
+  }
+
+  document.getElementById('comp-counter').textContent =
+    `${todasComps.length} competência(s) · ${compsTempModal.size} selecionada(s)`;
+};
+
+window.confirmarComp = function() {
+  compsSelecionadas = new Set(compsTempModal);
+  renderCompChips();
+  setFieldErr('err-comp', '');
+  fecharModalComp();
+};
+
+// Fechar modal ao clicar fora
+document.getElementById('modal-comp').addEventListener('click', e => {
+  if (e.target === e.currentTarget) fecharModalComp();
+});
+
+// ── Gestores chips ─────────────────────────────────────────────────────────
+async function carregarGestoresChips() {
+  const cont = document.getElementById('gestores-chips');
+  if (!gestores.length) {
     try {
-      const res = await campaignsApi.getById(id);
-      await abrirFormulario(res.data);
-    } catch (e) { showToast(e.message || 'Erro ao carregar campanha.', 'error'); }
+      const res = await usersApi.list({ tipo: 'gestor', limit: 200, orderBy: 'nome', orderDir: 'asc' });
+      gestores = res.data?.users || [];
+    } catch { gestores = []; }
+  }
+  if (!gestores.length) {
+    cont.innerHTML = '<span style="font-size:13px;color:var(--text-muted)">Nenhum gestor cadastrado.</span>';
+    return;
+  }
+  renderGestoresChips();
+}
+
+function renderGestoresChips() {
+  const cont = document.getElementById('gestores-chips');
+  cont.innerHTML = gestores.map(g => `
+    <div class="chip${gestoresSelecionados.has(g.id) ? ' selected-purple' : ''}"
+         onclick="toggleGestor('${g.id}')" id="chip-g-${g.id}">
+      <i class="fa-solid fa-user-tie" style="font-size:10px"></i>
+      ${g.nome}
+      ${g.departamento ? `<span style="font-size:10px;opacity:.65">(${g.departamento})</span>` : ''}
+    </div>`).join('');
+}
+
+window.toggleGestor = async function(id) {
+  const foiAdicionado = !gestoresSelecionados.has(id);
+  if (gestoresSelecionados.has(id)) gestoresSelecionados.delete(id);
+  else gestoresSelecionados.add(id);
+
+  // Pré-seleciona todos os colaboradores do gestor na primeira adição
+  if (foiAdicionado && !colabsPorGestor[id]) {
+    const lista = await getColabsGestor(id);
+    colabsPorGestor[id] = new Set(lista.map(c => c.id));
+  }
+
+  renderGestoresChips();
+  setFieldErr('err-gestores', '');
+  atualizarTextoGestores();
+};
+
+window.atualizarTextoGestores = function() {
+  const alvo = document.getElementById('f-alvo').value;
+  const tituloMap = {
+    colaborador: 'Gestores Responsáveis',
+    gestor:      'Gestores a serem Avaliados',
+    todos:       'Gestores Participantes'
   };
+  document.getElementById('gestores-titulo').textContent     = tituloMap[alvo] || 'Gestores';
+  document.getElementById('gestores-descricao').textContent  =
+    alvo === 'gestor' ? 'Selecione os gestores que serão avaliados.' :
+    'Selecione os gestores que participarão desta campanha.';
 
-  // ─── INIT ─────────────────────────────────────────────────────────────────────
-  carregarCampanhas();
+  const secao = document.getElementById('colaboradores-section');
+  if (gestoresSelecionados.size > 0) {
+    secao.style.display = 'block';
+    renderColabsPorGestor();
+  } else {
+    secao.style.display = 'none';
+  }
+};
 
-  // Event listener para botão de criar competência
-  document.getElementById('btn-criar-competencia').addEventListener('click', window.abrirModalCriarCompetencia);
+// ── Colaboradores por gestor ────────────────────────────────────────────────
+async function getColabsGestor(gestorId) {
+  if (colabsCache[gestorId]) return colabsCache[gestorId];
+  try {
+    const res = await groupsApi.getColaboradores(gestorId);
+    colabsCache[gestorId] = res.data || [];
+  } catch { colabsCache[gestorId] = []; }
+  return colabsCache[gestorId];
+}
+
+async function renderColabsPorGestor() {
+  const cont = document.getElementById('colaboradores-container');
+  cont.innerHTML = '<p style="font-size:13px;color:var(--text-muted)"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</p>';
+
+  const partes = [];
+  for (const gestorId of gestoresSelecionados) {
+    const g    = gestores.find(x => x.id === gestorId);
+    if (!g) continue;
+    const lista = await getColabsGestor(gestorId);
+
+    if (!lista.length) {
+      partes.push(`<div class="gestor-colab-card">
+        <div class="gestor-colab-nome"><i class="fa-solid fa-user-tie"></i> ${g.nome}</div>
+        <div class="no-colabs-warn">
+          <i class="fa-solid fa-circle-info"></i>
+          Este gestor não possui colaboradores no grupo.
+          <a href="grupos.html" style="color:var(--primary);font-weight:600;margin-left:4px">Gerenciar Grupos</a>
+        </div>
+      </div>`);
+      continue;
+    }
+
+    const selSet = colabsPorGestor[gestorId] instanceof Set ? colabsPorGestor[gestorId] : new Set();
+    const chips  = lista.map(c => {
+      const sel = selSet.has(c.id);
+      return `<div class="chip${sel ? ' selected-blue' : ''}"
+                   onclick="toggleColab('${gestorId}','${c.id}')"
+                   id="chip-c-${gestorId}-${c.id}">
+        <i class="fa-solid fa-user" style="font-size:10px"></i>
+        ${c.nome}
+      </div>`;
+    }).join('');
+
+    partes.push(`<div class="gestor-colab-card">
+      <div class="gestor-colab-header">
+        <div class="gestor-colab-nome"><i class="fa-solid fa-user-tie"></i> ${g.nome}</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn-sel-all"   onclick="selTodosColab('${gestorId}')">Todos</button>
+          <button class="btn-clear-all" onclick="limparColab('${gestorId}')">Nenhum</button>
+        </div>
+      </div>
+      <div class="chip-wrap">${chips}</div>
+    </div>`);
+  }
+  cont.innerHTML = partes.join('') || '<p style="font-size:13px;color:var(--text-muted)">Selecione gestores primeiro.</p>';
+}
+
+window.toggleColab = function(gestorId, colabId) {
+  if (!colabsPorGestor[gestorId]) colabsPorGestor[gestorId] = new Set();
+  const set  = colabsPorGestor[gestorId];
+  const chip = document.getElementById(`chip-c-${gestorId}-${colabId}`);
+  if (set.has(colabId)) { set.delete(colabId); chip?.classList.remove('selected-blue'); }
+  else { set.add(colabId); chip?.classList.add('selected-blue'); }
+  setFieldErr('err-colabs', '');
+};
+
+window.selTodosColab = async function(gestorId) {
+  const lista = await getColabsGestor(gestorId);
+  colabsPorGestor[gestorId] = new Set(lista.map(c => c.id));
+  lista.forEach(c => document.getElementById(`chip-c-${gestorId}-${c.id}`)?.classList.add('selected-blue'));
+  setFieldErr('err-colabs', '');
+};
+
+window.limparColab = async function(gestorId) {
+  const lista = await getColabsGestor(gestorId);
+  colabsPorGestor[gestorId] = new Set();
+  lista.forEach(c => document.getElementById(`chip-c-${gestorId}-${c.id}`)?.classList.remove('selected-blue'));
+};
+
+// ── ESC fecha modais ────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    fecharModalComp();
+    fecharConfirm();
+  }
+});
+
+// ── Init ────────────────────────────────────────────────────────────────────
+carregarCampanhas();
 </script>
 </body>
 </html>

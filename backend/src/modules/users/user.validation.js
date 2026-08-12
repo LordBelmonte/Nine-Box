@@ -163,6 +163,25 @@ const updateUserSchema = Joi.object({
   'object.min': 'Informe pelo menos um campo para atualizar.',
 });
 
+// Schema para redefinição de senha pelo admin
+const resetPasswordSchema = Joi.object({
+  novaSenha: Joi.string()
+    .min(6)
+    .required()
+    .messages({
+      'string.empty': 'Nova senha é obrigatória.',
+      'string.min':   'Nova senha muito curta. Use pelo menos 6 caracteres.',
+      'any.required': 'Nova senha é obrigatória.',
+    }),
+  confirmarSenha: Joi.string()
+    .valid(Joi.ref('novaSenha'))
+    .required()
+    .messages({
+      'any.only':     'As senhas não coincidem.',
+      'any.required': 'Confirmação de senha é obrigatória.',
+    }),
+});
+
 // Schema para atualização do próprio perfil (admin)
 const updateProfileSchema = Joi.object({
   nome: Joi.string()
@@ -191,4 +210,5 @@ export {
   loginSchema,
   updateUserSchema,
   updateProfileSchema,
+  resetPasswordSchema,
 };

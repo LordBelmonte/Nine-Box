@@ -5,7 +5,6 @@ class CampaignRepository {
 
   async create(data, tx = prisma) {
     const { gestorIds, gestorColaboradores, ...campaignData } = data;
-    console.log('[CampaignRepository.create] gestorIds:', gestorIds, 'gestorColaboradores:', gestorColaboradores);
 
     const createdCampaign = await tx.evaluationCampaign.create({
       data: {
@@ -41,7 +40,6 @@ class CampaignRepository {
       }
     });
 
-    console.log('[CampaignRepository.create] created campaignId:', createdCampaign.id);
     return createdCampaign;
   }
 
@@ -74,15 +72,11 @@ class CampaignRepository {
   }
 
   async findAll({ page = 1, limit = 10, status, gestorId }) {
-    const skip = (page - 1) * limit;
+    const skip  = (page - 1) * limit;
     const where = {};
 
-    if (status) where.status = status;
-
-    // Se gestorId fornecido, filtra campanhas onde esse gestor é responsável
-    if (gestorId) {
-      where.gestores = { some: { gestorId } };
-    }
+    if (status)   where.status = status;
+    if (gestorId) where.gestores = { some: { gestorId } };
 
     const [campaigns, total] = await Promise.all([
       prisma.evaluationCampaign.findMany({
@@ -97,6 +91,9 @@ class CampaignRepository {
               }
             }
           },
+          competencias: {
+            include: { competency: { select: { id: true, nome: true, tipo: true } } }
+          },
           _count: { select: { avaliacoes: true } }
         },
         orderBy: { createdAt: 'desc' }
@@ -106,13 +103,12 @@ class CampaignRepository {
 
     return {
       campaigns,
-      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) || 1 }
     };
   }
 
   async update(id, data) {
     const { gestorIds, gestorColaboradores, ...campaignData } = data;
-    console.log('[CampaignRepository.update] campaignId:', id, 'gestorIds:', gestorIds, 'gestorColaboradores:', gestorColaboradores);
 
     return prisma.$transaction(async (tx) => {
       const currentCampaignGestores = await tx.campaignGestor.findMany({
@@ -217,7 +213,6 @@ class CampaignRepository {
         }
       });
 
-      console.log('[CampaignRepository.update] campaignId:', id, 'removedGestorIds:', removedGestorIds, 'addedGestorIds:', addedGestorIds, 'currentGestorCount:', currentGestorIds.length, 'newGestorCount:', newGestorIds.length);
       return updatedCampaign;
     }, {
       maxWait: 10000,
@@ -247,7 +242,6 @@ class CampaignRepository {
       status: 'ativa',
       gestores: { some: { gestorId } }
     };
-    console.log('[CampaignRepository.findActiveForGestor] filters:', where);
     const campaigns = await prisma.evaluationCampaign.findMany({
       where,
       include: {
@@ -255,7 +249,6 @@ class CampaignRepository {
       },
       orderBy: { dataFim: 'asc' }
     });
-    console.log('[CampaignRepository.findActiveForGestor] campaignCount:', campaigns.length);
     return campaigns;
   }
 
@@ -368,7 +361,6 @@ class CampaignRepository {
         }
       }
     };
-    console.log('[CampaignRepository.getColaboradoresNaoAvaliados] campaignId:', campaignId, 'gestorId:', gestorId, 'colaboradorIds:', colaboradorIds);
     const naoAvaliados = await prisma.user.findMany({
       where,
       select: {
@@ -380,7 +372,6 @@ class CampaignRepository {
       }
     });
 
-    console.log('[CampaignRepository.getColaboradoresNaoAvaliados] campaignId:', campaignId, 'gestorId:', gestorId, 'resultCount:', naoAvaliados.length);
     return naoAvaliados;
   }
 

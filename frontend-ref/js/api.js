@@ -320,6 +320,10 @@ export const usersApi = {
     }
     return api.delete(`/users/${id}`);
   },
+
+  // Redefinir senha de um usuário (apenas admin) — nunca exibe a senha
+  resetPassword: (id, novaSenha, confirmarSenha) =>
+    api.put(`/users/${id}/password`, { novaSenha, confirmarSenha }),
 };
 
 // =============================================
@@ -1014,6 +1018,10 @@ export const campaignsApi = {
 
   getGestoresNaoAvaliados: (campaignId, colaboradorId) =>
     api.get(`/campaigns/${campaignId}/gestores-nao-avaliados/${colaboradorId}`),
+
+  // Retorna competências filtradas pelo tipo do avaliado (backend filtra por competenciaDe)
+  getCompetenciasParaAvaliado: (campaignId, avaliadoId) =>
+    api.get(`/campaigns/${campaignId}/competencias-para/${avaliadoId}`),
 
   duplicate: (id) => api.post(`/campaigns/${id}/duplicate`),
 };

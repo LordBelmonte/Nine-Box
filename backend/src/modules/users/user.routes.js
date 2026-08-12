@@ -2,7 +2,7 @@ import express from 'express';
 import { UserController } from './user.controller.js';
 import { authMiddleware, isAdminMiddleware, isGestorOrAdminMiddleware } from '../../middlewares/auth.js';
 import { validate } from '../../middlewares/validate.js';
-import { registerSchema, loginSchema, updateProfileSchema, updateUserSchema } from './user.validation.js';
+import { registerSchema, loginSchema, updateProfileSchema, updateUserSchema, resetPasswordSchema } from './user.validation.js';
 
 const router = express.Router();
 const ctrl   = new UserController();
@@ -31,6 +31,9 @@ router.get('/:id', isAdminMiddleware, (req, res, next) => ctrl.findById(req, res
 
 // Editar por ID — apenas admin (ETAPA 2.1)
 router.put('/:id', isAdminMiddleware, validate(updateUserSchema), (req, res, next) => ctrl.updateById(req, res, next));
+
+// Redefinir senha de um usuário — apenas admin
+router.put('/:id/password', isAdminMiddleware, validate(resetPasswordSchema), (req, res, next) => ctrl.resetPassword(req, res, next));
 
 // Excluir por ID — apenas admin
 router.delete('/:id', isAdminMiddleware, (req, res, next) => ctrl.delete(req, res, next));

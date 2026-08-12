@@ -256,6 +256,18 @@
         </select>
       </div>
 
+      <!-- Seção de Segurança -->
+      <div style="border-top:1.5px solid var(--border);margin-top:8px;padding-top:16px">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:7px">
+          <i class="fa-solid fa-lock" style="color:var(--text-muted)"></i> Segurança
+        </div>
+        <button type="button" id="btn-abrir-senha"
+          onclick="abrirModalSenha()"
+          style="display:inline-flex;align-items:center;gap:7px;padding:8px 16px;font-size:13px;font-weight:600;background:var(--bg);color:var(--text);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;margin:0;width:auto;transition:all .15s">
+          <i class="fa-solid fa-key"></i> Redefinir senha
+        </button>
+      </div>
+
       <div class="modal-actions">
         <button type="button" class="btn-modal-cancel" onclick="fecharModal('modal-editar')">Cancelar</button>
         <button type="submit" class="btn-modal-save" id="btn-salvar-edicao">
@@ -282,6 +294,37 @@
         <i class="fa-solid fa-trash"></i> Excluir
       </button>
     </div>
+  </div>
+</div>
+
+<!-- Modal: Redefinir senha -->
+<div class="modal-overlay" id="modal-senha">
+  <div class="modal-box" style="max-width:420px">
+    <h4 style="display:flex;align-items:center;gap:8px">
+      <i class="fa-solid fa-key" style="color:var(--primary)"></i> Redefinir Senha
+    </h4>
+    <p style="font-size:13px;color:var(--text-muted);margin:0 0 16px">
+      <i class="fa-solid fa-circle-info" style="color:#f59e0b"></i>
+      Essa ação substituirá a senha atual do usuário. A senha anterior deixará de funcionar imediatamente.
+    </p>
+    <form id="form-senha" novalidate>
+      <div class="edit-field">
+        <label for="nova-senha">Nova senha <span style="color:var(--danger)">*</span></label>
+        <input type="password" id="nova-senha" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+        <span class="field-error" id="err-nova-senha"></span>
+      </div>
+      <div class="edit-field">
+        <label for="confirmar-senha">Confirmar nova senha <span style="color:var(--danger)">*</span></label>
+        <input type="password" id="confirmar-senha" placeholder="Repita a nova senha" autocomplete="new-password">
+        <span class="field-error" id="err-confirmar-senha"></span>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-modal-cancel" onclick="fecharModal('modal-senha')">Cancelar</button>
+        <button type="submit" class="btn-modal-save" id="btn-redefinir-senha" style="background:#7C3AED">
+          <i class="fa-solid fa-key"></i> Redefinir senha
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -429,10 +472,69 @@
   };
 
   // Fechar ao clicar fora
-  ['modal-ver','modal-editar','modal-excluir'].forEach(id => {
+  ['modal-ver','modal-editar','modal-excluir','modal-senha'].forEach(id => {
     document.getElementById(id).addEventListener('click', e => {
       if (e.target === e.currentTarget) fecharModal(id);
     });
+  });
+
+  // ─── Modal Redefinir Senha ─────────────────────────────────────────────────────
+  let senhaUsuarioId = null;
+
+  window.abrirModalSenha = function() {
+    senhaUsuarioId = editandoId;
+    document.getElementById('nova-senha').value       = '';
+    document.getElementById('confirmar-senha').value  = '';
+    document.getElementById('err-nova-senha').textContent      = '';
+    document.getElementById('err-confirmar-senha').textContent = '';
+    document.getElementById('modal-senha').classList.add('open');
+    setTimeout(() => document.getElementById('nova-senha').focus(), 100);
+  };
+
+  document.getElementById('form-senha').addEventListener('submit', async e => {
+    e.preventDefault();
+    const novaSenha      = document.getElementById('nova-senha').value;
+    const confirmarSenha = document.getElementById('confirmar-senha').value;
+    let valido = true;
+
+    document.getElementById('err-nova-senha').textContent      = '';
+    document.getElementById('err-confirmar-senha').textContent = '';
+
+    if (!novaSenha) {
+      document.getElementById('err-nova-senha').textContent = 'Nova senha é obrigatória.';
+      valido = false;
+    } else if (novaSenha.length < 6) {
+      document.getElementById('err-nova-senha').textContent = 'Senha muito curta. Use pelo menos 6 caracteres.';
+      valido = false;
+    }
+
+    if (!confirmarSenha) {
+      document.getElementById('err-confirmar-senha').textContent = 'Confirmação de senha é obrigatória.';
+      valido = false;
+    } else if (novaSenha !== confirmarSenha) {
+      document.getElementById('err-confirmar-senha').textContent = 'As senhas não coincidem.';
+      valido = false;
+    }
+
+    if (!valido || !senhaUsuarioId) return;
+
+    const btn = document.getElementById('btn-redefinir-senha');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Redefinindo...';
+
+    try {
+      await usersApi.resetPassword(senhaUsuarioId, novaSenha, confirmarSenha);
+      showToast('Senha redefinida com sucesso!', 'success');
+      fecharModal('modal-senha');
+      document.getElementById('nova-senha').value      = '';
+      document.getElementById('confirmar-senha').value = '';
+    } catch (err) {
+      const msg = err?.message || 'Erro ao redefinir senha.';
+      document.getElementById('err-nova-senha').textContent = msg;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-key"></i> Redefinir senha';
+    }
   });
 
   // ─── Ver detalhes ─────────────────────────────────────────────────────────────

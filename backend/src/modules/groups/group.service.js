@@ -1,5 +1,6 @@
 import { AppError } from '../../utils/errors.js';
 import { UserRepository } from '../users/user.repository.js';
+import { prisma } from '../../config/database.js';
 
 class GroupService {
   constructor(groupRepository) {
@@ -70,9 +71,21 @@ class GroupService {
 
     await this._assertGestor(gestorId);
 
-    // Valida todos os colaboradores
-    for (const id of colaboradorIds) {
-      await this._assertColaborador(id);
+    // Valida todos os colaboradores em batch (sem N+1)
+    if (colaboradorIds.length > 0) {
+      const users = await prisma.user.findMany({
+        where: { id: { in: colaboradorIds } },
+        select: { id: true, tipo: true, nome: true }
+      });
+
+      const encontrados = new Map(users.map(u => [u.id, u]));
+      for (const id of colaboradorIds) {
+        const user = encontrados.get(id);
+        if (!user) throw new AppError(`Colaborador com id '${id}' não encontrado`, 404);
+        if (user.tipo !== 'colaborador') {
+          throw new AppError(`Usuário '${user.nome}' não é um colaborador`, 400);
+        }
+      }
     }
 
     return this.groupRepository.setColaboradores(gestorId, colaboradorIds);

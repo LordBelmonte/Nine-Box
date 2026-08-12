@@ -17,15 +17,33 @@ class UserRepository {
   // ─── Leitura ───────────────────────────────────────────────────────────────
 
   async findById(id) {
-    return prisma.user.findUnique({ where: { id } });
+    return prisma.user.findUnique({
+      where: { id },
+      select: {
+        id:           true,
+        ra:           true,
+        nome:         true,
+        email:        true,
+        senha:        true, // necessário internamente para login/hash — service remove antes de retornar
+        tipo:         true,
+        cargo:        true,
+        departamento: true,
+        foto:         true,
+        createdAt:    true,
+        updatedAt:    true,
+      }
+    });
   }
 
   async findByEmail(email) {
-    return prisma.user.findUnique({ where: { email } });
+    return prisma.user.findUnique({ where: { email } }); // retorna senha para uso interno no login
   }
 
   async findByRA(ra) {
-    return prisma.user.findUnique({ where: { ra } });
+    return prisma.user.findUnique({
+      where: { ra },
+      select: { ...USER_SELECT, senha: false }
+    });
   }
 
   /**

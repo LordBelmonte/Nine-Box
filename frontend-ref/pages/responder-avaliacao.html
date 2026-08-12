@@ -645,18 +645,36 @@
 
       const totalFila    = parseInt(localStorage.getItem(chaveTotal), 10) || fila.length;
       const posicaoAtual = totalFila - fila.length + 1;
+      const avaliadoId   = fila[0].id;
       const infoEl       = document.getElementById('colaborador-atual-info');
       infoEl.textContent = `Avaliando: ${fila[0].nome} (${posicaoAtual} de ${totalFila})`;
       infoEl.style.display = 'block';
 
-      if (campaign.competencias?.length) {
-        competencies = campaign.competencias.map(cc => cc.competency);
+      // ── Carrega competências filtradas pelo tipo do AVALIADO (backend) ──
+      // Usa endpoint específico que filtra por competenciaDe do avaliado.
+      // NUNCA usa campaign.competencias direto — esse retorna todas sem filtro.
+      try {
+        const compRes = await campaignsApi.getCompetenciasParaAvaliado(campaignId, avaliadoId);
+        competencies = compRes.data || [];
+      } catch {
+        // Fallback seguro: filtra client-side se o endpoint falhar
+        // Determina o tipo do avaliado pela fila (gestor avalia colaborador e vice-versa)
+        const tipoAvaliado = campaign.tipoAlvo === 'gestor' ? 'gestor'
+          : campaign.tipoAlvo === 'colaborador' ? 'colaborador'
+          : (isGestor() ? 'colaborador' : 'gestor');
+
+        competencies = (campaign.competencias || [])
+          .map(cc => cc.competency)
+          .filter(c => c && (c.competenciaDe === tipoAvaliado || c.competenciaDe === 'todos'));
+      }
+
+      if (competencies.length) {
         renderAllCompetencies();
       } else {
         document.getElementById('competencias-content').innerHTML = `
           <div class="empty-state"><i class="fa-solid fa-clipboard-list"></i>
-            <h3>Nenhuma competência associada</h3>
-            <p>Esta campanha não possui competências associadas.</p>
+            <h3>Nenhuma competência compatível</h3>
+            <p>Esta campanha não possui competências para o perfil do avaliado.</p>
           </div>`;
       }
     } catch {

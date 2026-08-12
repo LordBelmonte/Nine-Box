@@ -25,14 +25,9 @@ class CampaignService {
     data.dataInicio = data.dataInicio ? new Date(data.dataInicio).toISOString() : data.dataInicio;
     data.dataFim    = data.dataFim    ? new Date(data.dataFim).toISOString()    : data.dataFim;
 
+    // Segunda barreira — valida que dataInicio não está no passado
+    this._validateDataInicio(data.dataInicio);
     this._validateDatas(data.dataInicio, data.dataFim);
-
-    console.log('[CampaignService.create] payload:', {
-      nome: data.nome,
-      tipoAlvo: data.tipoAlvo,
-      gestorIds: data.gestorIds,
-      gestorColaboradores: data.gestorColaboradores
-    });
 
     const tiposAlvo = ['colaborador', 'gestor', 'todos'];
     if (!tiposAlvo.includes(data.tipoAlvo)) {
@@ -44,32 +39,22 @@ class CampaignService {
     }
 
     if (!data.gestorColaboradores) {
-      console.error('[CampaignService.create] gestorColaboradores é null/undefined');
       throw new AppError('É obrigatório informar os colaboradores por gestor.', 400);
     }
 
     for (const gestorId of data.gestorIds) {
       const colaboradorIds = data.gestorColaboradores[gestorId];
-      console.log('[CampaignService.create] validando gestorId:', gestorId, 'colaboradorIds:', colaboradorIds, 'isArray:', Array.isArray(colaboradorIds));
-
       if (!Array.isArray(colaboradorIds)) {
-        console.error('[CampaignService.create] colaboradorIds não é um array para gestorId:', gestorId, 'tipo:', typeof colaboradorIds);
-        throw new AppError(
-          `Gestor ${gestorId} não possui colaboradores vinculados.`,
-          400
-        );
+        throw new AppError(`Gestor ${gestorId} não possui colaboradores vinculados.`, 400);
       }
-
       if (colaboradorIds.length === 0) {
-        throw new AppError(
-          `Gestor ${gestorId} deve possuir pelo menos um colaborador.`,
-          400
-        );
+        throw new AppError(`Gestor ${gestorId} deve possuir pelo menos um colaborador.`, 400);
       }
     }
 
     const { competencyIds, gestorIds, gestorColaboradores, ...campaignData } = data;
     const uniqueGestorIds = [...new Set(gestorIds)];
+
     const campaign = await prisma.$transaction(async (tx) => {
       const createdCampaign = await this.campaignRepository.create({
         ...campaignData,
@@ -78,11 +63,12 @@ class CampaignService {
       }, tx);
 
       if (competencyIds && competencyIds.length > 0) {
-        for (const competencyId of competencyIds) {
-          await tx.campaignCompetency.create({
-            data: { campaignId: createdCampaign.id, competencyId }
-          });
-        }
+        await tx.campaignCompetency.createMany({
+          data: competencyIds.map(competencyId => ({
+            campaignId: createdCampaign.id,
+            competencyId
+          }))
+        });
       }
 
       return createdCampaign;
@@ -97,7 +83,6 @@ class CampaignService {
       throw new AppError('Campanha não encontrada', 404);
     }
 
-    // Gestor só pode ver campanhas onde é responsável
     if (userTipo === 'gestor') {
       const isResponsavel = campaign.gestores.some(g => g.gestorId === userId);
       if (!isResponsavel) {
@@ -105,12 +90,10 @@ class CampaignService {
       }
     }
 
-    // Colaborador só pode ver campanhas ativas onde pode participar
     if (userTipo === 'colaborador') {
       if (campaign.status !== 'ativa') {
         throw new AppError('Sem permissão para ver esta campanha', 403);
       }
-      // Colaborador pode ver campanhas tipoAlvo: gestor ou todos
       if (campaign.tipoAlvo !== 'gestor' && campaign.tipoAlvo !== 'todos') {
         throw new AppError('Sem permissão para ver esta campanha', 403);
       }
@@ -123,12 +106,9 @@ class CampaignService {
     if (userTipo === 'colaborador') {
       throw new AppError('Sem permissão para listar campanhas', 403);
     }
-
-    // Gestor só vê suas próprias campanhas
     if (userTipo === 'gestor') {
       filters.gestorId = userId;
     }
-
     return this.campaignRepository.findAll(filters);
   }
 
@@ -136,8 +116,6 @@ class CampaignService {
     if (userTipo === 'colaborador') {
       throw new AppError('Sem permissão', 403);
     }
-
-    // Gestor só pode ver as próprias campanhas ativas
     const targetId = userTipo === 'gestor' ? userId : gestorId;
     return this.campaignRepository.findActiveForGestor(targetId);
   }
@@ -156,11 +134,7 @@ class CampaignService {
       throw new AppError('Não é possível editar uma campanha finalizada', 400);
     }
 
-    // Valida vínculos gestor→colaborador quando gestorColaboradores é enviado no update.
-    // Vale para todos os tipoAlvo — CampaignGestorColaborador é fonte de verdade universal.
     if (data.gestorColaboradores) {
-      // Determina quais gestorIds devem ser validados:
-      // se o update enviou gestorIds, usa esses; caso contrário usa os gestores já na campanha.
       const gestorIdsParaValidar =
         data.gestorIds && data.gestorIds.length > 0
           ? data.gestorIds
@@ -168,39 +142,28 @@ class CampaignService {
 
       for (const gestorId of gestorIdsParaValidar) {
         const colaboradorIds = data.gestorColaboradores[gestorId];
-
         if (!Array.isArray(colaboradorIds) || colaboradorIds.length === 0) {
-          throw new AppError(
-            `Gestor ${gestorId} deve possuir pelo menos um colaborador.`,
-            400
-          );
+          throw new AppError(`Gestor ${gestorId} deve possuir pelo menos um colaborador.`, 400);
         }
       }
     }
 
     if (data.competencyIds) {
       this._validateCompetencyIds(data.competencyIds);
-      // Remove associações antigas
       await this.campaignCompetencyRepository.deleteByCampaignId(id);
-      // Adiciona novas associações
-      for (const competencyId of data.competencyIds) {
-        await this.campaignCompetencyRepository.create({
-          campaignId: id,
-          competencyId
-        });
-      }
+      await this.campaignCompetencyRepository.create(
+        data.competencyIds.map(competencyId => ({ campaignId: id, competencyId }))
+      );
     }
 
     if (data.dataInicio || data.dataFim) {
-      // Normaliza datas para ISO-8601 completo
       if (data.dataInicio) data.dataInicio = new Date(data.dataInicio).toISOString();
       if (data.dataFim)    data.dataFim    = new Date(data.dataFim).toISOString();
       const inicio = data.dataInicio || campaign.dataInicio;
-      const fim = data.dataFim || campaign.dataFim;
+      const fim    = data.dataFim    || campaign.dataFim;
       this._validateDatas(inicio, fim);
     }
 
-    // Remove competencyIds e criterios antes de atualizar
     const { competencyIds, criterios, gestorColaboradores, ...updateData } = data;
     return this.campaignRepository.update(id, { ...updateData, gestorColaboradores });
   }
@@ -217,15 +180,12 @@ class CampaignService {
 
     const transicoes = {
       planejamento: ['ativa'],
-      ativa: ['finalizada'],
-      finalizada: []
+      ativa:        ['finalizada'],
+      finalizada:   []
     };
 
     if (!transicoes[campaign.status].includes(status)) {
-      throw new AppError(
-        `Não é possível mudar status de '${campaign.status}' para '${status}'`,
-        400
-      );
+      throw new AppError(`Não é possível mudar status de '${campaign.status}' para '${status}'`, 400);
     }
 
     return this.campaignRepository.update(id, { status });
@@ -250,51 +210,36 @@ class CampaignService {
   }
 
   async getCampaignProgress(campaignId, gestorId, userId, userTipo) {
-    if (userTipo === 'colaborador') {
-      throw new AppError('Sem permissão', 403);
-    }
+    if (userTipo === 'colaborador') throw new AppError('Sem permissão', 403);
 
     const campaign = await this.campaignRepository.findById(campaignId);
-    if (!campaign) {
-      throw new AppError('Campanha não encontrada', 404);
-    }
+    if (!campaign) throw new AppError('Campanha não encontrada', 404);
 
     const targetGestorId = userTipo === 'gestor' ? userId : gestorId;
     return this.campaignRepository.getCampaignProgress(campaignId, targetGestorId);
   }
 
   async getResponsavelGestores(campaignId, userId, userTipo) {
-    if (userTipo === 'colaborador') {
-      throw new AppError('Sem permissão', 403);
-    }
+    if (userTipo === 'colaborador') throw new AppError('Sem permissão', 403);
 
     const campaign = await this.campaignRepository.findById(campaignId);
-    if (!campaign) {
-      throw new AppError('Campanha não encontrada', 404);
-    }
+    if (!campaign) throw new AppError('Campanha não encontrada', 404);
 
-    // Gestor só pode ver se é responsável por essa campanha
     if (userTipo === 'gestor') {
       const isResponsavel = campaign.gestores.some(g => g.gestorId === userId);
-      if (!isResponsavel) {
-        throw new AppError('Você não é responsável por esta campanha', 403);
-      }
+      if (!isResponsavel) throw new AppError('Você não é responsável por esta campanha', 403);
     }
 
     return this.campaignRepository.getResponsavelGestores(campaignId);
   }
 
   async getColaboradoresNaoAvaliados(campaignId, gestorId, userId, userTipo) {
-    if (userTipo === 'colaborador') {
-      throw new AppError('Sem permissão', 403);
-    }
+    if (userTipo === 'colaborador') throw new AppError('Sem permissão', 403);
 
     const campaign = await this.campaignRepository.findById(campaignId);
-    if (!campaign) {
-      throw new AppError('Campanha não encontrada', 404);
-    }
+    if (!campaign) throw new AppError('Campanha não encontrada', 404);
 
-    // Gestor só pode ver colaboradores que não avaliou
+    // Gestor só pode ver colaboradores que NÃO avaliou — e apenas os seus
     if (userTipo === 'gestor' && gestorId !== userId) {
       throw new AppError('Sem permissão para ver colaboradores de outro gestor', 403);
     }
@@ -302,44 +247,50 @@ class CampaignService {
     return this.campaignRepository.getColaboradoresNaoAvaliados(campaignId, gestorId);
   }
 
+  // ── Otimizados: 2 queries cada, sem N+1 ───────────────────────────────────
+
   async getPendingCampaignsForColaborador(userId, userTipo) {
     if (userTipo !== 'colaborador') {
       throw new AppError('Sem permissão para acessar esta funcionalidade', 403);
     }
 
-    try {
-      // Busca campanhas ativas
-      const campaigns = await this.campaignRepository.findAll({ status: 'ativa' });
-
-      // Filtra campanhas onde o colaborador ainda não respondeu
-      const campaignsPendentes = [];
-
-      for (const campaign of campaigns.campaigns) {
-        try {
-          // Para tipoAlvo: gestor, colaborador avalia gestor
-          if (campaign.tipoAlvo === 'gestor') {
-            const gestoresNaoAvaliados = await this.campaignRepository.getGestoresNaoAvaliados(campaign.id, userId);
-            if (gestoresNaoAvaliados.length > 0) {
-              campaignsPendentes.push(campaign);
-            }
-          }
-          // Para tipoAlvo: todos, colaborador pode avaliar gestores
-          else if (campaign.tipoAlvo === 'todos') {
-            const gestoresNaoAvaliados = await this.campaignRepository.getGestoresNaoAvaliados(campaign.id, userId);
-            if (gestoresNaoAvaliados.length > 0) {
-              campaignsPendentes.push(campaign);
-            }
-          }
-        } catch (error) {
-          console.error(`Erro ao processar campanha ${campaign.id}:`, error);
+    const campanhas = await prisma.evaluationCampaign.findMany({
+      where: {
+        status: 'ativa',
+        tipoAlvo: { in: ['gestor', 'todos'] },
+        gestores: {
+          some: { colaboradoresAvaliaveis: { some: { colaboradorId: userId } } }
         }
-      }
+      },
+      include: {
+        gestores: {
+          where: { colaboradoresAvaliaveis: { some: { colaboradorId: userId } } },
+          select: { gestorId: true }
+        },
+        _count: { select: { avaliacoes: true } }
+      },
+      orderBy: { dataFim: 'asc' }
+    });
 
-      return campaignsPendentes;
-    } catch (error) {
-      console.error('Erro em getPendingCampaignsForColaborador:', error);
-      throw error;
+    if (!campanhas.length) return [];
+
+    const campaignIds = campanhas.map(c => c.id);
+    const avaliacoes = await prisma.evaluation.findMany({
+      where: { campaignId: { in: campaignIds }, avaliadorId: userId },
+      select: { campaignId: true, avaliadoId: true }
+    });
+
+    const feitas = {};
+    for (const av of avaliacoes) {
+      if (!feitas[av.campaignId]) feitas[av.campaignId] = new Set();
+      feitas[av.campaignId].add(av.avaliadoId);
     }
+
+    return campanhas.filter(c => {
+      const gestorIds   = c.gestores.map(g => g.gestorId);
+      const jaAvaliados = feitas[c.id] || new Set();
+      return gestorIds.some(gId => !jaAvaliados.has(gId));
+    });
   }
 
   async getPendingCampaignsForGestor(userId, userTipo) {
@@ -347,59 +298,84 @@ class CampaignService {
       throw new AppError('Apenas gestores podem acessar esta funcionalidade', 403);
     }
 
-    try {
-      // Busca campanhas ativas onde o gestor é responsável
-      const campaigns = await this.campaignRepository.findActiveForGestor(userId);
-      console.log('[CampaignService.getPendingCampaignsForGestor] userId:', userId, 'userTipo:', userTipo, 'activeCampaigns:', campaigns.length);
-
-      // Filtra campanhas onde gestores devem responder avaliações.
-      // Manter apenas campanhas com colaboradores atribuídos ou candidatos.
-      const filteredCampaigns = campaigns.filter(c => c.tipoAlvo === 'colaborador' || c.tipoAlvo === 'todos');
-      console.log('[CampaignService.getPendingCampaignsForGestor] filteredCampaigns:', filteredCampaigns.map(c => ({ id: c.id, tipoAlvo: c.tipoAlvo })));
-
-      // Para cada campanha, verifica se o gestor ainda tem colaboradores para avaliar
-      const campaignsPendentes = [];
-
-      for (const campaign of filteredCampaigns) {
-        try {
-          // Busca colaboradores que o gestor deve avaliar nesta campanha
-          const colaboradoresNaoAvaliados = await this.campaignRepository.getColaboradoresNaoAvaliados(campaign.id, userId);
-          console.log('[CampaignService.getPendingCampaignsForGestor] campaignId:', campaign.id, 'colaboradoresNaoAvaliados:', colaboradoresNaoAvaliados.length);
-
-          if (colaboradoresNaoAvaliados.length > 0) {
-            campaignsPendentes.push(campaign);
+    const campanhas = await prisma.evaluationCampaign.findMany({
+      where: {
+        status: 'ativa',
+        tipoAlvo: { in: ['colaborador', 'todos'] },
+        gestores: {
+          some: {
+            gestorId: userId,
+            colaboradoresAvaliaveis: { some: {} }
           }
-        } catch (error) {
-          console.error(`Erro ao processar campanha ${campaign.id}:`, error);
-          // Continue with next campaign
         }
-      }
+      },
+      include: {
+        gestores: {
+          where: { gestorId: userId },
+          include: {
+            colaboradoresAvaliaveis: { select: { colaboradorId: true } }
+          }
+        },
+        _count: { select: { avaliacoes: true } }
+      },
+      orderBy: { dataFim: 'asc' }
+    });
 
-      console.log('[CampaignService.getPendingCampaignsForGestor] campaignsPendentes:', campaignsPendentes.length);
-      return campaignsPendentes;
-    } catch (error) {
-      console.error('Erro em getPendingCampaignsForGestor:', error);
-      throw error;
+    if (!campanhas.length) return [];
+
+    const campaignIds = campanhas.map(c => c.id);
+    const avaliacoes = await prisma.evaluation.findMany({
+      where: { campaignId: { in: campaignIds }, avaliadorId: userId },
+      select: { campaignId: true, avaliadoId: true }
+    });
+
+    const feitas = {};
+    for (const av of avaliacoes) {
+      if (!feitas[av.campaignId]) feitas[av.campaignId] = new Set();
+      feitas[av.campaignId].add(av.avaliadoId);
     }
+
+    return campanhas.filter(c => {
+      const cg = c.gestores[0];
+      if (!cg) return false;
+      const colaboradorIds = cg.colaboradoresAvaliaveis.map(ca => ca.colaboradorId);
+      const jaAvaliados    = feitas[c.id] || new Set();
+      return colaboradorIds.some(cId => !jaAvaliados.has(cId));
+    });
   }
 
   async getGestoresNaoAvaliados(campaignId, colaboradorId, userId, userTipo) {
-    // Gestor não tem acesso a este endpoint
-    if (userTipo === 'gestor') {
-      throw new AppError('Sem permissão', 403);
-    }
+    if (userTipo === 'gestor') throw new AppError('Sem permissão', 403);
 
-    // Colaborador só pode ver seus próprios gestores pendentes
     if (userTipo === 'colaborador' && colaboradorId !== userId) {
       throw new AppError('Sem permissão para ver gestores de outro colaborador', 403);
     }
 
     const campaign = await this.campaignRepository.findById(campaignId);
-    if (!campaign) {
-      throw new AppError('Campanha não encontrada', 404);
-    }
+    if (!campaign) throw new AppError('Campanha não encontrada', 404);
 
     return this.campaignRepository.getGestoresNaoAvaliados(campaignId, colaboradorId);
+  }
+
+  /**
+   * Retorna as competências de uma campanha filtradas pelo tipo do avaliado.
+   * Regra: competenciaDe deve ser igual ao tipo do avaliado OU 'todos'.
+   */
+  async getCompetenciasParaAvaliado(campaignId, avaliadoId, userId, userTipo) {
+    const campaign = await this.campaignRepository.findById(campaignId);
+    if (!campaign) throw new AppError('Campanha não encontrada', 404);
+
+    const avaliado = await this.userRepository.findById(avaliadoId);
+    if (!avaliado) throw new AppError('Avaliado não encontrado', 404);
+
+    // Filtra as competências da campanha pelo tipo do avaliado (no backend, nunca no frontend)
+    const tipoAvaliado = avaliado.tipo; // 'gestor' | 'colaborador'
+    const competenciasFiltradas = (campaign.competencias || []).filter(cc => {
+      const de = cc.competency?.competenciaDe;
+      return de === tipoAvaliado || de === 'todos';
+    });
+
+    return competenciasFiltradas.map(cc => cc.competency);
   }
 
   async duplicate(id, userTipo) {
@@ -408,12 +384,8 @@ class CampaignService {
     }
 
     const original = await this.campaignRepository.findById(id);
-    if (!original) {
-      throw new AppError('Campanha não encontrada', 404);
-    }
+    if (!original) throw new AppError('Campanha não encontrada', 404);
 
-    // Monta payload idêntico ao create(), usando os dados da campanha original.
-    // A cópia nasce em status 'planejamento' e com nome prefixado por "Cópia de".
     const gestorIds = original.gestores.map(g => g.gestorId);
     const gestorColaboradores = {};
     for (const g of original.gestores) {
@@ -429,29 +401,29 @@ class CampaignService {
       tipoAlvo:   original.tipoAlvo,
     };
 
-    const { competencyIds: _c, gestorIds: _g, gestorColaboradores: _gc, ...campaignData } = { ...novaData };
     const uniqueGestorIds = [...new Set(gestorIds)];
 
-    const novaCampanha = await prisma.$transaction(async (tx) => {
+    return prisma.$transaction(async (tx) => {
       const created = await this.campaignRepository.create({
         ...novaData,
         gestorIds: uniqueGestorIds,
         gestorColaboradores
       }, tx);
 
-      for (const competencyId of competencyIds) {
-        await tx.campaignCompetency.create({
-          data: { campaignId: created.id, competencyId }
+      if (competencyIds.length > 0) {
+        await tx.campaignCompetency.createMany({
+          data: competencyIds.map(competencyId => ({
+            campaignId: created.id,
+            competencyId
+          }))
         });
       }
 
       return created;
     }, { maxWait: 15000, timeout: 30000 });
-
-    return novaCampanha;
   }
 
-  // --- Helpers privados ---
+  // ── Helpers privados ──────────────────────────────────────────────────────
 
   _validateCompetencyIds(competencyIds) {
     if (!Array.isArray(competencyIds) || competencyIds.length === 0) {
@@ -464,24 +436,21 @@ class CampaignService {
 
   _validateDatas(dataInicio, dataFim) {
     const inicio = new Date(dataInicio);
-    const fim = new Date(dataFim);
+    const fim    = new Date(dataFim);
     if (isNaN(inicio.getTime()) || isNaN(fim.getTime())) {
-      throw new AppError('Datas inválidas', 400);
+      throw new AppError('Datas inválidas.', 400);
     }
     if (fim <= inicio) {
-      throw new AppError('Data de fim deve ser posterior à data de início', 400);
+      throw new AppError('Data de fim deve ser posterior à data de início.', 400);
     }
   }
 
-  async _validateGestores(gestorIds) {
-    for (const gestorId of gestorIds) {
-      const user = await this.userRepository.findById(gestorId);
-      if (!user) {
-        throw new AppError(`Gestor com id '${gestorId}' não encontrado`, 404);
-      }
-      if (user.tipo !== 'gestor') {
-        throw new AppError(`Usuário '${user.nome}' não é um gestor`, 400);
-      }
+  _validateDataInicio(dataInicio) {
+    const inicio = new Date(dataInicio);
+    const hoje   = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    if (inicio < hoje) {
+      throw new AppError('Data de início não pode ser uma data passada.', 400);
     }
   }
 }

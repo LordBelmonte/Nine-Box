@@ -40,6 +40,13 @@ router.get('/:id/gestores-nao-avaliados/:colaboradorId', authMiddleware, (req, r
   campaignController.getGestoresNaoAvaliados(req, res, next)
 );
 
+// ── NOVO: Competências filtradas por tipo do avaliado ─────────────────────────
+// Retorna apenas competências da campanha compatíveis com o tipo do avaliado.
+// Regra: competenciaDe do avaliado.tipo ('gestor'|'colaborador') ou 'todos'.
+router.get('/:id/competencias-para/:avaliadoId', authMiddleware, (req, res, next) =>
+  campaignController.getCompetenciasParaAvaliado(req, res, next)
+);
+
 // Listar campanhas pendentes para colaborador
 router.get('/colaborador/pendentes', authMiddleware, (req, res, next) =>
   campaignController.getPendingCampaignsForColaborador(req, res, next)
@@ -55,8 +62,8 @@ router.post('/:id/duplicate', isAdminMiddleware, (req, res, next) =>
   campaignController.duplicate(req, res, next)
 );
 
-// CRUD de campanhas (apenas admin)
-router.get('/', isAdminMiddleware, (req, res, next) =>
+// CRUD de campanhas
+router.get('/', isGestorOrAdminMiddleware, (req, res, next) =>
   campaignController.findAll(req, res, next)
 );
 router.get('/:id', authMiddleware, (req, res, next) =>

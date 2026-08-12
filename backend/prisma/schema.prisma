@@ -9,26 +9,26 @@ datasource db {
 }
 
 model User {
-  id                    String                      @id @default(uuid())
-  ra                    String                      @unique
-  nome                  String
-  email                 String                      @unique
-  senha                 String
-  tipo                  UserType
-  foto                  String?
-  cargo                 String?
-  departamento          String?
-  deletedAt             DateTime?
-  createdAt             DateTime                    @default(now())
-  updatedAt             DateTime                    @updatedAt
-  campanhasResponsavel  CampaignGestor[]
-  avaliacoesRecebidas   Evaluation[]                @relation("AvaliadoRelation")
-  avaliacoesFeitas      Evaluation[]                @relation("AvaliadorRelation")
-  gruposComoColaborador GestorColaborador[]         @relation("ColaboradorRelation")
-  gruposComoGestor      GestorColaborador[]         @relation("GestorRelation")
-  nineBoxAvaliacoes     NineBox[]
+  id                      String                      @id @default(uuid())
+  ra                      String                      @unique
+  nome                    String
+  email                   String                      @unique
+  senha                   String
+  tipo                    UserType
+  foto                    String?
+  cargo                   String?
+  departamento            String?
+  deletedAt               DateTime?
+  createdAt               DateTime                    @default(now())
+  updatedAt               DateTime                    @updatedAt
   colaboradoresAvaliaveis CampaignGestorColaborador[]
-  refreshTokens         RefreshToken[]
+  campanhasResponsavel    CampaignGestor[]
+  avaliacoesRecebidas     Evaluation[]                @relation("AvaliadoRelation")
+  avaliacoesFeitas        Evaluation[]                @relation("AvaliadorRelation")
+  gruposComoColaborador   GestorColaborador[]         @relation("ColaboradorRelation")
+  gruposComoGestor        GestorColaborador[]         @relation("GestorRelation")
+  nineBoxAvaliacoes       NineBox[]
+  refreshTokens           RefreshToken[]
 
   @@index([ra])
   @@index([email])
@@ -36,13 +36,13 @@ model User {
 }
 
 model RefreshToken {
-  id        String   @id @default(uuid())
-  token     String   @unique
+  id        String    @id @default(uuid())
+  token     String    @unique
   userId    String
   expiresAt DateTime
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   revokedAt DateTime?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([token])
   @@index([userId])
@@ -64,20 +64,20 @@ model GestorColaborador {
 }
 
 model EvaluationCampaign {
-  id           String               @id @default(uuid())
-  nome         String
-  descricao    String?
-  dataInicio   DateTime
-  dataFim      DateTime
-  status       CampaignStatus       @default(planejamento)
-  tipoAlvo     String
-  tipoAvaliacao String?  // Tipo da avaliação (ex: "180", "360")
-  deletedAt    DateTime?
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
-  competencias CampaignCompetency[]
-  gestores     CampaignGestor[]
-  avaliacoes   Evaluation[]
+  id            String               @id @default(uuid())
+  nome          String
+  descricao     String?
+  dataInicio    DateTime
+  dataFim       DateTime
+  status        CampaignStatus       @default(planejamento)
+  tipoAlvo      String
+  tipoAvaliacao String?
+  deletedAt     DateTime?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  competencias  CampaignCompetency[]
+  gestores      CampaignGestor[]
+  avaliacoes    Evaluation[]
 
   @@index([status])
   @@map("evaluation_campaigns")
@@ -98,13 +98,13 @@ model CampaignCompetency {
 }
 
 model CampaignGestor {
-  id                      String                     @id @default(uuid())
-  campaignId               String
-  gestorId                 String
-  createdAt                DateTime                   @default(now())
-  campaign                 EvaluationCampaign         @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  gestor                   User                       @relation(fields: [gestorId], references: [id], onDelete: Cascade)
-  colaboradoresAvaliaveis  CampaignGestorColaborador[]
+  id                      String                      @id @default(uuid())
+  campaignId              String
+  gestorId                String
+  createdAt               DateTime                    @default(now())
+  colaboradoresAvaliaveis CampaignGestorColaborador[]
+  campaign                EvaluationCampaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  gestor                  User                        @relation(fields: [gestorId], references: [id], onDelete: Cascade)
 
   @@unique([campaignId, gestorId])
   @@index([campaignId])
@@ -113,12 +113,12 @@ model CampaignGestor {
 }
 
 model CampaignGestorColaborador {
-  id            String             @id @default(uuid())
+  id               String         @id @default(uuid())
   campaignGestorId String
-  colaboradorId String
-  createdAt     DateTime           @default(now())
-  campaignGestor CampaignGestor    @relation(fields: [campaignGestorId], references: [id], onDelete: Cascade)
-  colaborador   User               @relation(fields: [colaboradorId], references: [id], onDelete: Cascade)
+  colaboradorId    String
+  createdAt        DateTime       @default(now())
+  campaignGestor   CampaignGestor @relation(fields: [campaignGestorId], references: [id], onDelete: Cascade)
+  colaborador      User           @relation(fields: [colaboradorId], references: [id], onDelete: Cascade)
 
   @@unique([campaignGestorId, colaboradorId])
   @@index([campaignGestorId])
@@ -166,35 +166,26 @@ model NineBox {
   @@map("nine_box")
 }
 
-// Categorias de configuração do Nine Box (definidas conforme TABELA DE REFERÊNCIA ORIGEM)
-// Usado para exibir perfil e plano de ação de cada quadrante
 model NineBoxCategoria {
-  id              String   @id @default(uuid())
-  codigo          String   @unique  // Ex: "Q1", "Q2", ..., "Q9"
-  potencialClasse String   // "Baixo", "Médio" ou "Alto"
-  desempenhoClasse String  // "Baixo", "Médio" ou "Alto"
-  nome            String   // Ex: "Q1 (Insuficiente)"
-  tipo            String   // Ex: "Insuficiente", "Questionável", "Eficaz", etc.
-  perfil          String   // Descrição do perfil do profissional nesta categoria
-  planoAcao       String   // Plano de ação recomendado para esta categoria
-  icon            String?  // Ícone opcional (ex: classe CSS ou nome do ícone)
-  cor             String?  // Cor opcional (ex: código hex para estilização)
+  id               String  @id @default(uuid())
+  codigo           String  @unique
+  potencialClasse  String
+  desempenhoClasse String
+  nome             String
+  tipo             String
+  perfil           String
+  planoAcao        String
+  icon             String?
+  cor              String?
 
   @@map("nine_box_categorias")
 }
 
-// Valores permitidos para o campo "tipo" de Competency:
-// - "desempenho": competências que impactam diretamente a performance do colaborador
-// - "potencial": competências que indicam potencial de crescimento e desenvolvimento
-//
-// Mapeamento para cálculo do Nine Box:
-// - Performance (Eixo X) = média das notas de competências tipo "desempenho"
-// - Potential (Eixo Y) = média das notas de competências tipo "potencial"
 model Competency {
   id            String               @id @default(uuid())
   nome          String               @unique
   descricao     String
-  tipo          String               // Apenas: "desempenho" ou "potencial"
+  tipo          String
   competenciaDe String
   criterios     String[]
   deletedAt     DateTime?

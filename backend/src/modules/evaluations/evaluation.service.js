@@ -95,7 +95,26 @@ class EvaluationService {
     // Valida critérios contra os definidos na campanha
     // A campanha tem competências associadas através de campaign.competencias
     const criteriosCampanha = campaign.competencias || [];
-    this._validateCriterios(criterios, criteriosCampanha);
+
+    // ── Segunda barreira: filtra competências pelo tipo do avaliado ──────────
+    // Regra definitiva: competenciaDe do avaliado.tipo ou 'todos'
+    const competenciasPermitidas = criteriosCampanha.filter(cc => {
+      const de = cc.competency?.competenciaDe;
+      return de === avaliado.tipo || de === 'todos';
+    });
+
+    // Garante que nenhuma competência de outro público seja aceita nos critérios
+    const nomesPermitidos = new Set(competenciasPermitidas.map(cc => cc.competency?.nome).filter(Boolean));
+    for (const nomeCriterio of Object.keys(criterios)) {
+      if (!nomesPermitidos.has(nomeCriterio)) {
+        throw new AppError(
+          `A competência "${nomeCriterio}" não é compatível com o perfil do avaliado (${avaliado.tipo}).`,
+          400
+        );
+      }
+    }
+
+    this._validateCriterios(criterios, competenciasPermitidas);
 
     // Calcula média
     const notas = Object.values(criterios);
