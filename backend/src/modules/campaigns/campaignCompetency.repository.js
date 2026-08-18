@@ -5,6 +5,11 @@ class CampaignCompetencyRepository {
     return await tx.campaignCompetency.create({ data });
   }
 
+  // Cria múltiplas competências de uma vez (usado no update da campanha)
+  async createMany(items, tx = prisma) {
+    return await tx.campaignCompetency.createMany({ data: items });
+  }
+
   async findByCampaignId(campaignId) {
     return await prisma.campaignCompetency.findMany({
       where: { campaignId },

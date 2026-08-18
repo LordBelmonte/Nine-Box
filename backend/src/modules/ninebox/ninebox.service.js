@@ -12,59 +12,60 @@ class NineBoxService {
   }
 
   // Classifica uma nota em BAIXO, MÉDIO ou ALTO
+  // Faixas baseadas na escala 1-4 do sistema
   classifyScore(score) {
-    if (score >= 1 && score <= 1.5) {
-      return 'BAIXO';
-    } else if (score >= 1.6 && score <= 2.5) {
-      return 'MÉDIO';
-    } else if (score >= 2.6 && score <= 4) {
-      return 'ALTO';
-    }
-    return 'INDEFINIDO';
+    if (score === null || score === undefined || isNaN(score)) return 'INDEFINIDO';
+    if (score < 1)    return 'INDEFINIDO'; // fora da escala válida
+    if (score <= 1.99) return 'BAIXO';
+    if (score <= 2.99) return 'MÉDIO';
+    if (score <= 4)   return 'ALTO';
+    return 'INDEFINIDO'; // acima de 4
   }
 
   // Calcula a categoria baseada em performance (X) e potential (Y)
-  // Escala 1-4 com faixas: BAIXO (1-1.5), MÉDIO (1.6-2.5), ALTO (2.6-4)
-  // ATENÇÃO: Usar NINEBOX-FONTE-UNICA-QUADRANTES.md como referência oficial
+  // Retorna null se algum dos scores for inválido (fora da faixa 1-4)
   calculateCategoria(performance, potential) {
     const xClass = this.classifyScore(performance);
     const yClass = this.classifyScore(potential);
+
+    if (xClass === 'INDEFINIDO' || yClass === 'INDEFINIDO') return null;
 
     // Matriz (Y = Potencial | X = Desempenho) - Fonte Única
     const matriz = {
       'BAIXO-BAIXO': 'Q1 (Insuficiente)',
       'BAIXO-MÉDIO': 'Q2 (Questionável)',
-      'BAIXO-ALTO': 'Q3 (Eficaz)',
+      'BAIXO-ALTO':  'Q3 (Eficaz)',
       'MÉDIO-BAIXO': 'Q4 (Dilema)',
       'MÉDIO-MÉDIO': 'Q5 (Mantenedor)',
-      'MÉDIO-ALTO': 'Q6 (Especialista)',
-      'ALTO-BAIXO': 'Q7 (Forte Candidato)',
-      'ALTO-MÉDIO': 'Q8 (Alto Desempenho)',
-      'ALTO-ALTO': 'Q9 (Estrela)'
+      'MÉDIO-ALTO':  'Q6 (Especialista)',
+      'ALTO-BAIXO':  'Q7 (Forte Candidato)',
+      'ALTO-MÉDIO':  'Q8 (Alto Desempenho)',
+      'ALTO-ALTO':   'Q9 (Estrela)'
     };
 
-    return matriz[`${yClass}-${xClass}`] || 'Indefinido';
+    return matriz[`${yClass}-${xClass}`] || null;
   }
 
-  // Retorna apenas o código do quadrante (Q1-Q9)
+  // Retorna apenas o código do quadrante (Q1-Q9) ou null se inválido
   getCodigoQuadrante(performance, potential) {
     const xClass = this.classifyScore(performance);
     const yClass = this.classifyScore(potential);
-    const chave = `${yClass}-${xClass}`;
-    
+
+    if (xClass === 'INDEFINIDO' || yClass === 'INDEFINIDO') return null;
+
     const mapeamento = {
       'BAIXO-BAIXO': 'Q1',
       'BAIXO-MÉDIO': 'Q2',
-      'BAIXO-ALTO': 'Q3',
+      'BAIXO-ALTO':  'Q3',
       'MÉDIO-BAIXO': 'Q4',
       'MÉDIO-MÉDIO': 'Q5',
-      'MÉDIO-ALTO': 'Q6',
-      'ALTO-BAIXO': 'Q7',
-      'ALTO-MÉDIO': 'Q8',
-      'ALTO-ALTO': 'Q9'
+      'MÉDIO-ALTO':  'Q6',
+      'ALTO-BAIXO':  'Q7',
+      'ALTO-MÉDIO':  'Q8',
+      'ALTO-ALTO':   'Q9'
     };
 
-    return mapeamento[chave] || null;
+    return mapeamento[`${yClass}-${xClass}`] || null;
   }
 
   // Calcula Performance (X) a partir das competências do tipo 'desempenho' e 'tecnica'
@@ -168,6 +169,17 @@ class NineBoxService {
     }
 
     const categoria = this.calculateCategoria(performance, potential);
+
+    // Se o cálculo retornou null (score fora da faixa 1-4), trata como sem dados
+    if (!categoria) {
+      return {
+        avaliadoId,
+        performance: null,
+        potential: null,
+        categoria: 'Sem dados suficientes',
+        message: `Notas fora da faixa válida (1-4): performance=${performance}, potential=${potential}`
+      };
+    }
 
     return {
       avaliadoId,
@@ -301,46 +313,45 @@ class NineBoxService {
       throw new AppError('Não há avaliações suficientes para gerar o relatório deste colaborador. Verifique se o colaborador possui avaliações respondidas.', 400);
     }
 
-    // Busca competências avaliadas
-    const competencias = [];
+    // Bug fix 2: Competências com MÉDIA de TODAS as avaliações (não só a última)
     const allEvaluations = await this.evaluationRepository.findByAvaliado(pessoaId, { page: 1, limit: 100 });
-    
+
+    const competenciasSoma     = {};
+    const competenciasContagem = {};
+
+    for (const ev of allEvaluations.evaluations) {
+      if (ev.criterios && typeof ev.criterios === 'object') {
+        for (const [nome, nota] of Object.entries(ev.criterios)) {
+          if (typeof nota === 'number') {
+            competenciasSoma[nome]     = (competenciasSoma[nome]     || 0) + nota;
+            competenciasContagem[nome] = (competenciasContagem[nome] || 0) + 1;
+          }
+        }
+      }
+    }
+
+    const competencias = Object.entries(competenciasSoma).map(([nome, soma]) => ({
+      nome,
+      nota: parseFloat((soma / competenciasContagem[nome]).toFixed(2))
+    }));
+
     // Determina o código da avaliação para exibição
     let evaluation = null;
     let avaliacaoCodigo = 'N/A';
     let empresa = pessoa.departamento || 'Empresa';
-    
-    // Se evaluationId for fornecido e não for 'all', tenta buscar a avaliação
+
     if (evaluationId && evaluationId !== 'all' && evaluationId !== 'null') {
       evaluation = await this.evaluationRepository.findById(evaluationId).catch(() => null);
       if (evaluation) {
         avaliacaoCodigo = evaluation.id.substring(0, 8).toUpperCase();
         empresa = evaluation.campaignId || empresa;
       } else {
-        // Se não encontrou a avaliação, usa o ID fornecido como código
         avaliacaoCodigo = evaluationId.substring(0, 8).toUpperCase();
       }
     }
-    
-    // Buscar competências da avaliação mais recente se não encontrou a específica
-    if (allEvaluations.evaluations.length > 0) {
-      const avaliacao = evaluation 
-        ? allEvaluations.evaluations.find(e => e.id === evaluationId) 
-        : allEvaluations.evaluations[0];
-      
-      if (avaliacao && avaliacao.criterios) {
-        for (const [nome, nota] of Object.entries(avaliacao.criterios)) {
-          competencias.push({
-            nome: nome,
-            nota: nota
-          });
-        }
-      }
-      
-      // Se não tem código ainda, usa o da avaliação encontrada
-      if (!evaluation && allEvaluations.evaluations[0]) {
-        avaliacaoCodigo = allEvaluations.evaluations[0].id.substring(0, 8).toUpperCase();
-      }
+
+    if (!evaluation && allEvaluations.evaluations[0]) {
+      avaliacaoCodigo = allEvaluations.evaluations[0].id.substring(0, 8).toUpperCase();
     }
 
     const codigoQuadrante = this.getCodigoQuadrante(performance, potential);

@@ -147,7 +147,7 @@ const updateCampaignSchema = Joi.object({
       Joi.array().items(Joi.string().uuid())
     )
     .optional()
-    .default({})
+    // Bug fix 4: sem .default({}) — objeto vazio causava validação indevida de gestores
     .messages({ 'object.base': 'gestorColaboradores deve ser um objeto.' }),
 
 }).min(1).messages({ 'object.min': 'Informe ao menos um campo para atualizar.' });

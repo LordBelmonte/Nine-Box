@@ -89,34 +89,50 @@ class ReportsService {
     if (!user) throw new AppError('Usuário não encontrado', 404);
 
     const evaluationsReceived = await this.evaluationRepository.findByAvaliado(userId, { page: 1, limit: 1000 });
-    const evaluationsMade = await this.evaluationRepository.findByAvaliador(userId, { page: 1, limit: 1000 });
-    const nineBoxes = await this.nineBoxRepository.findByPessoa(userId);
+    const evaluationsMade     = await this.evaluationRepository.findByAvaliador(userId, { page: 1, limit: 1000 });
 
-    const receivedStats = {
-      total: evaluationsReceived.evaluations.length,
-      mediaGeral: evaluationsReceived.evaluations.length > 0
-        ? evaluationsReceived.evaluations.reduce((sum, ev) => sum + (ev.media || 0), 0) / evaluationsReceived.evaluations.length
-        : 0
-    };
+    const recebidas = evaluationsReceived.evaluations;
+    const feitas    = evaluationsMade.evaluations;
 
-    const latestNineBox = nineBoxes.length > 0 ? nineBoxes[0] : null;
-    delete user.senha;
+    // Média geral das avaliações recebidas
+    const mediaGeral = recebidas.length > 0
+      ? parseFloat((recebidas.reduce((s, ev) => s + (ev.media || 0), 0) / recebidas.length).toFixed(2))
+      : 0;
 
+    // Bug fix 3: Média por competência calculada a partir de TODAS as avaliações recebidas
+    const competenciasSoma     = {};
+    const competenciasContagem = {};
+    for (const ev of recebidas) {
+      if (ev.criterios && typeof ev.criterios === 'object') {
+        for (const [nome, nota] of Object.entries(ev.criterios)) {
+          if (typeof nota === 'number') {
+            competenciasSoma[nome]     = (competenciasSoma[nome]     || 0) + nota;
+            competenciasContagem[nome] = (competenciasContagem[nome] || 0) + 1;
+          }
+        }
+      }
+    }
+    const criteriosMedia = {};
+    for (const [nome, soma] of Object.entries(competenciasSoma)) {
+      criteriosMedia[nome] = parseFloat((soma / competenciasContagem[nome]).toFixed(2));
+    }
+
+    // Últimas 10 avaliações recebidas (ordenadas por data desc)
+    const ultimasAvaliacoes = [...recebidas]
+      .sort((a, b) => new Date(b.data || b.createdAt) - new Date(a.data || a.createdAt))
+      .slice(0, 10);
+
+    const { senha: _, ...userSemSenha } = user;
+
+    // Estrutura compatível com o frontend (renderRelatorioUsuario)
     return {
-      usuario: user,
-      avaliacoesRecebidas: {
-        ...receivedStats,
-        lista: evaluationsReceived.evaluations
-      },
-      avaliacoesFeitas: {
-        total: evaluationsMade.evaluations.length,
-        lista: evaluationsMade.evaluations
-      },
-      nineBox: {
-        total: nineBoxes.length,
-        ultima: latestNineBox,
-        historico: nineBoxes
-      },
+      user:              userSemSenha,
+      usuario:           userSemSenha,
+      ultimasAvaliacoes, // array de avaliações recebidas (frontend acessa data.ultimasAvaliacoes)
+      avaliacoesRecebidas: recebidas.length,  // número (frontend acessa data.avaliacoesRecebidas)
+      avaliacoesFeitas:    feitas.length,     // número (frontend acessa data.avaliacoesFeitas)
+      mediaGeral,
+      criteriosMedia,
       timestamp: new Date().toISOString()
     };
   }

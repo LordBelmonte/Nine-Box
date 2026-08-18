@@ -151,7 +151,8 @@ class CampaignService {
     if (data.competencyIds) {
       this._validateCompetencyIds(data.competencyIds);
       await this.campaignCompetencyRepository.deleteByCampaignId(id);
-      await this.campaignCompetencyRepository.create(
+      // Bug fix 4: usar createMany em vez de create com array
+      await this.campaignCompetencyRepository.createMany(
         data.competencyIds.map(competencyId => ({ campaignId: id, competencyId }))
       );
     }

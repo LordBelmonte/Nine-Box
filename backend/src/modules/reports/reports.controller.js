@@ -48,27 +48,10 @@ class ReportsController {
         req.user.userId,
         req.user.tipo
       );
-      
-      // Adaptar formato para compatibilidade com frontend
-      const response = {
-        user: report.usuario,
-        usuario: report.usuario, // Manter ambos para compatibilidade
-        avaliacoesRecebidas: report.avaliacoesRecebidas.total,
-        avaliacoesFeitas: report.avaliacoesFeitas.total,
-        mediaGeral: parseFloat(report.avaliacoesRecebidas.mediaGeral.toFixed(1)),
-        ultimasAvaliacoes: report.avaliacoesRecebidas.lista.slice(0, 10),
-        criteriosMedia: this.calcularMediaCriterios(report.avaliacoesRecebidas.lista),
-        nineBox: report.nineBox,
-        // Manter também o formato original para compatibilidade
-        avaliacoesRecebidasDetalhes: report.avaliacoesRecebidas,
-        avaliacoesFeitasDetalhes: report.avaliacoesFeitas,
-        timestamp: report.timestamp
-      };
-      
-      return res.json({
-        success: true,
-        data: response
-      });
+
+      // Bug fix 3: service já retorna no formato compatível com o frontend
+      // Não precisa de adaptação — repassa direto
+      return res.json({ success: true, data: report });
     } catch (error) {
       next(error);
     }

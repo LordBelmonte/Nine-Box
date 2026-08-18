@@ -10,8 +10,8 @@ function fieldLabel(field) {
 }
 
 const errorHandler = (err, req, res, next) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.error('[ERROR]', err.message, err.stack?.split('\n')[1]?.trim());
+  if (process.env.NODE_ENV === 'development' || err.statusCode >= 500) {
+    console.error('[ERROR]', err.message, err.stack?.split('\n').slice(0,3).join(' | '));
   }
 
   // Erros operacionais (AppError lançado pelo código)

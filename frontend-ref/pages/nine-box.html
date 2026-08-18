@@ -862,6 +862,12 @@
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando...';
 
+    // Bug 5 fix: esconde o loading-overlay global antes de capturar
+    // para evitar opacidade no PDF exportado
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const prevDisplay = loadingOverlay ? loadingOverlay.style.display : '';
+    if (loadingOverlay) loadingOverlay.style.display = 'none';
+
     try {
       const modal = document.getElementById('nb-relatorio-modal');
 
@@ -870,6 +876,9 @@
         await new Promise(r => setTimeout(r, 800));
       }
 
+      // Pequeno delay para garantir que o overlay foi ocultado antes da captura
+      await new Promise(r => setTimeout(r, 50));
+
       const canvas = await html2canvas(modal, {
         scale: 2,
         useCORS: true,
@@ -877,14 +886,15 @@
         logging: false,
         windowWidth: modal.scrollWidth,
         windowHeight: modal.scrollHeight,
+        ignoreElements: el => el.id === 'loading-overlay' || el.classList?.contains('toast'),
       });
 
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-      const imgData   = canvas.toDataURL('image/png');
-      const pdfWidth  = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const imgData    = canvas.toDataURL('image/png');
+      const pdfWidth   = pdf.internal.pageSize.getWidth();
+      const pdfHeight  = (canvas.height * pdfWidth) / canvas.width;
       const pageHeight = pdf.internal.pageSize.getHeight();
 
       // Multi-página se necessário
@@ -901,6 +911,8 @@
       console.error(err);
       showToast('Erro ao gerar PDF. Tente novamente.', 'error');
     } finally {
+      // Restaura o loading overlay
+      if (loadingOverlay) loadingOverlay.style.display = prevDisplay;
       btn.disabled = false;
       btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Exportar PDF';
     }
