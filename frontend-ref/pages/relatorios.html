@@ -563,9 +563,12 @@
         ? `<img src="${pessoa.foto}" alt="${pessoa.nome}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
         : iniciais;
       const catKey = getCatKey(nb);
-      const cat = CATEGORIAS_NB[catKey];
-      // pessoaId: calculateAll usa user.id como nb.id e nb.pessoa.id
-      const pessoaId = pessoa.id || nb.id || '';
+      const cat    = CATEGORIAS_NB[catKey];
+      const pessoaId     = pessoa.id || nb.id || '';
+      const corQuadrante = cat?.cor || '#6b7280';
+      // Formata notas com vírgula decimal
+      const fmtPerf = nb.performance != null ? Number(nb.performance).toFixed(2).replace('.',',') : '—';
+      const fmtPot  = nb.potential  != null ? Number(nb.potential).toFixed(2).replace('.',',')  : '—';
 
       return `
         <div class="nb-user-card-inline" data-pessoa-id="${pessoaId}" data-ninebox-id="${nb.id || ''}">
@@ -573,22 +576,27 @@
           <div class="nb-user-card-info">
             <div class="nb-user-card-nome">${pessoa.nome || 'Usuário'}</div>
             <div class="nb-user-card-meta">
-              ${pessoa.cargo ? `<span>${pessoa.cargo}</span>` : ''}
+              ${pessoa.cargo        ? `<span>${pessoa.cargo}</span>`        : ''}
               ${pessoa.departamento ? `<span>${pessoa.departamento}</span>` : ''}
-              ${cat ? `<span style="color:${cat.cor};font-weight:700;">${cat.q} ${cat.nome}</span>` : ''}
             </div>
+            ${cat ? `
+            <div style="margin-top:5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span style="padding:2px 10px;background:${corQuadrante}22;border:1.5px solid ${corQuadrante}66;border-radius:100px;font-size:11px;font-weight:700;color:${corQuadrante};">${cat.q} — ${cat.nome}</span>
+              <span style="font-size:11px;color:var(--text-muted);">Desempenho: <strong style="color:var(--text)">${fmtPerf}</strong></span>
+              <span style="font-size:11px;color:var(--text-muted);">Potencial: <strong style="color:var(--text)">${fmtPot}</strong></span>
+            </div>` : ''}
             <div style="display:flex;gap:8px;margin-top:10px;">
               <button
                 onclick="abrirRelatorioIndividualDashboard('${pessoaId}')"
-                style="padding:5px 11px;background:#4C1D95;color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;"
-                title="Ver relatório individual">
-                <i class="fa-solid fa-user"></i> Ver Individual
+                style="padding:5px 12px;background:#4C1D95;color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;"
+                title="Análise completa: quadrante, matriz, competências e plano de ação">
+                <i class="fa-solid fa-user"></i> Ver Relatório
               </button>
               <button
-                onclick="abrirResultadosIndividual('${pessoaId}')"
-                style="padding:5px 11px;background:#10b981;color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;"
-                title="Ver resultados da avaliação">
-                <i class="fa-solid fa-chart-pie"></i> Resultados
+                onclick="abrirAvaliacoesRecebidas('${pessoaId}')"
+                style="padding:5px 12px;background:#10b981;color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;"
+                title="Avaliações recebidas: notas por campanha, critérios e datas">
+                <i class="fa-solid fa-clipboard-list"></i> Ver Avaliações
               </button>
             </div>
           </div>
@@ -1088,41 +1096,159 @@
     exportarCSV(headers, rows, 'nine-box');
   };
 
-  // ---- ABRIR RELATÓRIO INDIVIDUAL DO DASHBOARD ----
-  // Chamado pelo botão "Ver Individual" nos cards da listagem de colaboradores
+  // ── VER RELATÓRIO INDIVIDUAL ────────────────────────────────────────────────
+  // Abre análise completa: performance, potencial, quadrante, matriz, competências, plano
+  // Endpoint: GET /api/ninebox/report/individual/all/:pessoaId
   window.abrirRelatorioIndividualDashboard = async function(pessoaId) {
-    if (!pessoaId) {
-      showToast('Colaborador não identificado.', 'error');
-      return;
-    }
-    // Usa o modal de relatório do nine-box se disponível
-    if (typeof window.NineBoxReportModal !== 'undefined') {
-      window.NineBoxReportModal.openIndividual('all', pessoaId);
-      return;
-    }
-    // Fallback: abre a API diretamente e exibe num modal simples
-    showToast('Módulo de relatório não carregado. Tente recarregar a página.', 'error');
-  };
-
-  // ---- BOTÃO "RESULTADOS" — abre relatório individual do colaborador ----
-  // Garante que o pessoaId correto é passado e nunca exibe dados de outra pessoa
-  window.abrirResultadosIndividual = async function(pessoaId) {
-    if (!pessoaId) {
-      showToast('Não foi possível identificar o colaborador.', 'error');
-      return;
-    }
+    if (!pessoaId) { showToast('Colaborador não identificado.', 'error'); return; }
     if (typeof window.NineBoxReportModal !== 'undefined') {
       window.NineBoxReportModal.openIndividual('all', pessoaId);
     } else {
-      showToast('Módulo de relatório não carregado. Tente recarregar a página.', 'error');
+      showToast('Módulo de relatório não carregado. Recarregue a página.', 'error');
     }
   };
+
+  // ── VER AVALIAÇÕES RECEBIDAS ─────────────────────────────────────────────────
+  // Abre modal com as avaliações recebidas pelo colaborador: campanha, data, critérios, notas
+  // Endpoint: GET /api/evaluations/avaliado/:pessoaId
+  // DIFERENTE de "Ver Relatório": não mostra análise, mostra os registros brutos de avaliação
+  window.abrirAvaliacoesRecebidas = async function(pessoaId) {
+    if (!pessoaId) { showToast('Colaborador não identificado.', 'error'); return; }
+
+    const overlay = document.getElementById('nb-resultados-overlay');
+    const body    = document.getElementById('nb-resultados-body');
+    const titulo  = document.getElementById('nb-resultados-titulo');
+    if (!overlay || !body) {
+      showToast('Modal de avaliações não encontrado. Recarregue a página.', 'error');
+      return;
+    }
+
+    overlay.style.display = 'flex';
+    body.innerHTML = '<div style="text-align:center;padding:40px"><i class="fa-solid fa-spinner fa-spin fa-2x" style="color:#10b981"></i><p style="margin-top:12px;color:var(--text-muted)">Buscando avaliações...</p></div>';
+
+    try {
+      const apiBase = window.__API_BASE_URL || '/api';
+      const token   = localStorage.getItem('portal_token') || '';
+      const res = await fetch(
+        `${apiBase}/evaluations/avaliado/${pessoaId}?limit=50`,
+        { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
+      );
+      if (!res.ok) throw new Error(`Erro ${res.status}: ${res.statusText}`);
+      const json = await res.json();
+      const avaliacoes = json.data?.evaluations || json.data?.avaliacoes || [];
+
+      // Nome da pessoa a partir dos dados em memória
+      const nbItem     = allNineBoxData.find(nb => (nb.pessoa?.id || nb.id) === pessoaId);
+      const nomePessoa = nbItem?.pessoa?.nome || 'Colaborador';
+      if (titulo) titulo.textContent = `Avaliações recebidas — ${nomePessoa}`;
+
+      if (avaliacoes.length === 0) {
+        body.innerHTML = `
+          <div class="empty-state" style="padding:40px 20px">
+            <i class="fa-solid fa-clipboard-list"></i>
+            <p>Nenhuma avaliação encontrada para ${nomePessoa}.</p>
+          </div>`;
+        return;
+      }
+
+      const totalEl = `<div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;padding-bottom:12px;border-bottom:1.5px solid var(--border);">
+        <strong style="color:var(--text)">${avaliacoes.length}</strong> avaliação(ões) recebida(s)
+      </div>`;
+
+      // Renderiza cada avaliação recebida — dados reais do banco, sem mock
+      const avaliacoesHtml = avaliacoes.map((av) => {
+        const campanha = av.campaign?.nome || 'Sem campanha';
+        const data     = av.createdAt ? new Date(av.createdAt).toLocaleDateString('pt-BR') : '—';
+        const media    = av.media != null ? Number(av.media).toFixed(2) : '—';
+        const criterios = av.criterios && typeof av.criterios === 'object'
+          ? Object.entries(av.criterios)
+              .filter(([, v]) => typeof v === 'number')
+              .map(([nome, nota]) => {
+                const cor = nota >= 3 ? '#22C55E' : nota >= 2 ? '#EAB308' : '#EF4444';
+                const pct = Math.min(((nota - 1) / 3) * 100, 100).toFixed(0);
+                return `
+                  <div style="margin-bottom:7px">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+                      <span style="font-size:12px;color:var(--text)">${nome}</span>
+                      <span style="font-size:12px;font-weight:700;color:${cor}">${Number(nota).toFixed(2)}</span>
+                    </div>
+                    <div style="background:#e5e7eb;border-radius:100px;height:6px;overflow:hidden">
+                      <div style="width:${pct}%;height:100%;background:${cor};border-radius:100px"></div>
+                    </div>
+                  </div>`;
+              }).join('')
+          : '<p style="font-size:12px;color:var(--text-muted)">Sem critérios registrados.</p>';
+
+        return `
+          <div style="border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--text)">
+                  <i class="fa-solid fa-star" style="color:#7C3AED;margin-right:5px"></i>${campanha}
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Data: ${data}</div>
+              </div>
+              <span style="background:#ede9fe;padding:3px 12px;border-radius:100px;font-size:12px;font-weight:700;color:#4C1D95">
+                Média: ${media}/4
+              </span>
+            </div>
+            ${criterios}
+          </div>`;
+      }).join('');
+
+      body.innerHTML = totalEl + avaliacoesHtml;
+
+    } catch (err) {
+      console.error('[Ver Avaliações]', err);
+      body.innerHTML = `
+        <div class="empty-state" style="padding:40px 20px">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <p>${err.message || 'Erro ao carregar avaliações.'}</p>
+        </div>`;
+    }
+  };
+
+  window.fecharResultados = function() {
+    const overlay = document.getElementById('nb-resultados-overlay');
+    if (overlay) overlay.style.display = 'none';
+  };
+
+  // Aliases de compatibilidade com chamadas anteriores
+  window.abrirResultadosDaAvaliacao  = window.abrirAvaliacoesRecebidas;
+  window.abrirResultadosIndividual   = window.abrirAvaliacoesRecebidas;
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
-<!-- Scripts do Modal de Relatório Nine Box -->
+<!-- Modal de Avaliações Recebidas — notas por campanha, critérios e datas -->
+<div id="nb-resultados-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(3px);z-index:1100;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)fecharResultados()">
+  <div style="background:var(--surface);border-radius:16px;box-shadow:0 24px 64px rgba(0,0,0,0.3);width:100%;max-width:660px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;">
+    <!-- Cabeçalho -->
+    <div style="background:linear-gradient(135deg,#065F46,#10b981);padding:20px 24px;color:white;flex-shrink:0;border-radius:16px 16px 0 0;">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:11px;font-weight:600;opacity:.7;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px">Histórico de Avaliações</div>
+          <h2 id="nb-resultados-titulo" style="margin:0;font-size:18px;font-weight:700">Avaliações recebidas</h2>
+        </div>
+        <button onclick="fecharResultados()" style="background:rgba(255,255,255,.15);border:none;color:white;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;margin:0;padding:0;flex-shrink:0">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+    <!-- Corpo com scroll -->
+    <div id="nb-resultados-body" style="padding:20px 24px;overflow-y:auto;flex:1"></div>
+    <!-- Rodapé -->
+    <div style="padding:14px 24px;border-top:1.5px solid var(--border);display:flex;justify-content:flex-end;flex-shrink:0;background:var(--surface);border-radius:0 0 16px 16px">
+      <button onclick="fecharResultados()" style="padding:9px 22px;background:transparent;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit">
+        <i class="fa-solid fa-xmark"></i> Fechar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Relatório Nine Box (análise individual e consolidada) -->
 <script src="../js/components/ninebox-report-modal.js"></script>
-<script src="../js/components/ninebox-report-integration.js"></script>
+<!-- ninebox-report-integration.js NÃO é carregado em relatorios.html:
+     os botões já são renderizados diretamente no template de cada card -->
 </body>
 </html>

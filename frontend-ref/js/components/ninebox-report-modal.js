@@ -592,77 +592,217 @@ function closeNineBoxReportModal() {
 }
 
 // Exportar para PDF
+// Cria um container dedicado fora do overlay para captura limpa pelo html2canvas
 async function exportNineBoxReportPDF() {
   const btn = document.getElementById('btn-export-pdf');
   const originalText = btn.innerHTML;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando PDF...';
   btn.disabled = true;
 
-  // Elementos a ocultar temporariamente para evitar contaminação do canvas
-  const elementosOcultar = [];
-  const pushHide = (el) => {
-    if (el && getComputedStyle(el).display !== 'none') {
-      elementosOcultar.push({ el, display: el.style.display });
-      el.style.display = 'none';
-    }
-  };
-
-  // Oculta o overlay pai (backdrop escuro) — mantém apenas o conteúdo interno
-  const modalOverlay = document.getElementById('nb-report-modal');
-  const prevOverlayBg = modalOverlay ? modalOverlay.style.background : '';
-  const prevOverlayFilter = modalOverlay ? modalOverlay.style.backdropFilter : '';
-  if (modalOverlay) {
-    modalOverlay.style.background = 'transparent';
-    modalOverlay.style.backdropFilter = 'none';
-  }
-
-  // Oculta loading-overlay, toasts e outros modais que possam estar visíveis
-  pushHide(document.getElementById('loading-overlay'));
-  document.querySelectorAll('.toast').forEach(el => pushHide(el));
-  document.querySelectorAll('.modal-backdrop').forEach(el => pushHide(el));
+  // Container dedicado para PDF — renderizado fora de qualquer overlay
+  const pdfContainer = document.createElement('div');
+  pdfContainer.id = 'relatorio-pdf-container';
+  pdfContainer.style.cssText = [
+    'position:fixed',
+    'top:-9999px',
+    'left:0',
+    'width:794px',       // largura A4 a 96dpi
+    'background:#ffffff',
+    'font-family:Poppins,sans-serif',
+    'color:#1e293b',
+    'padding:32px',
+    'box-sizing:border-box',
+    'z-index:-1',
+  ].join(';');
 
   try {
-    // Verificar se html2canvas e jsPDF estão disponíveis
-    if (typeof html2canvas === 'undefined' || typeof jspdf === 'undefined') {
+    if (!currentReportData) throw new Error('Nenhum dado de relatório carregado.');
+
+    const data = currentReportData;
+    const q    = getQuadrante(data.codigoQuadrante);
+    const cor  = q.cor || '#7C3AED';
+
+    // Formata nota com vírgula
+    const fmt = n => (n != null && !isNaN(n)) ? Number(n).toFixed(2).replace('.', ',') : '—';
+
+    // ─── Monta a mini-matriz para PDF ────────────────────────────────────────
+    const ordemGrid = [
+      ['B3','M3','A3'],  // pot ALTO
+      ['B2','M2','A2'],  // pot MÉDIO
+      ['B1','M1','A1'],  // pot BAIXO
+    ];
+    const NOMES_Q = {
+      B1:'Insuficiente',B2:'Eficaz',B3:'Comprometido',
+      M1:'Questionável',M2:'Mantenedor',M3:'Forte Desempenho',
+      A1:'Enigma',A2:'Em crescimento',A3:'Destaque'
+    };
+    const CORES_Q = {
+      B1:'#EF4444',B2:'#F97316',B3:'#F97316',
+      M1:'#EAB308',M2:'#EAB308',M3:'#84CC16',
+      A1:'#84CC16',A2:'#22C55E',A3:'#15803D'
+    };
+    const matrizHtml = ordemGrid.map(linha => `
+      <div style="display:flex;gap:3px;margin-bottom:3px;">
+        ${linha.map(cod => {
+          const dest = cod === data.codigoQuadrante;
+          const c    = CORES_Q[cod] || '#94a3b8';
+          return `<div style="width:72px;height:48px;border-radius:6px;background:${dest ? c : c+'22'};border:${dest ? '2.5px solid '+c : '1px solid '+c+'55'};display:flex;flex-direction:column;align-items:center;justify-content:center;${dest ? 'box-shadow:0 0 0 3px '+c+'44;' : ''}">
+            <span style="font-size:10px;font-weight:700;color:${dest ? '#fff' : c}">${cod}</span>
+            <span style="font-size:7px;color:${dest ? '#fff' : c};opacity:${dest ? 1 : 0.75};text-align:center;line-height:1.2;padding:0 2px">${NOMES_Q[cod]}</span>
+          </div>`;
+        }).join('')}
+      </div>`).join('');
+
+    // ─── Competências ────────────────────────────────────────────────────────
+    const compHtml = (data.competencias || []).map(c => {
+      const nota = c.nota != null ? c.nota : c.notaMedia;
+      const pct  = Math.min(Math.max(((nota - 1) / 3) * 100, 0), 100).toFixed(0);
+      const cor2 = nota >= 3 ? '#22C55E' : nota >= 2 ? '#EAB308' : '#EF4444';
+      return `
+        <div style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+            <span style="font-size:12px;color:#1e293b;">${c.nome}</span>
+            <span style="font-size:12px;font-weight:700;color:${cor2};">${fmt(nota)}</span>
+          </div>
+          <div style="background:#e2e8f0;border-radius:100px;height:7px;overflow:hidden;">
+            <div style="width:${pct}%;height:100%;background:${cor2};border-radius:100px;"></div>
+          </div>
+        </div>`;
+    }).join('') || '<p style="font-size:12px;color:#64748b;">Nenhuma competência registrada.</p>';
+
+    // ─── Detalhamento de avaliações ───────────────────────────────────────────
+    const detHtml = (data.detalhamentoAvaliacoes || []).map(av => {
+      const dataAv = av.data ? new Date(av.data).toLocaleDateString('pt-BR') : '—';
+      const crits  = Object.entries(av.criterios || {})
+        .filter(([, v]) => typeof v === 'number')
+        .map(([nome, nota]) => `
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f1f5f9;">
+            <span style="font-size:11px;color:#475569;">${nome}</span>
+            <span style="font-size:11px;font-weight:700;color:#334155;">${Number(nota).toFixed(2)}</span>
+          </div>`).join('');
+      return `
+        <div style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+            <div>
+              <div style="font-size:12px;font-weight:700;color:#1e293b;">${av.campanha}</div>
+              <div style="font-size:10px;color:#64748b;">Data: ${dataAv}</div>
+            </div>
+            <div style="background:#ede9fe;padding:2px 10px;border-radius:100px;font-size:11px;font-weight:700;color:#4C1D95;">
+              Média: ${av.media != null ? fmt(av.media) : '—'}/4
+            </div>
+          </div>
+          ${crits || '<p style="font-size:11px;color:#94a3b8;">Sem critérios.</p>'}
+        </div>`;
+    }).join('') || '';
+
+    // ─── Monta o HTML do PDF ──────────────────────────────────────────────────
+    pdfContainer.innerHTML = `
+      <!-- CABEÇALHO -->
+      <div style="background:linear-gradient(135deg,#4C1D95,#7C3AED);color:white;padding:24px 28px;border-radius:10px;margin-bottom:20px;">
+        <div style="font-size:10px;font-weight:600;opacity:.7;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Relatório Individual — Nine Box</div>
+        <div style="font-size:22px;font-weight:700;margin-bottom:4px;">${data.colaborador.nome}</div>
+        <div style="font-size:13px;opacity:.85;">${data.colaborador.cargo} · ${data.colaborador.departamento}</div>
+        <div style="font-size:12px;opacity:.7;margin-top:4px;">Campanha: ${data.avaliacao?.campanha || 'N/A'}</div>
+      </div>
+
+      <!-- RESULTADO NINE BOX -->
+      <div style="display:flex;gap:20px;margin-bottom:20px;flex-wrap:wrap;">
+        <!-- Chips -->
+        <div style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:8px;">
+          <div style="background:#dbeafe;border-radius:8px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;font-weight:600;color:#1e40af;text-transform:uppercase;">Desempenho</span>
+            <span style="font-size:20px;font-weight:700;color:#1e40af;">${fmt(data.notaDesempenho)}<span style="font-size:11px;font-weight:400;">/4</span></span>
+          </div>
+          <div style="background:#dcfce7;border-radius:8px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;font-weight:600;color:#166534;text-transform:uppercase;">Potencial</span>
+            <span style="font-size:20px;font-weight:700;color:#166534;">${fmt(data.notaPotencial)}<span style="font-size:11px;font-weight:400;">/4</span></span>
+          </div>
+          <div style="background:${cor}22;border:1.5px solid ${cor}66;border-radius:8px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;font-weight:600;color:${cor};text-transform:uppercase;">Quadrante</span>
+            <span style="font-size:18px;font-weight:700;color:${cor};">${data.codigoQuadrante} — ${data.nomeQuadrante}</span>
+          </div>
+        </div>
+        <!-- Matriz -->
+        <div style="flex:0 0 auto;">
+          <div style="font-size:11px;font-weight:700;color:#4C1D95;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">Posição na Matriz</div>
+          <div style="display:flex;align-items:flex-start;gap:4px;">
+            <div style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;font-weight:600;color:#64748b;letter-spacing:.5px;margin-top:8px;">← POTENCIAL</div>
+            <div>
+              <div style="display:flex;gap:3px;margin-bottom:2px;">
+                ${['Baixo','Médio','Alto'].map(l => `<div style="width:72px;text-align:center;font-size:8px;color:#64748b;font-weight:600;">${l}</div>`).join('')}
+              </div>
+              ${matrizHtml}
+              <div style="text-align:center;font-size:8px;color:#64748b;font-weight:600;margin-top:2px;">DESEMPENHO →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPETÊNCIAS -->
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:700;color:#4C1D95;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #ede9fe;">
+          Média por Competência
+        </div>
+        ${compHtml}
+      </div>
+
+      ${detHtml ? `
+      <!-- DETALHAMENTO -->
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:700;color:#4C1D95;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #ede9fe;">
+          Detalhamento das Avaliações Recebidas
+        </div>
+        ${detHtml}
+      </div>` : ''}
+
+      <!-- PERFIL E PLANO -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:14px;border-radius:0 8px 8px 0;">
+          <div style="font-size:11px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Perfil</div>
+          <div style="font-size:12px;color:#78350f;line-height:1.5;">${q.perfil}</div>
+        </div>
+        <div style="background:#ecfdf5;border-left:4px solid #10b981;padding:14px;border-radius:0 8px 8px 0;">
+          <div style="font-size:11px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Plano de Ação</div>
+          <div style="font-size:12px;color:#064e3b;line-height:1.5;">${q.planoAcao}</div>
+        </div>
+      </div>
+
+      <!-- RODAPÉ -->
+      <div style="border-top:1px solid #e2e8f0;padding-top:10px;text-align:center;">
+        <span style="font-size:10px;color:#94a3b8;">Portal de Gestão de Pessoas · Relatório gerado em ${new Date().toLocaleDateString('pt-BR')}</span>
+      </div>
+    `;
+
+    document.body.appendChild(pdfContainer);
+
+    // Aguarda libs
+    let t = 0;
+    while ((!window.html2canvas || !window.jspdf) && t < 15) {
+      await new Promise(r => setTimeout(r, 300)); t++;
+    }
+    if (!window.html2canvas || !window.jspdf) {
       throw new Error('Bibliotecas html2canvas/jsPDF não carregadas. Verifique se os scripts estão incluídos na página HTML.');
     }
 
-    const content = document.getElementById('nb-report-modal-content');
+    await new Promise(r => setTimeout(r, 60));
 
-    // Delay para o DOM aplicar as mudanças de visibilidade
-    await new Promise(r => setTimeout(r, 80));
-
-    // Cor de fundo explícita para evitar transparência
-    const bgColor = getComputedStyle(document.documentElement)
-      .getPropertyValue('--surface').trim() || '#ffffff';
-
-    // Capturar como canvas
-    const canvas = await html2canvas(content, {
+    const canvas = await html2canvas(pdfContainer, {
       scale: 2,
       useCORS: true,
-      backgroundColor: bgColor || '#ffffff',
+      backgroundColor: '#ffffff',
       logging: false,
-      windowWidth:  content.scrollWidth,
-      windowHeight: content.scrollHeight,
-      ignoreElements: el => {
-        if (!el) return false;
-        if (el.classList?.contains('toast')) return true;
-        if (el.classList?.contains('modal-backdrop')) return true;
-        const ignoredIds = ['loading-overlay', 'nb-report-loading'];
-        return ignoredIds.includes(el.id);
-      },
+      windowWidth:  pdfContainer.scrollWidth,
+      windowHeight: pdfContainer.scrollHeight,
     });
 
-    // Criar PDF A4 com suporte a multi-página
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
     const imgData    = canvas.toDataURL('image/png');
-    const pdfWidth   = pdf.internal.pageSize.getWidth();   // 210mm
+    const pdfWidth   = pdf.internal.pageSize.getWidth();
     const pdfHeight  = (canvas.height * pdfWidth) / canvas.width;
-    const pageHeight = pdf.internal.pageSize.getHeight();  // 297mm
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
-    // Multi-página automático
     let y = 0;
     while (y < pdfHeight) {
       if (y > 0) pdf.addPage();
@@ -670,28 +810,18 @@ async function exportNineBoxReportPDF() {
       y += pageHeight;
     }
 
-    // Nome do arquivo baseado no colaborador ou tipo
-    const nomeColaborador = currentReportData?.colaborador?.nome
-      ? currentReportData.colaborador.nome.replace(/\s+/g, '-').toLowerCase()
-      : 'relatorio';
-    const nomeArquivo = currentType === 'individual'
-      ? `relatorio-ninebox-${nomeColaborador}.pdf`
-      : `relatorio-ninebox-consolidado.pdf`;
-
-    pdf.save(nomeArquivo);
+    const nomeColaborador = (currentReportData?.colaborador?.nome || 'relatorio')
+      .replace(/\s+/g, '-').toLowerCase();
+    pdf.save(`relatorio-ninebox-${nomeColaborador}.pdf`);
     showToastMsg('PDF exportado com sucesso!', 'success');
 
   } catch (error) {
     console.error('[PDF]', error);
     showToastMsg('Erro ao exportar PDF: ' + error.message, 'error');
   } finally {
-    // Restaura o overlay pai
-    if (modalOverlay) {
-      modalOverlay.style.background = prevOverlayBg;
-      modalOverlay.style.backdropFilter = prevOverlayFilter;
-    }
-    // Restaura elementos ocultados
-    elementosOcultar.forEach(({ el, display }) => { el.style.display = display; });
+    // Remove o container temporário
+    const el = document.getElementById('relatorio-pdf-container');
+    if (el) el.remove();
     btn.innerHTML = originalText;
     btn.disabled = false;
   }
