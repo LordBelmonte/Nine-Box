@@ -870,42 +870,82 @@
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando...';
 
-    // Bug 5 fix: esconde o loading-overlay global antes de capturar
-    // para evitar opacidade no PDF exportado
-    const loadingOverlay = document.getElementById('loading-overlay');
-    const prevDisplay = loadingOverlay ? loadingOverlay.style.display : '';
-    if (loadingOverlay) loadingOverlay.style.display = 'none';
+    // Coleta elementos externos que devem ser ocultados durante a captura
+    // para evitar que o backdrop, loading e toasts apareçam no PDF
+    const elementosOcultar = [];
+
+    const pushHide = (el) => {
+      if (el && getComputedStyle(el).display !== 'none') {
+        elementosOcultar.push({ el, display: el.style.display });
+        el.style.display = 'none';
+      }
+    };
+
+    // 1. loading-overlay global
+    pushHide(document.getElementById('loading-overlay'));
+    // 2. Overlay pai do modal de relatório (tem backdrop escuro que contamina o canvas)
+    const overlay = document.getElementById('nb-relatorio-overlay');
+    // NÃO ocultamos o overlay inteiro — só mudamos sua cor de fundo temporariamente
+    const prevOverlayBg = overlay ? overlay.style.background : '';
+    const prevOverlayFilter = overlay ? overlay.style.backdropFilter : '';
+    if (overlay) {
+      overlay.style.background = 'transparent';
+      overlay.style.backdropFilter = 'none';
+    }
+    // 3. Toasts visíveis
+    document.querySelectorAll('.toast').forEach(el => pushHide(el));
+    // 4. Modal de detalhes aberto (nb-modal)
+    const nbModal = document.getElementById('nb-modal');
+    if (nbModal && nbModal.classList.contains('open')) {
+      elementosOcultar.push({ el: nbModal, restore: () => nbModal.classList.add('open') });
+      nbModal.classList.remove('open');
+    }
 
     try {
       const modal = document.getElementById('nb-relatorio-modal');
 
-      // Aguarda libs carregarem
+      // Aguarda libs html2canvas e jsPDF carregarem (carregadas com defer)
+      let tentativas = 0;
+      while ((!window.html2canvas || !window.jspdf) && tentativas < 15) {
+        await new Promise(r => setTimeout(r, 300));
+        tentativas++;
+      }
       if (!window.html2canvas || !window.jspdf) {
-        await new Promise(r => setTimeout(r, 800));
+        throw new Error('Bibliotecas html2canvas/jsPDF não carregadas. Recarregue a página.');
       }
 
-      // Pequeno delay para garantir que o overlay foi ocultado antes da captura
-      await new Promise(r => setTimeout(r, 50));
+      // Delay para garantir que o DOM aplicou as mudanças de visibilidade
+      await new Promise(r => setTimeout(r, 80));
+
+      const bgColor = getComputedStyle(document.documentElement)
+        .getPropertyValue('--surface').trim() || '#ffffff';
 
       const canvas = await html2canvas(modal, {
         scale: 2,
         useCORS: true,
-        backgroundColor: getComputedStyle(document.body).getPropertyValue('--surface').trim() || '#ffffff',
+        backgroundColor: bgColor || '#ffffff',
         logging: false,
-        windowWidth: modal.scrollWidth,
+        windowWidth:  modal.scrollWidth,
         windowHeight: modal.scrollHeight,
-        ignoreElements: el => el.id === 'loading-overlay' || el.classList?.contains('toast'),
+        ignoreElements: el => {
+          if (!el || !el.id) return false;
+          const ignoredIds = ['loading-overlay', 'nb-modal', 'modal-exportar'];
+          if (ignoredIds.includes(el.id)) return true;
+          if (el.classList?.contains('toast')) return true;
+          if (el.classList?.contains('modal-backdrop')) return true;
+          return false;
+        },
       });
 
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
       const imgData    = canvas.toDataURL('image/png');
-      const pdfWidth   = pdf.internal.pageSize.getWidth();
+      const pdfWidth   = pdf.internal.pageSize.getWidth();   // 210mm
       const pdfHeight  = (canvas.height * pdfWidth) / canvas.width;
-      const pageHeight = pdf.internal.pageSize.getHeight();
+      const pageHeight = pdf.internal.pageSize.getHeight();  // 297mm
 
-      // Multi-página se necessário
+      // Suporte multi-página automático
       let y = 0;
       while (y < pdfHeight) {
         if (y > 0) pdf.addPage();
@@ -916,11 +956,19 @@
       pdf.save(`${relatorioAtualNome}.pdf`);
       showToast('PDF exportado com sucesso!', 'success');
     } catch (err) {
-      console.error(err);
-      showToast('Erro ao gerar PDF. Tente novamente.', 'error');
+      console.error('[PDF]', err);
+      showToast('Erro ao gerar PDF: ' + (err.message || 'Tente novamente.'), 'error');
     } finally {
-      // Restaura o loading overlay
-      if (loadingOverlay) loadingOverlay.style.display = prevDisplay;
+      // Restaura o overlay pai
+      if (overlay) {
+        overlay.style.background = prevOverlayBg;
+        overlay.style.backdropFilter = prevOverlayFilter;
+      }
+      // Restaura elementos ocultados
+      elementosOcultar.forEach(({ el, display, restore }) => {
+        if (restore) restore();
+        else if (el) el.style.display = display;
+      });
       btn.disabled = false;
       btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Exportar PDF';
     }

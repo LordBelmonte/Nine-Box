@@ -304,55 +304,154 @@ async function openNineBoxReportConsolidated(evaluationId) {
 // Renderizar relatório individual
 function renderReportIndividual(data) {
   // Cabeçalho
-  document.getElementById('nb-report-title').textContent = `Avaliação ${data.avaliacao.empresa} - #${data.avaliacao.codigo}`;
-  document.getElementById('nb-report-subtitle').textContent = 'Detalhes da avaliação do gestor e relação dos colaboradores';
-  
+  const campanhaNome = data.avaliacao?.campanha || data.avaliacao?.empresa || 'N/A';
+  document.getElementById('nb-report-title').textContent =
+    `Resultado Individual — ${data.colaborador.nome}`;
+  document.getElementById('nb-report-subtitle').textContent =
+    `${data.colaborador.cargo} · ${data.colaborador.departamento} · ${data.colaborador.totalAvaliacoes || 0} avaliação(ões) recebida(s)`;
+
   // Card do colaborador
   const card = document.getElementById('nb-report-card');
+  const iniciais = (data.colaborador.nome || 'C')
+    .split(' ').slice(0, 2).map(p => p[0]).join('').toUpperCase();
+
   card.innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-      <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;color:white;font-size:18px;font-weight:700;">
-        <i class="fa-solid fa-user"></i>
+      <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#4C1D95,#7C3AED);display:flex;align-items:center;justify-content:center;color:white;font-size:18px;font-weight:700;flex-shrink:0;">
+        ${iniciais}
       </div>
       <div style="flex:1;">
-        <div style="font-size:16px;font-weight:600;color:var(--text);">Colaborador avaliado: ${data.colaborador.nome}</div>
-        <span style="display:inline-block;margin-top:4px;padding:2px 8px;background:#dbeafe;color:#1d4ed8;border-radius:100px;font-size:11px;font-weight:600;">Avaliação ${data.avaliacao.codigo}</span>
+        <div style="font-size:16px;font-weight:700;color:var(--text);">${data.colaborador.nome}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+          ${data.colaborador.cargo} · ${data.colaborador.departamento}
+        </div>
       </div>
+      <span style="padding:4px 12px;background:${data.colaborador.statusAvaliacao === 'Respondida' ? '#dcfce7' : '#fef3c7'};color:${data.colaborador.statusAvaliacao === 'Respondida' ? '#166534' : '#92400e'};border-radius:100px;font-size:11px;font-weight:700;">
+        ${data.colaborador.statusAvaliacao}
+      </span>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);">
-        <i class="fa-solid fa-building" style="color:var(--primary);width:20px;"></i>
-        <span>Empresa: <strong style="color:var(--text);">${data.colaborador.empresa}</strong></span>
+        <i class="fa-solid fa-building" style="color:var(--primary);width:16px;"></i>
+        <span>Departamento: <strong style="color:var(--text);">${data.colaborador.departamento}</strong></span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);">
-        <i class="fa-solid fa-sitemap" style="color:var(--primary);width:20px;"></i>
-        <span>Setor: <strong style="color:var(--text);">${data.colaborador.setor}</strong></span>
+        <i class="fa-solid fa-star" style="color:var(--primary);width:16px;"></i>
+        <span>Campanha: <strong style="color:var(--text);">${campanhaNome}</strong></span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);">
-        <i class="fa-solid fa-briefcase" style="color:var(--primary);width:20px;"></i>
+        <i class="fa-solid fa-briefcase" style="color:var(--primary);width:16px;"></i>
         <span>Cargo: <strong style="color:var(--text);">${data.colaborador.cargo}</strong></span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);">
-        <i class="fa-solid fa-circle-check" style="color:var(--primary);width:20px;"></i>
-        <span>Status: <strong style="color:var(--success);">${data.colaborador.statusAvaliacao}</strong></span>
+        <i class="fa-solid fa-hashtag" style="color:var(--primary);width:16px;"></i>
+        <span>Avaliações: <strong style="color:var(--text);">${data.colaborador.totalAvaliacoes || 0}</strong></span>
       </div>
     </div>
   `;
-  
-  // Renderizar matriz
+
+  // Renderizar matriz (usa níveis já calculados pelo backend)
   renderMatrix(data.nivelDesempenho, data.nivelPotencial);
-  
-  // Renderizar gráfico
+
+  // Renderizar gráfico de competências (médias)
   renderChart(data.competencias, 'Média por competência');
-  
-  // Chips
-  document.getElementById('nb-chip-performance-text').textContent = `Desempenho Médio: ${formatarNota(data.notaDesempenho)}/4`;
-  document.getElementById('nb-chip-potential-text').textContent = `Potencial Médio: ${formatarNota(data.notaPotencial)}/4`;
-  
-  // Perfil e Plano
+
+  // Chips de resultado
+  document.getElementById('nb-chip-performance-text').textContent =
+    `Desempenho: ${formatarNota(data.notaDesempenho)}/4`;
+  document.getElementById('nb-chip-potential-text').textContent =
+    `Potencial: ${formatarNota(data.notaPotencial)}/4`;
+
+  // Perfil e Plano de Ação do quadrante
   const quadrante = getQuadrante(data.codigoQuadrante);
-  document.getElementById('nb-report-perfil').textContent = quadrante.perfil;
-  document.getElementById('nb-report-plano').textContent = quadrante.planoAcao;
+  document.getElementById('nb-report-perfil').textContent  = quadrante.perfil;
+  document.getElementById('nb-report-plano').textContent   = quadrante.planoAcao;
+
+  // Título da seção de resultados
+  document.getElementById('nb-report-results-title').textContent =
+    `${data.codigoQuadrante} — ${data.nomeQuadrante}`;
+
+  // Detalhamento por avaliação — exibe após os gráficos se houver dados
+  _renderDetalhamentoAvaliacoes(data.detalhamentoAvaliacoes || []);
+}
+
+// Renderiza o bloco de detalhamento de cada avaliação recebida pelo avaliado
+function _renderDetalhamentoAvaliacoes(detalhamento) {
+  // Remove seção anterior se existir
+  const idSecao = 'nb-report-detalhamento';
+  const anterior = document.getElementById(idSecao);
+  if (anterior) anterior.remove();
+
+  if (!detalhamento || detalhamento.length === 0) return;
+
+  const body = document.getElementById('nb-report-content');
+  if (!body) return;
+
+  // Cria o bloco de detalhamento
+  const secao = document.createElement('div');
+  secao.id = idSecao;
+  secao.style.cssText = 'padding:0 24px 24px;';
+
+  const avaliacoesHtml = detalhamento.map((av, idx) => {
+    const dataFormatada = av.data
+      ? new Date(av.data).toLocaleDateString('pt-BR')
+      : '—';
+    const mediaFormatada = av.media != null ? formatarNota(av.media) : '—';
+
+    // Critérios desta avaliação
+    const criteriosHtml = Object.entries(av.criterios || {})
+      .filter(([, nota]) => typeof nota === 'number')
+      .map(([nome, nota]) => {
+        const cor = nota >= 3 ? '#22C55E' : nota >= 2 ? '#EAB308' : '#EF4444';
+        const pct = Math.min(((nota - 1) / 3) * 100, 100).toFixed(0);
+        return `
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:12px;color:var(--text);">${nome}</span>
+              <span style="font-size:12px;font-weight:700;color:${cor};">${formatarNota(nota)}</span>
+            </div>
+            <div style="background:#e5e7eb;border-radius:100px;height:6px;overflow:hidden;">
+              <div style="width:${pct}%;height:100%;background:${cor};border-radius:100px;"></div>
+            </div>
+          </div>`;
+      }).join('');
+
+    return `
+      <div style="border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);">
+              <i class="fa-solid fa-star" style="color:#7C3AED;margin-right:6px;"></i>${av.campanha}
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Data: ${dataFormatada}</div>
+          </div>
+          <div style="background:#ede9fe;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;color:#4C1D95;">
+            Média: ${mediaFormatada}/4
+          </div>
+        </div>
+        ${criteriosHtml || '<p style="font-size:12px;color:var(--text-muted);">Sem critérios registrados.</p>'}
+      </div>`;
+  }).join('');
+
+  secao.innerHTML = `
+    <div style="border-top:1.5px solid var(--border);padding-top:20px;margin-top:4px;">
+      <h4 style="font-size:14px;font-weight:700;color:#4C1D95;margin:0 0 14px;display:flex;align-items:center;gap:8px;">
+        <i class="fa-solid fa-list-check"></i> Detalhamento por avaliação recebida
+      </h4>
+      ${avaliacoesHtml}
+    </div>`;
+
+  // Insere no final do .nb-report-body (antes do rodapé que fica fora do body)
+  const reportBody = document.querySelector('.nb-report-body');
+  if (reportBody) {
+    reportBody.appendChild(secao);
+  } else {
+    // Fallback: insere no #nb-report-content antes do último filho (rodapé)
+    const content = document.getElementById('nb-report-content');
+    if (content && content.lastElementChild) {
+      content.insertBefore(secao, content.lastElementChild);
+    }
+  }
 }
 
 // Renderizar relatório consolidado
@@ -485,6 +584,9 @@ function renderChart(competencias, titulo) {
 function closeNineBoxReportModal() {
   const modal = document.getElementById('nb-report-modal');
   modal.style.display = 'none';
+  // Limpa detalhamento para evitar duplicação na próxima abertura
+  const det = document.getElementById('nb-report-detalhamento');
+  if (det) det.remove();
   currentReportData = null;
   currentType = null;
 }
@@ -495,46 +597,101 @@ async function exportNineBoxReportPDF() {
   const originalText = btn.innerHTML;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando PDF...';
   btn.disabled = true;
-  
+
+  // Elementos a ocultar temporariamente para evitar contaminação do canvas
+  const elementosOcultar = [];
+  const pushHide = (el) => {
+    if (el && getComputedStyle(el).display !== 'none') {
+      elementosOcultar.push({ el, display: el.style.display });
+      el.style.display = 'none';
+    }
+  };
+
+  // Oculta o overlay pai (backdrop escuro) — mantém apenas o conteúdo interno
+  const modalOverlay = document.getElementById('nb-report-modal');
+  const prevOverlayBg = modalOverlay ? modalOverlay.style.background : '';
+  const prevOverlayFilter = modalOverlay ? modalOverlay.style.backdropFilter : '';
+  if (modalOverlay) {
+    modalOverlay.style.background = 'transparent';
+    modalOverlay.style.backdropFilter = 'none';
+  }
+
+  // Oculta loading-overlay, toasts e outros modais que possam estar visíveis
+  pushHide(document.getElementById('loading-overlay'));
+  document.querySelectorAll('.toast').forEach(el => pushHide(el));
+  document.querySelectorAll('.modal-backdrop').forEach(el => pushHide(el));
+
   try {
     // Verificar se html2canvas e jsPDF estão disponíveis
     if (typeof html2canvas === 'undefined' || typeof jspdf === 'undefined') {
-      throw new Error('Bibliotecas html2canvas/jsPDF não carregadas. Adicione ao HTML: <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>');
+      throw new Error('Bibliotecas html2canvas/jsPDF não carregadas. Verifique se os scripts estão incluídos na página HTML.');
     }
-    
+
     const content = document.getElementById('nb-report-modal-content');
-    
+
+    // Delay para o DOM aplicar as mudanças de visibilidade
+    await new Promise(r => setTimeout(r, 80));
+
+    // Cor de fundo explícita para evitar transparência
+    const bgColor = getComputedStyle(document.documentElement)
+      .getPropertyValue('--surface').trim() || '#ffffff';
+
     // Capturar como canvas
     const canvas = await html2canvas(content, {
       scale: 2,
       useCORS: true,
-      logging: false
+      backgroundColor: bgColor || '#ffffff',
+      logging: false,
+      windowWidth:  content.scrollWidth,
+      windowHeight: content.scrollHeight,
+      ignoreElements: el => {
+        if (!el) return false;
+        if (el.classList?.contains('toast')) return true;
+        if (el.classList?.contains('modal-backdrop')) return true;
+        const ignoredIds = ['loading-overlay', 'nb-report-loading'];
+        return ignoredIds.includes(el.id);
+      },
     });
-    
-    // Criar PDF
+
+    // Criar PDF A4 com suporte a multi-página
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    
-    const imgData = canvas.toDataURL('image/png');
-    const imgWidth = 210; // A4 width
-    const pageHeight = 297;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    
-    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-    
-    // Nome do arquivo
-    const nomeArquivo = currentType === 'individual' 
-      ? `relatorio-ninebox-${currentReportData?.colaborador?.nome?.replace(/\s+/g, '-').toLowerCase() || 'individual'}-${Date.now()}.pdf`
-      : `relatorio-ninebox-consolidado-${Date.now()}.pdf`;
-    
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    const imgData    = canvas.toDataURL('image/png');
+    const pdfWidth   = pdf.internal.pageSize.getWidth();   // 210mm
+    const pdfHeight  = (canvas.height * pdfWidth) / canvas.width;
+    const pageHeight = pdf.internal.pageSize.getHeight();  // 297mm
+
+    // Multi-página automático
+    let y = 0;
+    while (y < pdfHeight) {
+      if (y > 0) pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, -y, pdfWidth, pdfHeight);
+      y += pageHeight;
+    }
+
+    // Nome do arquivo baseado no colaborador ou tipo
+    const nomeColaborador = currentReportData?.colaborador?.nome
+      ? currentReportData.colaborador.nome.replace(/\s+/g, '-').toLowerCase()
+      : 'relatorio';
+    const nomeArquivo = currentType === 'individual'
+      ? `relatorio-ninebox-${nomeColaborador}.pdf`
+      : `relatorio-ninebox-consolidado.pdf`;
+
     pdf.save(nomeArquivo);
-    
     showToastMsg('PDF exportado com sucesso!', 'success');
-    
+
   } catch (error) {
-    console.error('Erro ao exportar PDF:', error);
+    console.error('[PDF]', error);
     showToastMsg('Erro ao exportar PDF: ' + error.message, 'error');
   } finally {
+    // Restaura o overlay pai
+    if (modalOverlay) {
+      modalOverlay.style.background = prevOverlayBg;
+      modalOverlay.style.backdropFilter = prevOverlayFilter;
+    }
+    // Restaura elementos ocultados
+    elementosOcultar.forEach(({ el, display }) => { el.style.display = display; });
     btn.innerHTML = originalText;
     btn.disabled = false;
   }

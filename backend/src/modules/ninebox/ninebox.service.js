@@ -324,23 +324,27 @@ class NineBoxService {
       throw new AppError('Sem permissão para ver este relatório', 403);
     }
 
-    // Calcula performance e potential a partir das avaliações
+    // Calcula performance e potential a partir das avaliações do avaliado
     const [performance, potential] = await Promise.all([
       this.calculatePerformanceFromEvaluations(pessoaId),
       this.calculatePotentialFromEvaluations(pessoaId)
     ]);
 
     if (performance === null || potential === null) {
-      throw new AppError('Não há avaliações suficientes para gerar o relatório deste colaborador. Verifique se o colaborador possui avaliações respondidas.', 400);
+      throw new AppError(
+        'Não há avaliações suficientes para gerar o relatório deste colaborador. Verifique se o colaborador possui avaliações respondidas.',
+        400
+      );
     }
 
-    // Bug fix 2: Competências com MÉDIA de TODAS as avaliações (não só a última)
-    const allEvaluations = await this.evaluationRepository.findByAvaliado(pessoaId, { page: 1, limit: 100 });
+    // Busca avaliações recebidas pelo avaliado com detalhes de campanha
+    const avaliacoesDetalhadas = await this.evaluationRepository.findByAvaliadoWithDetails(pessoaId, 100);
 
+    // Calcula média de cada competência (critério) somando todas as avaliações recebidas
     const competenciasSoma     = {};
     const competenciasContagem = {};
 
-    for (const ev of allEvaluations.evaluations) {
+    for (const ev of avaliacoesDetalhadas) {
       if (ev.criterios && typeof ev.criterios === 'object') {
         for (const [nome, nota] of Object.entries(ev.criterios)) {
           if (typeof nota === 'number') {
@@ -356,45 +360,53 @@ class NineBoxService {
       nota: parseFloat((soma / competenciasContagem[nome]).toFixed(2))
     }));
 
-    // Determina o código da avaliação para exibição
-    let evaluation = null;
-    let avaliacaoCodigo = 'N/A';
-    let empresa = pessoa.departamento || 'Empresa';
+    // Monta detalhamento por avaliação (campanha + critérios + notas)
+    // Garante que só retorna avaliações deste avaliado (segurança extra)
+    const detalhamentoAvaliacoes = avaliacoesDetalhadas
+      .filter(ev => ev.avaliadoId === pessoaId)
+      .map(ev => ({
+        id:       ev.id,
+        campanha: ev.campaign?.nome || 'Sem campanha',
+        data:     ev.createdAt || ev.data || null,
+        media:    ev.media !== null && ev.media !== undefined
+                    ? parseFloat(ev.media.toFixed(2))
+                    : null,
+        criterios: ev.criterios || {}
+      }));
 
-    if (evaluationId && evaluationId !== 'all' && evaluationId !== 'null') {
-      evaluation = await this.evaluationRepository.findById(evaluationId).catch(() => null);
-      if (evaluation) {
-        avaliacaoCodigo = evaluation.id.substring(0, 8).toUpperCase();
-        empresa = evaluation.campaignId || empresa;
-      } else {
-        avaliacaoCodigo = evaluationId.substring(0, 8).toUpperCase();
-      }
-    }
-
-    if (!evaluation && allEvaluations.evaluations[0]) {
-      avaliacaoCodigo = allEvaluations.evaluations[0].id.substring(0, 8).toUpperCase();
-    }
+    // Determina informações da campanha mais recente para exibição
+    const avaliacaoMaisRecente = avaliacoesDetalhadas[0] || null;
+    const campanhaNome  = avaliacaoMaisRecente?.campaign?.nome  || 'N/A';
+    const campanhaId    = avaliacaoMaisRecente?.campaign?.id    || 'N/A';
+    const avaliacaoCodigo = avaliacaoMaisRecente
+      ? avaliacaoMaisRecente.id.substring(0, 8).toUpperCase()
+      : 'N/A';
 
     const codigoQuadrante = this.getCodigoQuadrante(performance, potential);
 
     return {
       colaborador: {
-        nome: pessoa.nome,
-        empresa: pessoa.departamento || empresa,
-        setor: pessoa.departamento || 'Não informado',
-        cargo: pessoa.cargo || 'Não informado',
-        statusAvaliacao: allEvaluations.evaluations.length > 0 ? 'Respondida' : 'Pendente'
+        nome:            pessoa.nome,
+        cargo:           pessoa.cargo        || 'Não informado',
+        departamento:    pessoa.departamento || 'Não informado',
+        setor:           pessoa.departamento || 'Não informado',
+        empresa:         pessoa.departamento || 'Empresa',
+        ra:              pessoa.ra           || '',
+        statusAvaliacao: avaliacoesDetalhadas.length > 0 ? 'Respondida' : 'Pendente',
+        totalAvaliacoes: avaliacoesDetalhadas.length
       },
-      notaDesempenho: parseFloat(performance.toFixed(2)),
-      notaPotencial:  parseFloat(potential.toFixed(2)),
+      notaDesempenho:  parseFloat(performance.toFixed(2)),
+      notaPotencial:   parseFloat(potential.toFixed(2)),
       nivelDesempenho: this.classifyScore(performance),
       nivelPotencial:  this.classifyScore(potential),
       codigoQuadrante,
-      nomeQuadrante: this.getNomeQuadrante(codigoQuadrante),
+      nomeQuadrante:   this.getNomeQuadrante(codigoQuadrante),
       competencias,
+      detalhamentoAvaliacoes,
       avaliacao: {
-        codigo: avaliacaoCodigo,
-        empresa: empresa
+        codigo:   avaliacaoCodigo,
+        campanha: campanhaNome,
+        empresa:  campanhaNome
       }
     };
   }

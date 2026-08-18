@@ -76,16 +76,23 @@ function injectButtonsIntoUserCards(cards) {
       }
     };
     
-    // Botão Resultados (Consolidado)
+    // Botão Resultados — abre o relatório individual do colaborador selecionado
     const btnConsolidado = document.createElement('button');
     btnConsolidado.className = 'btn-resultados';
     btnConsolidado.innerHTML = '<i class="fa-solid fa-chart-pie"></i> Resultados';
     btnConsolidado.style.cssText = 'padding:6px 12px;background:#10b981;color:white;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.2s;';
-    btnConsolidado.title = 'Ver relatório consolidado da avaliação';
+    btnConsolidado.title = 'Ver resultados individuais do colaborador';
     btnConsolidado.onclick = function() {
       if (typeof window.NineBoxReportModal !== 'undefined') {
-        // Consolidado sempre usa 'all' — agrega todos os colaboradores
-        window.NineBoxReportModal.openConsolidated('all');
+        if (pessoaId) {
+          // Abre o relatório INDIVIDUAL do colaborador deste card
+          window.NineBoxReportModal.openIndividual('all', pessoaId);
+        } else {
+          console.warn('[Resultados] ID do colaborador não encontrado no card');
+          if (typeof window.showToast === 'function') {
+            window.showToast('Não foi possível identificar o colaborador. Tente novamente.', 'error');
+          }
+        }
       }
     };
     

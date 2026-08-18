@@ -116,6 +116,21 @@ class EvaluationRepository {
     });
   }
 
+  // Busca avaliações do avaliado incluindo dados do avaliador e campanha
+  // Usado pelo relatório individual para exibir quem avaliou, data e notas
+  async findByAvaliadoWithDetails(avaliadoId, limit = 100) {
+    return prisma.evaluation.findMany({
+      where: { avaliadoId },
+      take: limit,
+      include: {
+        avaliado: { select: { id: true, nome: true, cargo: true, departamento: true, ra: true, tipo: true } },
+        avaliador: { select: { id: true, nome: true, cargo: true, tipo: true } },
+        campaign:  { select: { id: true, nome: true, status: true, dataInicio: true, dataFim: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
   async findOne(campaignId, avaliadorId, avaliadoId) {
     return prisma.evaluation.findUnique({
       where: { campaignId_avaliadorId_avaliadoId: { campaignId, avaliadorId, avaliadoId } }
