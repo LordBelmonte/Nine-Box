@@ -437,12 +437,13 @@
   };
 
   // Converte float (escala 1-4) → inteiro de nível 1/2/3 (Baixo/Médio/Alto)
-  // Espelha classifyScore do backend
+  // FAIXAS OFICIAIS — alinhadas com classifyScore() do backend e nine-box.html
+  // 1.0–1.99 → 1 (BAIXO) | 2.0–2.99 → 2 (MÉDIO) | 3.0–4.0 → 3 (ALTO)
   function nivelParaInt(valor) {
     if (valor === null || valor === undefined) return null;
-    if (valor >= 1 && valor <= 1.5) return 1;
-    if (valor >= 1.6 && valor <= 2.5) return 2;
-    if (valor >= 2.6) return 3;
+    if (valor >= 1 && valor <= 1.99) return 1;
+    if (valor >= 2 && valor <= 2.99) return 2;
+    if (valor >= 3 && valor <= 4)    return 3;
     return null;
   }
 

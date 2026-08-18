@@ -424,72 +424,58 @@ export const MOCK_COMPETENCIES = [
  */
 export const MOCK_NINEBOXES = [
   {
-    id: "nb-001",
-    pessoaId: "sys-colab-001",
+    id: "nb-001", pessoaId: "sys-colab-001",
     pessoa: { id: "sys-colab-001", nome: "Ana Costa", tipo: "colaborador", cargo: "Desenvolvedora Full Stack" },
-    performance: 3,
-    potential: 3,
-    categoria: "A3 (Destaque)",
+    performance: 3, potential: 3,
+    categoria: "A3", codigoQuadrante: "A3", nomeQuadrante: "Destaque",
     comentario: "Excelente performance e alto potencial de crescimento",
     data: "2026-05-15T10:00:00.000Z"
   },
   {
-    id: "nb-002",
-    pessoaId: "sys-colab-008",
+    id: "nb-002", pessoaId: "sys-colab-008",
     pessoa: { id: "sys-colab-008", nome: "Isabela Cardoso", tipo: "colaborador", cargo: "Executiva de Vendas" },
-    performance: 3,
-    potential: 3,
-    categoria: "A3 (Destaque)",
+    performance: 3, potential: 3,
+    categoria: "A3", codigoQuadrante: "A3", nomeQuadrante: "Destaque",
     comentario: "Sempre supera metas e tem grande potencial de liderança",
     data: "2026-05-16T10:00:00.000Z"
   },
   {
-    id: "nb-003",
-    pessoaId: "sys-colab-004",
+    id: "nb-003", pessoaId: "sys-colab-004",
     pessoa: { id: "sys-colab-004", nome: "Camila Rodrigues", tipo: "colaborador", cargo: "Desenvolvedora Frontend" },
-    performance: 2,
-    potential: 3,
-    categoria: "A2 (Em crescimento)",
+    performance: 2, potential: 3,
+    categoria: "A2", codigoQuadrante: "A2", nomeQuadrante: "Em crescimento",
     comentario: "Bom desempenho com excelente potencial",
     data: "2026-05-17T10:00:00.000Z"
   },
   {
-    id: "nb-004",
-    pessoaId: "sys-colab-003",
+    id: "nb-004", pessoaId: "sys-colab-003",
     pessoa: { id: "sys-colab-003", nome: "Bruno Martins", tipo: "colaborador", cargo: "Desenvolvedor Backend" },
-    performance: 3,
-    potential: 2,
-    categoria: "M3 (Forte Desempenho)",
+    performance: 3, potential: 2,
+    categoria: "M3", codigoQuadrante: "M3", nomeQuadrante: "Forte Desempenho",
     comentario: "Excelente tecnicamente, especialista na área",
     data: "2026-05-18T10:00:00.000Z"
   },
   {
-    id: "nb-005",
-    pessoaId: "sys-colab-002",
+    id: "nb-005", pessoaId: "sys-colab-002",
     pessoa: { id: "sys-colab-002", nome: "Carlos Oliveira", tipo: "colaborador", cargo: "Analista de Sistemas" },
-    performance: 2,
-    potential: 2,
-    categoria: "M2 (Mantenedor)",
+    performance: 2, potential: 2,
+    categoria: "M2", codigoQuadrante: "M2", nomeQuadrante: "Mantenedor",
     comentario: "Desempenho sólido e consistente",
     data: "2026-05-19T10:00:00.000Z"
   },
   {
-    id: "nb-006",
-    pessoaId: "sys-colab-006",
+    id: "nb-006", pessoaId: "sys-colab-006",
     pessoa: { id: "sys-colab-006", nome: "Felipe Araújo", tipo: "colaborador", cargo: "Analista de RH" },
-    performance: 2,
-    potential: 2,
-    categoria: "M2 (Mantenedor)",
+    performance: 2, potential: 2,
+    categoria: "M2", codigoQuadrante: "M2", nomeQuadrante: "Mantenedor",
     comentario: "Bom desempenho nas atividades de RH",
     data: "2026-05-20T10:00:00.000Z"
   },
   {
-    id: "nb-007",
-    pessoaId: "sys-colab-005",
+    id: "nb-007", pessoaId: "sys-colab-005",
     pessoa: { id: "sys-colab-005", nome: "Diego Souza", tipo: "colaborador", cargo: "DevOps Engineer" },
-    performance: 1,
-    potential: 2,
-    categoria: "M1 (Questionável)",
+    performance: 1, potential: 2,
+    categoria: "B2", codigoQuadrante: "B2", nomeQuadrante: "Eficaz",
     comentario: "Potencial presente, performance a desenvolver",
     data: "2026-05-21T10:00:00.000Z"
   }

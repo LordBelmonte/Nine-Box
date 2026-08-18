@@ -1,94 +1,84 @@
 // Componente: Modal de Relatório Nine Box
 // Inclui variantes Individual e Consolidado, com exportação PDF
 
-// Fonte única dos quadrantes (conforme NINEBOX-FONTE-UNICA-QUADRANTES.md)
+// ══════════════════════════════════════════════════════════════════════════
+// FONTE ÚNICA DOS QUADRANTES — NOMENCLATURA OFICIAL B/M/A
+// Chave: código oficial (B1-A3)
+// MATRIZ:               POTENCIAL
+//              BAIXO   MÉDIO    ALTO
+// PERF BAIXO    B1      B2      B3
+// PERF MÉDIO    M1      M2      M3
+// PERF ALTA     A1      A2      A3
+// ══════════════════════════════════════════════════════════════════════════
 const QUADRANTES = {
-  'Q1': {
-    nome: 'Insuficiente',
-    potencial: 'BAIXO',
-    desempenho: 'BAIXO',
+  'B1': {
+    nome: 'Insuficiente', potencial: 'BAIXO', desempenho: 'BAIXO', cor: '#EF4444',
     perfil: 'Potencial baixo e desempenho abaixo do esperado',
-    planoAcao: 'Identificar obstáculos que poderiam justificar o baixo desempenho e ajudá-lo a removê-los ou encontrar outro cargo interno no qual suas habilidades serão melhor utilizadas. Se não houver melhorias, recomenda-se o desligamento da empresa.',
-    cor: '#EF4444'
+    planoAcao: 'Identificar obstáculos que poderiam justificar o baixo desempenho e ajudá-lo a removê-los ou encontrar outro cargo interno. Se não houver melhorias, recomenda-se o desligamento.'
   },
-  'Q2': {
-    nome: 'Questionável',
-    potencial: 'BAIXO',
-    desempenho: 'MÉDIO',
-    perfil: 'Potencial baixo e desempenho dentro do esperado',
-    planoAcao: 'Dar feedback, treiná-los para se tornarem mais inovadores, identificar áreas específicas de melhoria e definir um plano de desenvolvimento pessoal, com o objetivo de conduzi-lo à categoria de alto desempenho.',
-    cor: '#F97316'
-  },
-  'Q3': {
-    nome: 'Eficaz',
-    potencial: 'BAIXO',
-    desempenho: 'ALTO',
-    perfil: 'Potencial baixo e desempenho acima do esperado',
-    planoAcao: 'Apesar do bom desempenho, da mentalidade de trabalho certa e da sua dedicação, esses profissionais não têm muito potencial ou ambição de crescimento. O ideal é mantê-los felizes e recompensá-los com aumentos e bônus.',
-    cor: '#F97316'
-  },
-  'Q4': {
-    nome: 'Dilema',
-    potencial: 'MÉDIO',
-    desempenho: 'BAIXO',
+  'B2': {
+    nome: 'Eficaz', potencial: 'MÉDIO', desempenho: 'BAIXO', cor: '#F97316',
     perfil: 'Potencial mediano e desempenho abaixo do esperado',
-    planoAcao: 'Identificar bloqueios para performance — motivos pessoais, dificuldades com a cultura organizacional, falhas no onboarding... Comunique claramente o que se espera do profissional e proporcione um programa de mentoria interno, motivação e oportunidades de desenvolvimento.',
-    cor: '#EAB308'
+    planoAcao: 'Identificar bloqueios para performance. Comunicar claramente as expectativas e proporcionar programa de mentoria e oportunidades de desenvolvimento.'
   },
-  'Q5': {
-    nome: 'Mantenedor',
-    potencial: 'MÉDIO',
-    desempenho: 'MÉDIO',
-    perfil: 'Potencial e desempenho em nível mediano',
-    planoAcao: 'Invista nesses profissionais chaves para a organização, ao oferecer novos projetos e tarefas que os mantenham engajados, e comece a prepará-los para oportunidades futuras, treinando-os em gestão de pessoas.',
-    cor: '#EAB308'
-  },
-  'Q6': {
-    nome: 'Especialista',
-    potencial: 'MÉDIO',
-    desempenho: 'ALTO',
-    perfil: 'Potencial mediano e desempenho acima do esperado',
-    planoAcao: 'Entenda primeiramente se eles estão prontos para o crescimento e mais responsabilidades ou se precisam de mais tempo para se desenvolverem. Trabalhe suas habilidades de pensamento tático e estratégico, que serão úteis para seu futuro na organização.',
-    cor: '#84CC16'
-  },
-  'Q7': {
-    nome: 'Forte Candidato',
-    potencial: 'ALTO',
-    desempenho: 'BAIXO',
+  'B3': {
+    nome: 'Comprometido', potencial: 'ALTO', desempenho: 'BAIXO', cor: '#F97316',
     perfil: 'Alto potencial e desempenho abaixo do esperado',
-    planoAcao: 'Mesmo que tenham muito potencial, esses profissionais não estão entregando o que se espera deles, seja porque não têm a experiência necessária ou pela falta de compatibilidade com a função atual. Dê a esses profissionais tempo para ganhar experiência e feedback contínuo para construir confiança.',
-    cor: '#84CC16'
+    planoAcao: 'Mesmo com alto potencial, não está entregando. Dar tempo para ganhar experiência e feedback contínuo para construir confiança.'
   },
-  'Q8': {
-    nome: 'Alto Desempenho',
-    potencial: 'ALTO',
-    desempenho: 'MÉDIO',
+  'M1': {
+    nome: 'Questionável', potencial: 'BAIXO', desempenho: 'MÉDIO', cor: '#EAB308',
+    perfil: 'Potencial baixo e desempenho dentro do esperado',
+    planoAcao: 'Dar feedback, treinar para se tornarem mais inovadores e definir plano de desenvolvimento para conduzi-los à categoria de alto desempenho.'
+  },
+  'M2': {
+    nome: 'Mantenedor', potencial: 'MÉDIO', desempenho: 'MÉDIO', cor: '#EAB308',
+    perfil: 'Potencial e desempenho em nível mediano',
+    planoAcao: 'Investir com novos projetos e tarefas que os mantenham engajados, preparando-os para oportunidades futuras.'
+  },
+  'M3': {
+    nome: 'Forte Desempenho', potencial: 'ALTO', desempenho: 'MÉDIO', cor: '#84CC16',
     perfil: 'Alto potencial e desempenho dentro do esperado',
-    planoAcao: 'Proporcione mais exposição para que alcancem maior desempenho, através de oportunidades de treinamento, projetos desafiadores e monitoramento de progresso com KPIs claras.',
-    cor: '#22C55E'
+    planoAcao: 'Proporcionar mais exposição através de treinamentos, projetos desafiadores e monitoramento com KPIs claras.'
   },
-  'Q9': {
-    nome: 'Estrela',
-    potencial: 'ALTO',
-    desempenho: 'ALTO',
+  'A1': {
+    nome: 'Enigma', potencial: 'BAIXO', desempenho: 'ALTO', cor: '#84CC16',
+    perfil: 'Potencial baixo e desempenho acima do esperado',
+    planoAcao: 'Apesar do bom desempenho, tem pouco potencial de crescimento. Mantê-los felizes e recompensá-los com aumentos e bônus.'
+  },
+  'A2': {
+    nome: 'Em crescimento', potencial: 'MÉDIO', desempenho: 'ALTO', cor: '#22C55E',
+    perfil: 'Potencial mediano e desempenho acima do esperado',
+    planoAcao: 'Entender se estão prontos para mais responsabilidades. Trabalhar habilidades de pensamento tático e estratégico.'
+  },
+  'A3': {
+    nome: 'Destaque', potencial: 'ALTO', desempenho: 'ALTO', cor: '#15803D',
     perfil: 'Alto potencial e desempenho acima do esperado',
-    planoAcao: 'Profissional que já se desenvolveu completamente dentro da sua função e está pronto para uma promoção e novas responsabilidades; é uma boa referência para os demais colaboradores da empresa pela sua capacidade de resolução de problemas, pensamento estratégico e motivação pessoal.',
-    cor: '#15803D'
+    planoAcao: 'Profissional pronto para promoção e novas responsabilidades. É referência pelos demais pela capacidade de resolução de problemas e pensamento estratégico.'
   }
 };
 
-// Matriz de posição no grid (para destacar a célula correta)
-const MATRIZ_POSICAO = {
-  'BAIXO-BAIXO': { row: 3, col: 1 },    // Q1
-  'MÉDIO-BAIXO': { row: 3, col: 2 },    // Q2
-  'ALTO-BAIXO': { row: 3, col: 3 },     // Q3
-  'BAIXO-MÉDIO': { row: 2, col: 1 },    // Q4
-  'MÉDIO-MÉDIO': { row: 2, col: 2 },    // Q5
-  'ALTO-MÉDIO': { row: 2, col: 3 },     // Q6
-  'BAIXO-ALTO': { row: 1, col: 1 },     // Q7
-  'MÉDIO-ALTO': { row: 1, col: 2 },     // Q8
-  'ALTO-ALTO': { row: 1, col: 3 }       // Q9
+// Compatibilidade: mapeia códigos legados Q1-Q9 para B/M/A
+const LEGADO_Q_PARA_BMA = {
+  'Q1':'B1','Q2':'M1','Q3':'A1',
+  'Q4':'B2','Q5':'M2','Q6':'A2',
+  'Q7':'B3','Q8':'M3','Q9':'A3'
 };
+
+// Normaliza qualquer código (Q1-Q9 ou B1-A3) para B/M/A oficial
+function normalizarCodigo(codigo) {
+  if (!codigo) return 'M2';
+  if (/^[BMA][123]$/.test(codigo)) return codigo;
+  // Remove parênteses e texto extra: "Q5 (Mantenedor)" → "Q5"
+  const match = (codigo + '').match(/^Q([1-9])/);
+  if (match) return LEGADO_Q_PARA_BMA[`Q${match[1]}`] || 'M2';
+  return 'M2'; // fallback seguro
+}
+
+// Obtém o quadrante (normalizado) — nunca retorna undefined
+function getQuadrante(codigo) {
+  return QUADRANTES[normalizarCodigo(codigo)] || QUADRANTES['M2'];
+}
 
 // Variáveis de estado
 let currentReportData = null;
@@ -360,7 +350,7 @@ function renderReportIndividual(data) {
   document.getElementById('nb-chip-potential-text').textContent = `Potencial Médio: ${formatarNota(data.notaPotencial)}/4`;
   
   // Perfil e Plano
-  const quadrante = QUADRANTES[data.codigoQuadrante] || QUADRANTES['Q5'];
+  const quadrante = getQuadrante(data.codigoQuadrante);
   document.getElementById('nb-report-perfil').textContent = quadrante.perfil;
   document.getElementById('nb-report-plano').textContent = quadrante.planoAcao;
 }
@@ -408,7 +398,7 @@ function renderReportConsolidated(data) {
   document.getElementById('nb-chip-potential-text').textContent = `Potencial Médio total: ${formatarNota(data.notaPotencialMedia)}/4`;
   
   // Perfil e Plano
-  const quadrante = QUADRANTES[data.codigoQuadranteGeral] || QUADRANTES['Q5'];
+  const quadrante = getQuadrante(data.codigoQuadranteGeral);
   document.getElementById('nb-report-perfil').textContent = quadrante.perfil;
   document.getElementById('nb-report-plano').textContent = quadrante.planoAcao;
   
@@ -416,55 +406,43 @@ function renderReportConsolidated(data) {
   document.getElementById('nb-report-results-title').textContent = 'Resultados Total';
 }
 
-// Renderizar matriz 3x3
+// Renderizar matriz 3x3 — usa nomenclatura oficial B/M/A
 function renderMatrix(nivelDesempenho, nivelPotencial) {
   const matrix = document.getElementById('nb-report-matrix');
   matrix.innerHTML = '';
-  
-  // Ordem: ALTO (topo) → BAIXO (base)
-  const ordenacaoPotencial = ['ALTO', 'MÉDIO', 'BAIXO'];
+
+  // Ordem exibição: ALTO(topo)→BAIXO(base) no eixo Y (potencial)
+  // Ordem exibição: BAIXO→MÉDIO→ALTO no eixo X (desempenho)
+  const ordenacaoPotencial  = ['ALTO', 'MÉDIO', 'BAIXO'];
   const ordenacaoDesempenho = ['BAIXO', 'MÉDIO', 'ALTO'];
-  
-  // Criar células
-  ordenacaoPotencial.forEach((potencial, rowIndex) => {
-    ordenacaoDesempenho.forEach((desempenho, colIndex) => {
-      const chave = `${potencial}-${desempenho}`;
-      const codigo = Object.keys(QUADRANTES).find(q => 
-        QUADRANTES[q].potencial === potencial && 
-        QUADRANTES[q].desempenho === desempenho
-      );
-      
-      const quadrante = QUADRANTES[codigo];
+
+  ordenacaoPotencial.forEach(potencial => {
+    ordenacaoDesempenho.forEach(desempenho => {
+      // Encontra o código B/M/A correspondente
+      const codigo = Object.keys(QUADRANTES).find(c =>
+        QUADRANTES[c].potencial  === potencial &&
+        QUADRANTES[c].desempenho === desempenho
+      ) || 'M2';
+
+      const q = QUADRANTES[codigo];
       const isDestacado = potencial === nivelPotencial && desempenho === nivelDesempenho;
-      
+
       const cell = document.createElement('div');
-      const destaqueCss = isDestacado
-        ? 'border: 3px solid #1d4ed8 !important; transform: scale(1.08); box-shadow: 0 6px 20px rgba(29,78,216,0.4); z-index: 2; position: relative;'
-        : '';
       cell.style.cssText = `
-        border-radius: 12px;
-        padding: 12px;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s;
-        background: linear-gradient(135deg, ${quadrante.cor}20 0%, ${quadrante.cor}40 100%);
-        border: 2px solid ${quadrante.cor};
-        ${destaqueCss}
+        border-radius:10px;padding:10px;text-align:center;
+        display:flex;flex-direction:column;align-items:center;justify-content:center;
+        transition:all 0.3s;
+        background:linear-gradient(135deg,${q.cor}22,${q.cor}44);
+        border:${isDestacado ? '3px solid #1d4ed8' : `2px solid ${q.cor}`};
+        ${isDestacado ? 'transform:scale(1.08);box-shadow:0 6px 20px rgba(29,78,216,0.4);z-index:2;position:relative;' : ''}
       `;
-      
-      const estrelaIcon = isDestacado
-        ? `<i class="fa-solid fa-location-dot" style="color:#1d4ed8;font-size:22px;margin-bottom:4px;"></i>`
-        : `<i class="fa-solid fa-star" style="color:${quadrante.cor};font-size:18px;margin-bottom:4px;opacity:0.7;"></i>`;
-      
       cell.innerHTML = `
-        ${estrelaIcon}
-        <span style="font-size:11px;font-weight:700;color:${isDestacado ? '#1d4ed8' : quadrante.cor};">${codigo}</span>
-        <span style="font-size:9px;color:var(--text-muted);margin-top:2px;">${quadrante.nome}</span>
+        ${isDestacado
+          ? `<i class="fa-solid fa-location-dot" style="color:#1d4ed8;font-size:20px;margin-bottom:3px;"></i>`
+          : `<i class="fa-solid fa-circle" style="color:${q.cor};font-size:14px;margin-bottom:3px;opacity:0.6;"></i>`}
+        <span style="font-size:11px;font-weight:700;color:${isDestacado ? '#1d4ed8' : q.cor};">${codigo}</span>
+        <span style="font-size:9px;color:var(--text-muted);margin-top:2px;">${q.nome}</span>
       `;
-      
       matrix.appendChild(cell);
     });
   });
@@ -568,11 +546,13 @@ function formatarNota(nota) {
   return Number(nota).toFixed(2).replace('.', ',');
 }
 
-// Helper: Classificar nota em BAIXO/MÉDIO/ALTO (espelha o backend — escala 1-4)
+// Helper: Classificar nota em BAIXO/MÉDIO/ALTO — espelha exatamente o backend
+// Faixas: BAIXO=1–1.99, MÉDIO=2–2.99, ALTO=3–4
 function classifyScore(score) {
-  if (score >= 1 && score <= 1.5) return 'BAIXO';
-  if (score >= 1.6 && score <= 2.5) return 'MÉDIO';
-  if (score >= 2.6) return 'ALTO';
+  if (score === null || score === undefined || isNaN(score)) return 'MÉDIO';
+  if (score >= 1 && score <= 1.99) return 'BAIXO';
+  if (score >= 2 && score <= 2.99) return 'MÉDIO';
+  if (score >= 3 && score <= 4)    return 'ALTO';
   return 'MÉDIO'; // fallback seguro
 }
 

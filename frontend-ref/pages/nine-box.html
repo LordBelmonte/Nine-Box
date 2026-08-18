@@ -114,43 +114,43 @@
 
           <!-- Linha 3: Alto Potential -->
           <div class="nb-box nb-box-1-3" id="nb-box-1-3">
-            <div class="nb-box-header"><span class="nb-box-name">Q7 (Forte Candidato)</span><span class="nb-box-icon"><i class="fa-solid fa-bolt"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">B3 — Comprometido</span><span class="nb-box-icon"><i class="fa-solid fa-medal"></i></span></div>
             <div class="nb-box-people" id="nb-people-1-3"></div>
           </div>
           <div class="nb-box nb-box-2-3" id="nb-box-2-3">
-            <div class="nb-box-header"><span class="nb-box-name">Q8 (Alto Desempenho)</span><span class="nb-box-icon"><i class="fa-solid fa-rocket"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">M3 — Forte Desempenho</span><span class="nb-box-icon"><i class="fa-solid fa-rocket"></i></span></div>
             <div class="nb-box-people" id="nb-people-2-3"></div>
           </div>
           <div class="nb-box nb-box-3-3" id="nb-box-3-3">
-            <div class="nb-box-header"><span class="nb-box-name">Q9 (Estrela)</span><span class="nb-box-icon"><i class="fa-solid fa-crown"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">A3 — Destaque</span><span class="nb-box-icon"><i class="fa-solid fa-crown"></i></span></div>
             <div class="nb-box-people" id="nb-people-3-3"></div>
           </div>
 
           <!-- Linha 2: Médio Potential -->
           <div class="nb-box nb-box-1-2" id="nb-box-1-2">
-            <div class="nb-box-header"><span class="nb-box-name">Q4 (Dilema)</span><span class="nb-box-icon"><i class="fa-solid fa-question-circle"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">B2 — Eficaz</span><span class="nb-box-icon"><i class="fa-solid fa-check-circle"></i></span></div>
             <div class="nb-box-people" id="nb-people-1-2"></div>
           </div>
           <div class="nb-box nb-box-2-2" id="nb-box-2-2">
-            <div class="nb-box-header"><span class="nb-box-name">Q5 (Mantenedor)</span><span class="nb-box-icon"><i class="fa-solid fa-minus-circle"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">M2 — Mantenedor</span><span class="nb-box-icon"><i class="fa-solid fa-minus-circle"></i></span></div>
             <div class="nb-box-people" id="nb-people-2-2"></div>
           </div>
           <div class="nb-box nb-box-3-2" id="nb-box-3-2">
-            <div class="nb-box-header"><span class="nb-box-name">Q6 (Especialista)</span><span class="nb-box-icon"><i class="fa-solid fa-arrow-up"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">A2 — Em crescimento</span><span class="nb-box-icon"><i class="fa-solid fa-seedling"></i></span></div>
             <div class="nb-box-people" id="nb-people-3-2"></div>
           </div>
 
           <!-- Linha 1: Baixo Potential -->
           <div class="nb-box nb-box-1-1" id="nb-box-1-1">
-            <div class="nb-box-header"><span class="nb-box-name">Q1 (Insuficiente)</span><span class="nb-box-icon"><i class="fa-solid fa-circle-xmark"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">B1 — Insuficiente</span><span class="nb-box-icon"><i class="fa-solid fa-circle-xmark"></i></span></div>
             <div class="nb-box-people" id="nb-people-1-1"></div>
           </div>
           <div class="nb-box nb-box-2-1" id="nb-box-2-1">
-            <div class="nb-box-header"><span class="nb-box-name">Q2 (Questionável)</span><span class="nb-box-icon"><i class="fa-solid fa-check"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">M1 — Questionável</span><span class="nb-box-icon"><i class="fa-solid fa-question-circle"></i></span></div>
             <div class="nb-box-people" id="nb-people-2-1"></div>
           </div>
           <div class="nb-box nb-box-3-1" id="nb-box-3-1">
-            <div class="nb-box-header"><span class="nb-box-name">Q3 (Eficaz)</span><span class="nb-box-icon"><i class="fa-solid fa-star"></i></span></div>
+            <div class="nb-box-header"><span class="nb-box-name">A1 — Enigma</span><span class="nb-box-icon"><i class="fa-solid fa-puzzle-piece"></i></span></div>
             <div class="nb-box-people" id="nb-people-3-1"></div>
           </div>
 
@@ -266,45 +266,53 @@
   let allNineBoxes = [];
 
   // ══════════════════════════════════════════════════════════
-  // FONTE ÚNICA DOS QUADRANTES — NINEBOX-FONTE-UNICA-QUADRANTES.md
+  // FONTE ÚNICA DOS QUADRANTES — NOMENCLATURA OFICIAL
   // chave: `${desempenhoIdx}-${potencialIdx}` (1=Baixo, 2=Médio, 3=Alto)
+  //
+  // MATRIZ:               POTENCIAL
+  //              BAIXO(1)  MÉDIO(2)  ALTO(3)
+  // DESEMP BAIXO(1)  B1       B2       B3
+  // DESEMP MÉDIO(2)  M1       M2       M3
+  // DESEMP ALTO(3)   A1       A2       A3
   // ══════════════════════════════════════════════════════════
   const CATEGORIAS = {
-    '1-1': { codigo:'Q1', nome:'Q1 (Insuficiente)',    tipo:'Insuficiente',    cor:'#EF4444', icon:'<i class="fa-solid fa-circle-xmark"></i>',
+    '1-1': { codigo:'B1', nome:'B1 — Insuficiente',    tipo:'Insuficiente',    cor:'#EF4444', icon:'<i class="fa-solid fa-circle-xmark"></i>',
       perfil:'Potencial baixo e desempenho abaixo do esperado',
-      plano:'Identificar obstáculos que poderiam justificar o baixo desempenho e ajudá-lo a removê-los ou encontrar outro cargo interno no qual suas habilidades serão melhor utilizadas. Se não houver melhorias, recomenda-se o desligamento da empresa.' },
-    '2-1': { codigo:'Q2', nome:'Q2 (Questionável)',    tipo:'Questionável',    cor:'#F97316', icon:'<i class="fa-solid fa-circle-question"></i>',
-      perfil:'Potencial baixo e desempenho dentro do esperado',
-      plano:'Dar feedback, treiná-los para se tornarem mais inovadores, identificar áreas específicas de melhoria e definir um plano de desenvolvimento pessoal, com o objetivo de conduzi-lo à categoria de alto desempenho.' },
-    '3-1': { codigo:'Q3', nome:'Q3 (Eficaz)',          tipo:'Eficaz',          cor:'#F97316', icon:'<i class="fa-solid fa-check-circle"></i>',
-      perfil:'Potencial baixo e desempenho acima do esperado',
-      plano:'Apesar do bom desempenho, da mentalidade de trabalho certa e da sua dedicação, esses profissionais não têm muito potencial ou ambição de crescimento. O ideal é mantê-los felizes e recompensá-los com aumentos e bônus.' },
-    '1-2': { codigo:'Q4', nome:'Q4 (Dilema)',          tipo:'Dilema',          cor:'#EAB308', icon:'<i class="fa-solid fa-scale-balanced"></i>',
+      plano:'Identificar obstáculos que poderiam justificar o baixo desempenho e ajudá-lo a removê-los ou encontrar outro cargo interno. Se não houver melhorias, recomenda-se o desligamento.' },
+    '1-2': { codigo:'B2', nome:'B2 — Eficaz',           tipo:'Eficaz',          cor:'#F97316', icon:'<i class="fa-solid fa-check-circle"></i>',
       perfil:'Potencial mediano e desempenho abaixo do esperado',
-      plano:'Identificar bloqueios para performance — motivos pessoais, dificuldades com a cultura organizacional, falhas no onboarding... Comunique claramente o que se espera do profissional e proporcione um programa de mentoria interno, motivação e oportunidades de desenvolvimento.' },
-    '2-2': { codigo:'Q5', nome:'Q5 (Mantenedor)',      tipo:'Mantenedor',      cor:'#EAB308', icon:'<i class="fa-solid fa-minus-circle"></i>',
-      perfil:'Potencial e desempenho em nível mediano',
-      plano:'Invista nesses profissionais chaves para a organização, ao oferecer novos projetos e tarefas que os mantenham engajados, e comece a prepará-los para oportunidades futuras, treinando-os em gestão de pessoas.' },
-    '3-2': { codigo:'Q6', nome:'Q6 (Especialista)',    tipo:'Especialista',    cor:'#84CC16', icon:'<i class="fa-solid fa-arrow-trend-up"></i>',
-      perfil:'Potencial mediano e desempenho acima do esperado',
-      plano:'Entenda primeiramente se eles estão prontos para o crescimento e mais responsabilidades ou se precisam de mais tempo para se desenvolverem. Trabalhe suas habilidades de pensamento tático e estratégico, que serão úteis para seu futuro na organização.' },
-    '1-3': { codigo:'Q7', nome:'Q7 (Forte Candidato)', tipo:'Forte Candidato', cor:'#84CC16', icon:'<i class="fa-solid fa-bolt"></i>',
+      plano:'Identificar bloqueios para performance. Comunicar claramente as expectativas e proporcionar programa de mentoria e desenvolvimento.' },
+    '1-3': { codigo:'B3', nome:'B3 — Comprometido',     tipo:'Comprometido',    cor:'#F97316', icon:'<i class="fa-solid fa-medal"></i>',
       perfil:'Alto potencial e desempenho abaixo do esperado',
-      plano:'Mesmo que tenham muito potencial, esses profissionais não estão entregando o que se espera deles, seja porque não têm a experiência necessária ou pela falta de compatibilidade com a função atual. Dê a esses profissionais tempo para ganhar experiência e feedback contínuo para construir confiança.' },
-    '2-3': { codigo:'Q8', nome:'Q8 (Alto Desempenho)', tipo:'Alto Desempenho', cor:'#22C55E', icon:'<i class="fa-solid fa-rocket"></i>',
+      plano:'Mesmo com alto potencial, não está entregando o esperado. Dar tempo para ganhar experiência e feedback contínuo para construir confiança.' },
+    '2-1': { codigo:'M1', nome:'M1 — Questionável',     tipo:'Questionável',    cor:'#EAB308', icon:'<i class="fa-solid fa-question-circle"></i>',
+      perfil:'Potencial baixo e desempenho dentro do esperado',
+      plano:'Dar feedback, treinar para se tornarem mais inovadores e definir plano de desenvolvimento para conduzi-los à categoria de alto desempenho.' },
+    '2-2': { codigo:'M2', nome:'M2 — Mantenedor',       tipo:'Mantenedor',      cor:'#EAB308', icon:'<i class="fa-solid fa-minus-circle"></i>',
+      perfil:'Potencial e desempenho em nível mediano',
+      plano:'Investir com novos projetos e tarefas que os mantenham engajados, preparando-os para oportunidades futuras.' },
+    '2-3': { codigo:'M3', nome:'M3 — Forte Desempenho', tipo:'Forte Desempenho', cor:'#84CC16', icon:'<i class="fa-solid fa-rocket"></i>',
       perfil:'Alto potencial e desempenho dentro do esperado',
-      plano:'Proporcione mais exposição para que alcancem maior desempenho, através de oportunidades de treinamento, projetos desafiadores e monitoramento de progresso com KPIs claras.' },
-    '3-3': { codigo:'Q9', nome:'Q9 (Estrela)',         tipo:'Estrela',         cor:'#15803D', icon:'<i class="fa-solid fa-crown"></i>',
+      plano:'Proporcionar mais exposição através de treinamentos, projetos desafiadores e monitoramento com KPIs claras.' },
+    '3-1': { codigo:'A1', nome:'A1 — Enigma',           tipo:'Enigma',          cor:'#84CC16', icon:'<i class="fa-solid fa-puzzle-piece"></i>',
+      perfil:'Potencial baixo e desempenho acima do esperado',
+      plano:'Apesar do bom desempenho, tem pouco potencial de crescimento. Mantê-los felizes e recompensá-los com aumentos e bônus.' },
+    '3-2': { codigo:'A2', nome:'A2 — Em crescimento',   tipo:'Em crescimento',  cor:'#22C55E', icon:'<i class="fa-solid fa-seedling"></i>',
+      perfil:'Potencial mediano e desempenho acima do esperado',
+      plano:'Entender se estão prontos para mais responsabilidades. Trabalhar habilidades de pensamento tático e estratégico.' },
+    '3-3': { codigo:'A3', nome:'A3 — Destaque',         tipo:'Destaque',        cor:'#15803D', icon:'<i class="fa-solid fa-crown"></i>',
       perfil:'Alto potencial e desempenho acima do esperado',
-      plano:'Profissional que já se desenvolveu completamente dentro da sua função e está pronto para uma promoção e novas responsabilidades; é uma boa referência para os demais colaboradores da empresa pela sua capacidade de resolução de problemas, pensamento estratégico e motivação pessoal.' },
+      plano:'Profissional pronto para promoção e novas responsabilidades. É referência pelos demais pela capacidade de resolução de problemas e pensamento estratégico.' },
   };
   const PERF_LABELS = { 1:'Baixo', 2:'Médio', 3:'Alto' };
 
   // Função para converter nota para classe (1=Baixo, 2=Médio, 3=Alto)
+  // Alinhado com classifyScore do backend
   function getPerformanceClass(score) {
-    if (score >= 1 && score <= 1.5) return 1;  // Baixo
-    if (score >= 1.6 && score <= 2.5) return 2; // Médio
-    if (score >= 2.6 && score <= 4) return 3;   // Alto
+    if (score === null || score === undefined) return null;
+    if (score >= 1    && score <= 1.99) return 1; // Baixo
+    if (score >= 2    && score <= 2.99) return 2; // Médio
+    if (score >= 3    && score <= 4)    return 3; // Alto
     return null;
   }
 

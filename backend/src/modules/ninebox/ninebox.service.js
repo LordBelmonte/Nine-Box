@@ -24,48 +24,63 @@ class NineBoxService {
 
   // Calcula a categoria baseada em performance (X) e potential (Y)
   // Retorna null se algum dos scores for inválido (fora da faixa 1-4)
+  //
+  // MATRIZ OFICIAL (chave: ${POTENCIAL}-${PERFORMANCE}):
+  //              PERF_BAIXO  PERF_MÉDIO  PERF_ALTO
+  //  POT_BAIXO      B1          M1          A1
+  //  POT_MÉDIO      B2          M2          A2
+  //  POT_ALTO       B3          M3          A3
   calculateCategoria(performance, potential) {
-    const xClass = this.classifyScore(performance);
-    const yClass = this.classifyScore(potential);
+    const perfClass = this.classifyScore(performance);
+    const potClass  = this.classifyScore(potential);
 
-    if (xClass === 'INDEFINIDO' || yClass === 'INDEFINIDO') return null;
+    if (perfClass === 'INDEFINIDO' || potClass === 'INDEFINIDO') return null;
 
-    // Matriz (Y = Potencial | X = Desempenho) - Fonte Única
+    // Chave: ${POTENCIAL}-${PERFORMANCE} (convenção interna do sistema)
     const matriz = {
-      'BAIXO-BAIXO': 'Q1 (Insuficiente)',
-      'BAIXO-MÉDIO': 'Q2 (Questionável)',
-      'BAIXO-ALTO':  'Q3 (Eficaz)',
-      'MÉDIO-BAIXO': 'Q4 (Dilema)',
-      'MÉDIO-MÉDIO': 'Q5 (Mantenedor)',
-      'MÉDIO-ALTO':  'Q6 (Especialista)',
-      'ALTO-BAIXO':  'Q7 (Forte Candidato)',
-      'ALTO-MÉDIO':  'Q8 (Alto Desempenho)',
-      'ALTO-ALTO':   'Q9 (Estrela)'
+      'BAIXO-BAIXO': 'B1', // pot=Baixo  perf=Baixo  → B1 Insuficiente
+      'BAIXO-MÉDIO': 'M1', // pot=Baixo  perf=Médio  → M1 Questionável
+      'BAIXO-ALTO':  'A1', // pot=Baixo  perf=Alto   → A1 Enigma
+      'MÉDIO-BAIXO': 'B2', // pot=Médio  perf=Baixo  → B2 Eficaz
+      'MÉDIO-MÉDIO': 'M2', // pot=Médio  perf=Médio  → M2 Mantenedor
+      'MÉDIO-ALTO':  'A2', // pot=Médio  perf=Alto   → A2 Em crescimento
+      'ALTO-BAIXO':  'B3', // pot=Alto   perf=Baixo  → B3 Comprometido
+      'ALTO-MÉDIO':  'M3', // pot=Alto   perf=Médio  → M3 Forte Desempenho
+      'ALTO-ALTO':   'A3', // pot=Alto   perf=Alto   → A3 Destaque
     };
 
-    return matriz[`${yClass}-${xClass}`] || null;
+    return matriz[`${potClass}-${perfClass}`] || null;
   }
 
-  // Retorna apenas o código do quadrante (Q1-Q9) ou null se inválido
+  // Retorna o código do quadrante (B1-A3) — alias de calculateCategoria para compatibilidade
   getCodigoQuadrante(performance, potential) {
-    const xClass = this.classifyScore(performance);
-    const yClass = this.classifyScore(potential);
+    return this.calculateCategoria(performance, potential);
+  }
 
-    if (xClass === 'INDEFINIDO' || yClass === 'INDEFINIDO') return null;
-
-    const mapeamento = {
-      'BAIXO-BAIXO': 'Q1',
-      'BAIXO-MÉDIO': 'Q2',
-      'BAIXO-ALTO':  'Q3',
-      'MÉDIO-BAIXO': 'Q4',
-      'MÉDIO-MÉDIO': 'Q5',
-      'MÉDIO-ALTO':  'Q6',
-      'ALTO-BAIXO':  'Q7',
-      'ALTO-MÉDIO':  'Q8',
-      'ALTO-ALTO':   'Q9'
+  // Converte código B1-A3 para nome oficial
+  getNomeQuadrante(codigo) {
+    const nomes = {
+      B1: 'Insuficiente',    B2: 'Eficaz',          B3: 'Comprometido',
+      M1: 'Questionável',    M2: 'Mantenedor',       M3: 'Forte Desempenho',
+      A1: 'Enigma',          A2: 'Em crescimento',   A3: 'Destaque',
     };
+    return nomes[codigo] || null;
+  }
 
-    return mapeamento[`${yClass}-${xClass}`] || null;
+  // Compatibilidade: converte código Q1-Q9 legado para B1-A3 oficial
+  normalizeCodigoQuadrante(codigo) {
+    if (!codigo) return null;
+    const legado = {
+      'Q1': 'B1', 'Q2': 'M1', 'Q3': 'A1',
+      'Q4': 'B2', 'Q5': 'M2', 'Q6': 'A2',
+      'Q7': 'B3', 'Q8': 'M3', 'Q9': 'A3',
+    };
+    // Se já é B/M/A, retorna como está
+    if (/^[BMA][123]$/.test(codigo)) return codigo;
+    // Extrai código Q se vier no formato "Q1 (Insuficiente)" etc.
+    const match = codigo.match(/^Q([1-9])/);
+    if (match) return legado[`Q${match[1]}`] || null;
+    return legado[codigo] || null;
   }
 
   // Calcula Performance (X) a partir das competências do tipo 'desempenho' e 'tecnica'
@@ -163,7 +178,9 @@ class NineBoxService {
         avaliadoId,
         performance: null,
         potential: null,
-        categoria: 'Sem dados suficientes',
+        categoria: null,
+        codigoQuadrante: null,
+        nomeQuadrante: null,
         message: 'Não há avaliações suficientes para calcular o Nine Box'
       };
     }
@@ -176,7 +193,9 @@ class NineBoxService {
         avaliadoId,
         performance: null,
         potential: null,
-        categoria: 'Sem dados suficientes',
+        categoria: null,
+        codigoQuadrante: null,
+        nomeQuadrante: null,
         message: `Notas fora da faixa válida (1-4): performance=${performance}, potential=${potential}`
       };
     }
@@ -185,7 +204,9 @@ class NineBoxService {
       avaliadoId,
       performance,
       potential,
-      categoria
+      categoria,                          // código B1-A3
+      codigoQuadrante: categoria,         // alias explícito
+      nomeQuadrante: this.getNomeQuadrante(categoria),
     };
   }
 
@@ -365,11 +386,12 @@ class NineBoxService {
         statusAvaliacao: allEvaluations.evaluations.length > 0 ? 'Respondida' : 'Pendente'
       },
       notaDesempenho: parseFloat(performance.toFixed(2)),
-      notaPotencial: parseFloat(potential.toFixed(2)),
+      notaPotencial:  parseFloat(potential.toFixed(2)),
       nivelDesempenho: this.classifyScore(performance),
-      nivelPotencial: this.classifyScore(potential),
-      codigoQuadrante: codigoQuadrante,
-      competencias: competencias,
+      nivelPotencial:  this.classifyScore(potential),
+      codigoQuadrante,
+      nomeQuadrante: this.getNomeQuadrante(codigoQuadrante),
+      competencias,
       avaliacao: {
         codigo: avaliacaoCodigo,
         empresa: empresa
@@ -455,7 +477,6 @@ class NineBoxService {
     // Busca gestor responsável (simplificado)
     const gestor = await this.userRepository.findById(userId);
 
-    // Retorna dados da avaliação se disponível, ou dados gerais
     return {
       avaliacao: {
         codigo: evaluation?.id ? evaluation.id.substring(0, 8).toUpperCase() : 'GERAL',
@@ -466,9 +487,10 @@ class NineBoxService {
         isGeral: isGeral
       },
       notaDesempenhoMedia: parseFloat(notaDesempenhoMedia.toFixed(2)),
-      notaPotencialMedia: parseFloat(notaPotencialMedia.toFixed(2)),
-      codigoQuadranteGeral: codigoQuadranteGeral,
-      competencias: competencias
+      notaPotencialMedia:  parseFloat(notaPotencialMedia.toFixed(2)),
+      codigoQuadranteGeral,
+      nomeQuadranteGeral: this.getNomeQuadrante(codigoQuadranteGeral),
+      competencias
     };
   }
 
