@@ -787,16 +787,25 @@ body.dark-mode .nb-person-more {
   background: #22c55e;
 }
 
-/* ---- CORES DAS BOXES ---- */
-.nb-box-3-3 { background: linear-gradient(135deg, #bbf7d0, #86efac); }
-.nb-box-2-3 { background: linear-gradient(135deg, #bfdbfe, #93c5fd); }
-.nb-box-1-3 { background: linear-gradient(135deg, #fed7aa, #fdba74); }
-.nb-box-3-2 { background: linear-gradient(135deg, #e9d5ff, #d8b4fe); }
-.nb-box-2-2 { background: linear-gradient(135deg, #e2e8f0, #cbd5e1); }
-.nb-box-1-2 { background: linear-gradient(135deg, #fef3c7, #fde68a); }
-.nb-box-3-1 { background: linear-gradient(135deg, #a7f3d0, #6ee7b7); }
-.nb-box-2-1 { background: linear-gradient(135deg, #fce7f3, #f9a8d4); }
-.nb-box-1-1 { background: linear-gradient(135deg, #fecaca, #fca5a5); }
+/* ---- CORES DAS BOXES — gradiente diagonal: vermelho(B1) → verde(A3) ----
+   Coluna BAIXO perf: tons quentes (vermelho/laranja)
+   Coluna MÉDIO perf: tons neutros (amarelo/azul claro)
+   Coluna ALTO  perf: tons frios  (verde/azul-verde)
+   Linha BAIXO pot: mais saturado/escuro dentro de cada coluna
+   Linha ALTO  pot: mais claro/pastel dentro de cada coluna
+   ---- */
+/* Coluna performance BAIXO */
+.nb-box-1-1 { background: linear-gradient(135deg, #fecaca, #fca5a5); }  /* B1 Insuficiente  — vermelho    */
+.nb-box-1-2 { background: linear-gradient(135deg, #fed7aa, #fdba74); }  /* B2 Eficaz        — laranja     */
+.nb-box-1-3 { background: linear-gradient(135deg, #fef9c3, #fef08a); }  /* B3 Comprometido  — amarelo pál */
+/* Coluna performance MÉDIO */
+.nb-box-2-1 { background: linear-gradient(135deg, #fce7f3, #f9a8d4); }  /* M1 Questionável  — rosa        */
+.nb-box-2-2 { background: linear-gradient(135deg, #e2e8f0, #cbd5e1); }  /* M2 Mantenedor    — cinza       */
+.nb-box-2-3 { background: linear-gradient(135deg, #bfdbfe, #93c5fd); }  /* M3 Forte Desempenho — azul    */
+/* Coluna performance ALTO */
+.nb-box-3-1 { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }  /* A1 Enigma        — verde claro */
+.nb-box-3-2 { background: linear-gradient(135deg, #bbf7d0, #6ee7b7); }  /* A2 Em crescimento — verde      */
+.nb-box-3-3 { background: linear-gradient(135deg, #86efac, #4ade80); }  /* A3 Destaque      — verde forte */
 
 /* ---- MODAL ---- */
 .nb-modal-overlay {

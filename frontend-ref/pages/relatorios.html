@@ -6,10 +6,10 @@
   <title>Relatórios — Portal de Gestão de Pessoas</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/style.css?v=20260818">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
-  <link rel="stylesheet" href="../css/choices-custom.css">
+  <link rel="stylesheet" href="../css/choices-custom.css?v=20260818">
   
   <!-- Bibliotecas para exportação PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -639,36 +639,37 @@
     const container = document.getElementById('rel-usuario-resultado');
     container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><p>Carregando...</p></div>';
     try {
-      const res = await reportsApi.user(userId);
-      renderRelatorioUsuario(res.data, container);
-    } catch {
-      container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Erro ao carregar relatório.</p></div>';
+      // Busca relatório e posição Nine Box em paralelo
+      const [res, nbRes] = await Promise.allSettled([
+        reportsApi.user(userId),
+        nineBoxApi.calculateForPerson(userId)
+      ]);
+      if (res.status === 'rejected') throw new Error(res.reason?.message || 'Erro ao carregar relatório');
+      const nbData = nbRes.status === 'fulfilled' ? nbRes.value?.data : null;
+      renderRelatorioUsuario(res.value.data, container, false, nbData);
+    } catch (err) {
+      container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>${err.message || 'Erro ao carregar relatório.'}</p></div>`;
     }
   };
 
   // ---- MEU RELATÓRIO ----
   async function carregarMeuRelatorio() {
     const container = document.getElementById('rel-meu-resultado');
-    
-    // Verificar se o usuário existe
     if (!user || !user.id) {
-      console.error('Usuário não está logado ou não tem ID');
-      container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Erro: Usuário não identificado.</p></div>';
+      container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Usuário não identificado.</p></div>';
       return;
     }
-    
     try {
-      console.log('Carregando relatório do usuário:', user);
-      const res = await reportsApi.user(user.id);
-      console.log('Resposta da API:', res);
-      
-      if (!res || !res.data) {
-        throw new Error('Resposta inválida da API');
-      }
-      
-      renderRelatorioUsuario(res.data, container, true);
+      const [res, nbRes] = await Promise.allSettled([
+        reportsApi.user(user.id),
+        nineBoxApi.calculateForPerson(user.id)
+      ]);
+      if (res.status === 'rejected') throw new Error(res.reason?.message || 'Erro ao carregar relatório');
+      if (!res.value?.data) throw new Error('Resposta inválida da API');
+      const nbData = nbRes.status === 'fulfilled' ? nbRes.value?.data : null;
+      renderRelatorioUsuario(res.value.data, container, true, nbData);
     } catch (err) {
-      console.error('Erro ao carregar meu relatório:', err);
+      console.error('[MeuRelatorio]', err);
       container.innerHTML = `
         <div class="empty-state">
           <i class="fa-solid fa-triangle-exclamation"></i>
@@ -678,7 +679,7 @@
     }
   }
 
-  function renderRelatorioUsuario(data, container, isMeu = false) {
+  function renderRelatorioUsuario(data, container, isMeu = false, nbData = null) {
     const u = data.user || data.usuario;
     if (!u) {
       container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Erro ao carregar dados do usuário.</p></div>';
@@ -700,38 +701,57 @@
     const mediaGeral = data.mediaGeral || 0;
 
     const avaliacoesHtml = avaliacoes.length
-      ? avaliacoes.map(a => `
+      ? avaliacoes.map(a => {
+          const dataStr = a.data || a.createdAt;
+          const dataFmt = dataStr ? new Date(dataStr).toLocaleDateString('pt-BR') : '—';
+          const campanha = a.campaign?.nome || '—';
+          return `
           <div class="rel-av-item">
             <div class="rel-av-header">
-              <span class="rel-av-tipo ${a.tipoAvaliacao}">${TIPO_LABELS[a.tipoAvaliacao] || a.tipoAvaliacao}</span>
+              <span class="rel-av-tipo ${a.tipoAvaliacao || ''}">${TIPO_LABELS[a.tipoAvaliacao] || a.tipoAvaliacao || '—'}</span>
               <div style="display:flex;gap:8px;align-items:center">
-                ${a.media ? `<span class="rel-av-media">${Number(a.media).toFixed(1)}/4</span>` : ''}
-                <span class="rel-av-data">${new Date(a.data).toLocaleDateString('pt-BR')}</span>
+                ${a.media != null ? `<span class="rel-av-media">${Number(a.media).toFixed(2)}/4</span>` : ''}
+                <span class="rel-av-data">${dataFmt}</span>
               </div>
             </div>
+            ${campanha !== '—' ? `<div style="font-size:11px;color:var(--text-muted);margin-top:4px;"><i class="fa-solid fa-bullhorn" style="margin-right:4px;"></i>${campanha}</div>` : ''}
+            ${a.criterios && typeof a.criterios === 'object' && Object.keys(a.criterios).length > 0
+              ? `<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">
+                  ${Object.entries(a.criterios)
+                    .filter(([, v]) => typeof v === 'number')
+                    .map(([nome, nota]) => {
+                      const cor = nota >= 3 ? '#166534' : nota >= 2 ? '#92400e' : '#991b1b';
+                      const bg  = nota >= 3 ? '#dcfce7' : nota >= 2 ? '#fef3c7' : '#fee2e2';
+                      return `<span style="padding:2px 8px;background:${bg};color:${cor};border-radius:100px;font-size:10px;font-weight:600;">${nome}: ${Number(nota).toFixed(2)}</span>`;
+                    }).join('')}
+                </div>`
+              : ''}
             ${a.comentario ? `<p class="rel-av-comentario">"${a.comentario}"</p>` : ''}
-          </div>`).join('')
+          </div>`;
+        }).join('')
       : '<div class="empty-state" style="padding:20px"><i class="fa-solid fa-star"></i><p>Nenhuma avaliação recebida.</p></div>';
 
-    // Média por critério
+    // Médias por competência — usa as chaves reais retornadas pelo backend
     const criteriosMedia = data.criteriosMedia || {};
     const criteriosHtml = Object.keys(criteriosMedia).length > 0
       ? `
         <div style="margin-top:16px">
-          <div class="rel-section-title"><i class="fa-solid fa-chart-bar"></i> Média por Critério</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
-            ${Object.entries(criteriosMedia).map(([key, val]) => {
-              const labels = {
-                pontualidade: 'Pontualidade',
-                comunicacao: 'Comunicação',
-                tecnico: 'Técnico',
-                proatividade: 'Proatividade',
-                equipe: 'Equipe'
-              };
+          <div class="rel-section-title"><i class="fa-solid fa-chart-bar"></i> Média por Competência</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+            ${Object.entries(criteriosMedia).map(([nome, val]) => {
+              const nota   = parseFloat(val);
+              const pct    = Math.min(Math.max(((nota - 1) / 3) * 100, 0), 100).toFixed(0);
+              const cor    = nota >= 3 ? '#22C55E' : nota >= 2 ? '#EAB308' : '#EF4444';
+              const fmtVal = nota.toFixed(2).replace('.', ',');
               return `
-                <div style="background:#f8fafc;border:1.5px solid var(--border);border-radius:8px;padding:10px;text-align:center">
-                  <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px">${labels[key] || key}</div>
-                  <div style="font-size:18px;font-weight:700;color:var(--primary)">${val.toFixed(1)}<span style="font-size:11px;font-weight:400;color:var(--text-muted)">/4</span></div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                    <span style="font-size:12px;color:var(--text);font-weight:500;">${nome}</span>
+                    <span style="font-size:12px;font-weight:700;color:${cor};">${fmtVal}/4</span>
+                  </div>
+                  <div style="background:#e5e7eb;border-radius:100px;height:7px;overflow:hidden;">
+                    <div style="width:${pct}%;height:100%;background:${cor};border-radius:100px;transition:width 0.5s ease;"></div>
+                  </div>
                 </div>`;
             }).join('')}
           </div>
@@ -782,6 +802,29 @@
         </div>
 
         ${criteriosHtml}
+
+        <!-- Posição Nine Box (se disponível) -->
+        ${nbData && nbData.codigoQuadrante ? (() => {
+          // Mapa de cores por código — fonte única alinhada com CATEGORIAS_NB
+          const CORES_NB = {
+            B1:'#ef4444', B2:'#f97316', B3:'#f97316',
+            M1:'#eab308', M2:'#eab308', M3:'#84cc16',
+            A1:'#84cc16', A2:'#22c55e', A3:'#15803d'
+          };
+          const cor  = CORES_NB[nbData.codigoQuadrante] || '#6b7280';
+          const fmtN = n => n != null ? Number(n).toFixed(2).replace('.', ',') : '—';
+          return `
+          <div style="margin-top:16px">
+            <div class="rel-section-title"><i class="fa-solid fa-th"></i> Posição Nine Box</div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;align-items:center;">
+              <span style="padding:4px 14px;background:${cor}22;border:1.5px solid ${cor}66;border-radius:100px;font-size:13px;font-weight:700;color:${cor};">
+                ${nbData.codigoQuadrante} — ${nbData.nomeQuadrante || ''}
+              </span>
+              <span style="font-size:12px;color:var(--text-muted);">Desempenho: <strong style="color:var(--text)">${fmtN(nbData.performance)}</strong></span>
+              <span style="font-size:12px;color:var(--text-muted);">Potencial: <strong style="color:var(--text)">${fmtN(nbData.potential)}</strong></span>
+            </div>
+          </div>`;
+        })() : ''}
 
         <!-- Avaliações recebidas -->
         <div style="margin-top:20px">
@@ -1247,8 +1290,7 @@
 </div>
 
 <!-- Modal de Relatório Nine Box (análise individual e consolidada) -->
-<script src="../js/components/ninebox-report-modal.js"></script>
-<!-- ninebox-report-integration.js NÃO é carregado em relatorios.html:
-     os botões já são renderizados diretamente no template de cada card -->
+<!-- ?v=20260818 força o browser a buscar versão atualizada e ignorar cache -->
+<script src="../js/components/ninebox-report-modal.js?v=20260818"></script>
 </body>
 </html>
