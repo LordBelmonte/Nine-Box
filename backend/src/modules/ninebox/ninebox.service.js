@@ -12,14 +12,15 @@ class NineBoxService {
   }
 
   // Classifica uma nota em BAIXO, MÉDIO ou ALTO
-  // Faixas baseadas na escala 1-4 do sistema
+  // Nova regra: escala 1–4 dividida em três faixas iguais
+  // BAIXO: 1.00–2.33 | MÉDIO: 2.34–3.66 | ALTO: 3.67–4.00
+  // Implementação: limites fechados à esquerda, limite superior < para evitar sobreposição
   classifyScore(score) {
     if (score === null || score === undefined || isNaN(score)) return 'INDEFINIDO';
-    if (score < 1)    return 'INDEFINIDO'; // fora da escala válida
-    if (score <= 1.99) return 'BAIXO';
-    if (score <= 2.99) return 'MÉDIO';
-    if (score <= 4)   return 'ALTO';
-    return 'INDEFINIDO'; // acima de 4
+    if (score < 1 || score > 4) return 'INDEFINIDO'; // fora da escala válida
+    if (score < 2.34) return 'BAIXO';  // 1.00–2.33
+    if (score < 3.67) return 'MÉDIO';  // 2.34–3.66
+    return 'ALTO';                      // 3.67–4.00
   }
 
   // Calcula a categoria baseada em performance (X) e potential (Y)

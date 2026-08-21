@@ -306,18 +306,19 @@
   };
   const PERF_LABELS = { 1:'Baixo', 2:'Médio', 3:'Alto' };
 
-  // Função para converter nota para classe (1=Baixo, 2=Médio, 3=Alto)
-  // Alinhado com classifyScore do backend
+  // Converte nota (1–4) para classe inteira 1=Baixo, 2=Médio, 3=Alto
+  // NOVA REGRA (alinhada com classifyScore do backend):
+  // BAIXO: 1.00–2.33 | MÉDIO: 2.34–3.66 | ALTO: 3.67–4.00
   function getPerformanceClass(score) {
     if (score === null || score === undefined) return null;
-    if (score >= 1    && score <= 1.99) return 1; // Baixo
-    if (score >= 2    && score <= 2.99) return 2; // Médio
-    if (score >= 3    && score <= 4)    return 3; // Alto
-    return null;
+    if (score < 1 || score > 4) return null;
+    if (score < 2.34) return 1; // BAIXO
+    if (score < 3.67) return 2; // MÉDIO
+    return 3;                    // ALTO
   }
 
   function getPotentialClass(score) {
-    return getPerformanceClass(score); // Mesma lógica
+    return getPerformanceClass(score); // mesma regra para potencial
   }
 
   async function carregarGrid() {

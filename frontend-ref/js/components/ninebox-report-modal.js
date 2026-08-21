@@ -833,14 +833,15 @@ function formatarNota(nota) {
   return Number(nota).toFixed(2).replace('.', ',');
 }
 
-// Helper: Classificar nota em BAIXO/MÉDIO/ALTO — espelha exatamente o backend
-// Faixas: BAIXO=1–1.99, MÉDIO=2–2.99, ALTO=3–4
+// Helper: Classificar nota em BAIXO/MÉDIO/ALTO
+// NOVA REGRA — escala 1–4 em 3 faixas iguais, alinhada com backend:
+// BAIXO: 1.00–2.33 | MÉDIO: 2.34–3.66 | ALTO: 3.67–4.00
 function classifyScore(score) {
   if (score === null || score === undefined || isNaN(score)) return 'MÉDIO';
-  if (score >= 1 && score <= 1.99) return 'BAIXO';
-  if (score >= 2 && score <= 2.99) return 'MÉDIO';
-  if (score >= 3 && score <= 4)    return 'ALTO';
-  return 'MÉDIO'; // fallback seguro
+  if (score < 1 || score > 4) return 'MÉDIO'; // fora da escala → fallback seguro
+  if (score < 2.34) return 'BAIXO';
+  if (score < 3.67) return 'MÉDIO';
+  return 'ALTO';
 }
 
 // Helper: Mostrar toast (compatível com módulo e script normal)

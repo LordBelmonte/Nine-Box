@@ -439,14 +439,14 @@
   };
 
   // Converte float (escala 1-4) → inteiro de nível 1/2/3 (Baixo/Médio/Alto)
-  // FAIXAS OFICIAIS — alinhadas com classifyScore() do backend e nine-box.html
-  // 1.0–1.99 → 1 (BAIXO) | 2.0–2.99 → 2 (MÉDIO) | 3.0–4.0 → 3 (ALTO)
+  // NOVA REGRA — alinhada com classifyScore() do backend e getPerformanceClass() de nine-box.html:
+  // BAIXO: 1.00–2.33 → 1 | MÉDIO: 2.34–3.66 → 2 | ALTO: 3.67–4.00 → 3
   function nivelParaInt(valor) {
     if (valor === null || valor === undefined) return null;
-    if (valor >= 1 && valor <= 1.99) return 1;
-    if (valor >= 2 && valor <= 2.99) return 2;
-    if (valor >= 3 && valor <= 4)    return 3;
-    return null;
+    if (valor < 1 || valor > 4) return null;
+    if (valor < 2.34) return 1; // BAIXO
+    if (valor < 3.67) return 2; // MÉDIO
+    return 3;                    // ALTO
   }
 
   // Retorna a chave "perf-pot" de um item do allNineBoxData
